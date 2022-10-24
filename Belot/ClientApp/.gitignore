@@ -13,6 +13,9 @@
 # dependencies
 /node_modules
 
+#idk
+/.angular/cache
+
 # IDEs and editors
 /.idea
 .project

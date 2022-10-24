@@ -8,6 +8,12 @@ export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
 }
 
+export const gameOptions = {
+  cardWidth: 220,
+  cardHeight: 320,
+  tweens: 200
+};
+
 const providers = [
   { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
 ];
