@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import BelotGame from 'src/app/scenes/belot-game'
+import MainScene from 'src/app/scenes/main-scene'
 
 @Component({
   selector: 'app-home',
@@ -13,6 +13,6 @@ export class HomeComponent {
 
   openGameTable() {
     document.body.innerHTML = "";
-    var scene = new BelotGame();
+    var scene = new MainScene();
   }
 }

@@ -8,15 +8,15 @@ import SpinnerPlugin from 'phaser3-rex-plugins/templates/spinner/spinner-plugin'
   selector: 'thisIsNotComponent',
   templateUrl: './empty.html',
 })
-class BelotGame extends Scene {
+class MainScene extends Scene {
   constructor() {
     super("belot");
   }
 
   config: Phaser.Types.Core.GameConfig = {
+    backgroundColor: 0x00000,
     width: window.innerWidth,
-    height: window.innerHeight - 5,
-    backgroundColor: 0xecf0f1,
+    height: window.innerHeight,
     plugins: {
       scene: [{
         key: "rexSpinner",
@@ -26,7 +26,10 @@ class BelotGame extends Scene {
     },
     scene: [BootGameScene, GameTableScene],
     scale: {
-      mode: Phaser.Scale.ScaleModes.FIT
+      mode: Phaser.Scale.ScaleModes.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: window.innerWidth,
+      height: window.innerHeight,
     }
   };
 
@@ -52,4 +55,4 @@ class BelotGame extends Scene {
 }
 
 
-export default BelotGame
+export default MainScene

@@ -9,9 +9,10 @@ export function getBaseUrl() {
 }
 
 export const gameOptions = {
-  cardWidth: 220,
-  cardHeight: 320,
-  tweens: 200
+  cardWidth: 223,
+  cardHeight: 323,
+  tweens: 200,
+  arrangeByStrength: false
 };
 
 const providers = [
