@@ -60,15 +60,15 @@ export class GameTableSceneDemo extends Scene {
     //  this.boardArray[chosenTile.row][chosenTile.col].tileSprite.setFrame(0);
     //  this.boardArray[chosenTile.row][chosenTile.col].tileSprite.alpha = 0;
 
-    //  var tweenConfig = {
-    //    targets: [this.boardArray[chosenTile.row][chosenTile.col].tileSprite],
-    //    duration: gameOptions.tweens,
-    //    alpha: 1,
-    //    callbackScope: this,
-    //    onComplete: function () {
-    //      console.log("tween completed");
-    //    }
-    //  }
+      //var tweenConfig = {
+      //  targets: [this.boardArray[chosenTile.row][chosenTile.col].tileSprite],
+      //  duration: gameOptions.tweens,
+      //  alpha: 1,
+      //  callbackScope: this,
+      //  onComplete: function () {
+      //    console.log("tween completed");
+      //  }
+      //}
 
     //  this.tweens.add(tweenConfig);
     //}

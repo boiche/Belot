@@ -41,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\BelotEngine\utils.ts" />
     <None Remove="ClientApp\src\game-engine\phaser\.editorconfig" />
     <None Remove="ClientApp\src\game-engine\phaser\.eslintignore" />
     <None Remove="ClientApp\src\game-engine\phaser\.eslintrc.json" />
@@ -9197,6 +9198,10 @@
     <None Remove="ClientApp\src\game-engine\phaser\types\SpineFile.d.ts" />
     <None Remove="ClientApp\src\game-engine\phaser\types\SpineGameObject.d.ts" />
     <None Remove="ClientApp\src\game-engine\phaser\types\SpinePlugin.d.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\utils.ts" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

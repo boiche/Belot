@@ -1,16 +1,17 @@
 import { Scene } from "phaser"
 import BelotGame from "../BelotEngine/Belot";
 import Dealer from "../BelotEngine/Dealer";
+import Player from "../BelotEngine/Player";
 
 class GameTableScene extends Scene {
   windowWidth = window.innerWidth;
   windowHeight = window.innerHeight;
   _belotGame: BelotGame;
-  
+  players: Player[] = [];  
 
   constructor() {
     super('PlayBelot');
-    this._belotGame = new BelotGame;    
+    this._belotGame = new BelotGame();
   }  
 
   create() {
@@ -25,12 +26,11 @@ class GameTableScene extends Scene {
       duration: 1000
     });
 
-    this.cameras.main.once('fadeInComplete', function (camera: Phaser.Cameras.Scene2D.Camera) {
-      camera.fadeOut(1500);
+    this.cameras.main.once('camerafadeincomplete', function (camera: Phaser.Cameras.Scene2D.Camera) {
+      Dealer.FirstDeal();
     }); 
 
-    this.cameras.main.fadeIn(1500);
-    setTimeout(() => Dealer.FirstDeal(), 1500);
+    this.cameras.main.fadeIn(1500);    
   }
 }
 

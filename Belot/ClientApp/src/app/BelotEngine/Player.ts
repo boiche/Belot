@@ -2,16 +2,16 @@ import Card from "../GameObjects/Card";
 import { HandAnnouncement, GameAnnouncement, HandAnnouncementType } from "./Announcement";
 
 class Player {
-  constructor(playingHand: Card[], username: string) {
+  constructor(playingHand: Card[] | undefined, username: string) {
     this.playingHand = playingHand;
     this.username = username;
   }
 
   username: string;
-  playingHand: Card[];
+  playingHand: Card[] | undefined;
 
   checkTerca(): HandAnnouncement | null {
-    var sorted = this.playingHand.sort(
+    var sorted = this.playingHand?.sort(
       (x: Card, y: Card) =>
       {
         if (x.rank === y.rank)

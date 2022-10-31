@@ -1,6 +1,7 @@
 import { Game, GameObjects } from "phaser";
 import { gameOptions } from "../../main";
 import Card from "../GameObjects/Card";
+import Utils from "./utils";
 
 class HandPositionOptions {
   middlePoint: Phaser.Geom.Point = new Phaser.Geom.Point();
@@ -10,6 +11,8 @@ class HandPositionOptions {
   allignFunc!: (x: number) => number;
   initTiltAngleRadians: number = 0;
   stepTiltAngleRadians: number = 0;
+  readonly sceneMiddlePoint = new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight / 2);
+  isMainPlayer: boolean = false;
 
   threeAllignFunc = (i: number): number => { return 3.75 * Math.pow(i, 2) - 7.5 * i + 3.75; };
   //fourAllignFunc = (i: number): number => { return 0; };
@@ -34,32 +37,29 @@ class Dealer {
   static _scene: Phaser.Scene;
   static options: HandPositionOptions = new HandPositionOptions();
   static _dealtCards: Card[] = [];
+  static paths: Phaser.Curves.Path[] = [];
+  static awaitPreviousCard = false;
 
 
   public static setDealer(playerNumber: 0 | 1 | 2 | 3) {
     this.dealer = playerNumber;
   }
 
+  //TODO: sync operations and separate 3-deal and 2-deal. Refactor algorithm for allign hand (make it allign any quantity of cards in center)
   public static FirstDeal() {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
     this.options.allignFunc = this.options.threeAllignFunc;
 
-    this.CreateBacks(2);
+    this.CreateBacks(4);
     this._dealtCards = [];
-    setTimeout(() => this.Deal(2, 0), 1000);
-    setTimeout(() => this.Deal(2, 1), 1500);
-    setTimeout(() => this.Deal(2, 2), 2000);
-    setTimeout(() => this.Deal(2, 3), 2500);
+    this.Deal(2, 0);
+    this.Deal(2, 1);
+    this.Deal(2, 2);
+    this.Deal(2, 3);
 
-    setTimeout(() => {
-      this.options.allignFunc = this.options.fiveAllignFunc;
+    this._scene.update(Date.now(), 0);
 
-      setTimeout(() => this.CreateBacks(4), 250);
-      setTimeout(() => this.Deal(4, 0), 1000);
-      setTimeout(() => this.Deal(4, 1), 1500);
-      setTimeout(() => this.Deal(4, 2), 2000);
-      setTimeout(() => this.Deal(4, 3), 2500);
-    }, 3000);
+    this.options.allignFunc = this.options.fiveAllignFunc;
   }
 
   static Deal(endIndex: number, playerNumber: PlayerNumber) {
@@ -88,6 +88,7 @@ class Dealer {
         this.options.setCardsOffset(gameOptions.cardWidth / 3);
         this.options.initTiltAngleRadians = 6.2831853072; //360 deg
         this.options.stepTiltAngleRadians = 0.1745329252 / (endIndex - middleIndex); //20 deg
+        this.options.isMainPlayer = true;
         this.ArrangeMainPlayer(endIndex);
 
         var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
@@ -98,6 +99,7 @@ class Dealer {
         this.options.setCardsOffset(gameOptions.cardWidth / 2);
         this.options.initTiltAngleRadians = 1.5707963268; //360 deg
         this.options.stepTiltAngleRadians = 0.1745329252 / (endIndex - middleIndex); //20 deg
+        this.options.isMainPlayer = false;
         this.ArrangeLeftPlayer(endIndex);
 
         var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
@@ -108,6 +110,7 @@ class Dealer {
         this.options.setCardsOffset(gameOptions.cardWidth / 3);
         this.options.initTiltAngleRadians = 3.1415926536; //180 deg
         this.options.stepTiltAngleRadians = 0.1745329252 / (endIndex - middleIndex); //20 deg
+        this.options.isMainPlayer = false;
         this.ArrangeUpPlayer(endIndex);
 
         var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
@@ -118,6 +121,7 @@ class Dealer {
         this.options.setCardsOffset(gameOptions.cardWidth / 2);
         this.options.initTiltAngleRadians = 4.7123889804; //270 deg
         this.options.stepTiltAngleRadians = 0.1745329252 / (endIndex - middleIndex); //20 deg
+        this.options.isMainPlayer = false;
         this.ArrangeRightPlayer(endIndex);
 
         var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
@@ -127,12 +131,15 @@ class Dealer {
   }
 
   static CreateBacks(endIndex: number) {
-    this.options.setMiddlePoint(window.innerWidth / 2, 0);
-    this.options.setCardsOffset(gameOptions.cardWidth / 3);
-    var middleIndex = Math.ceil(endIndex / 2);
+    this.options.setMiddlePoint(window.innerWidth / 2, window.innerHeight / 2);
+
+    if (this._scene.children.getByName("scene_middle") === null) {
+      var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setName("scene_middle").setDepth(100);
+      graphics.fillPointShape(new Phaser.Geom.Point(this.options.middlePoint.x, this.options.middlePoint.y), 10);
+    }
 
     for (var j = 0; j < 4; j++) {
-      var group, indexOffset = 0;;
+      var group;
 
       if (this.backsGroups.length > j) {
         group = this.backsGroups[j];
@@ -145,44 +152,34 @@ class Dealer {
       for (var i = 0; i <= endIndex; i++) {
         var sprite;
 
-        if (indexOffset > i) {
-          indexOffset = 0;
-        }
-        else {
-          indexOffset++;
-        }
-
         if (group.children.entries.length <= i) {
           sprite = this._scene.add.sprite(0, 0, 'cardBack', 0)
             .setVisible(false)
             .setDepth(2 + i)
             .setScale(0.5, 0.5)
-            .setOrigin(0);            
+            .setOrigin(0)
+            .setX(this.options.middlePoint.x - gameOptions.cardWidth / 4)
+            .setY(this.options.middlePoint.y - gameOptions.cardHeight / 4 + this.options.allignFunc(i));
 
           group.add(sprite);
         }
         else {
           sprite = group.children.entries[i] as GameObjects.Sprite;
         }
+      }
 
-        sprite
-          .setX(this.options.middlePoint.x - (this.options.cardsOffset * (middleIndex - indexOffset)))
-          .setY(this.options.middlePoint.y + this.options.allignFunc(i));
+      if (j % 2 == 1) {
+        group.rotate(1.5707963268);
       }
     }
   }
 
   static ArrangeMainPlayer(endIndex: number) {
-    var middleIndex = Math.ceil((this.backsGroups[3].children.entries.length - 1) / 2);
-    var middleSprite = (this.backsGroups[3].children.entries as GameObjects.Sprite[])[middleIndex];
-
-    this.backsGroups[3]
-      .incY(this.options.middlePoint.y - middleSprite.y)
-      .incX(this.options.middlePoint.x - middleSprite.x - gameOptions.cardWidth / 4)
-      .rotateAround(this.options.middlePoint, this.options.initTiltAngleRadians);
+    var group = this.backsGroups[0];
 
     var card: Card;
     for (var i = 0; i <= endIndex; i++) {
+
       if (this._dealtCards.length > i) {
         card = this._dealtCards[i];
       }
@@ -193,86 +190,34 @@ class Dealer {
         while (this._dealtCards.includes(card))
       }
 
-
-      var sprite = this.backsGroups[3].children.entries[i] as GameObjects.Sprite;
-      sprite
-        .setRotation(this.options.initTiltAngleRadians - this.options.stepTiltAngleRadians * (middleIndex - i));
-
-      if (!sprite.visible) {
-        this.backsGroups[3].children.entries[i] =
-          sprite
-            .setTexture(card.sprite.texture.key, card.sprite.frame.name)
-            .setName(card.sprite.name)
-            .setVisible(true)
-            .setInteractive()            
-            .on('pointerover', function (this: GameObjects.Sprite, e: any) {
-              this.y -= 15;
-              this.input.cursor = 'hand';
-            }, sprite)
-            .on('pointerout', function (this: GameObjects.Sprite, event: any) {
-              this.y += 15;
-              this.input.cursor = 'pointer';
-            }, sprite);       
-      }
-
       if (this._dealtCards.length > i == false)
         this._dealtCards.push(card);
 
       if (gameOptions.arrangeByStrength)
         this.ArrangeHandByStrength();
     }
+
+    this.createTimeline(group, { ...this.options } as HandPositionOptions);
   }
 
   static ArrangeRightPlayer(endIndex: number) {
-    var middleIndex = Math.ceil((this.backsGroups[3].children.entries.length - 1) / 2);
+    var group = this.backsGroups[1];
     this.options.allignFunc = function (i) { return -(3.75 * Math.pow(i, 2) - 15 * i + 15); };
-    var middleSprite = (this.backsGroups[0].children.entries as GameObjects.Sprite[])[middleIndex];
 
-    this.backsGroups[0]
-      .setVisible(true)
-      .incY(this.options.middlePoint.y - middleSprite.y)
-      .incX(this.options.middlePoint.x - middleSprite.x - gameOptions.cardWidth / 4)
-      .rotateAround(this.options.middlePoint, this.options.initTiltAngleRadians);
-
-    for (var i = 0; i < this.backsGroups[0].children.entries.length; i++) {
-      var sprite = (this.backsGroups[0].children.entries[i] as Phaser.GameObjects.Sprite);
-      sprite
-        .setRotation(this.options.initTiltAngleRadians - this.options.stepTiltAngleRadians * (middleIndex - i));
-    }
+    this.createTimeline(group, { ...this.options } as HandPositionOptions);
   }
 
   static ArrangeUpPlayer(endIndex: number) {
-    var middleIndex = Math.ceil((this.backsGroups[3].children.entries.length - 1) / 2);
+    var group = this.backsGroups[2];
     this.options.allignFunc = function (i) { return -(3.75 * Math.pow(i, 2) - 15 * i + 15); };
-    var middleSprite = (this.backsGroups[2].children.entries as Phaser.GameObjects.Sprite[])[middleIndex];
 
-    this.backsGroups[2]
-      .setVisible(true)
-      .incY(this.options.middlePoint.y - middleSprite.y + gameOptions.cardHeight / 2)
-      .incX(this.options.middlePoint.x - middleSprite.x + gameOptions.cardWidth / 4)
-      .rotateAround(this.options.middlePoint, this.options.initTiltAngleRadians);
-
-    for (var i = 0; i < this.backsGroups[2].children.entries.length; i++) {
-      var sprite = (this.backsGroups[2].children.entries[i] as Phaser.GameObjects.Sprite);
-      sprite
-        .setRotation(-this.options.stepTiltAngleRadians * (middleIndex - i));
-    }
+    this.createTimeline(group, { ...this.options } as HandPositionOptions);
   }
 
   static ArrangeLeftPlayer(endIndex: number) {
-    var middleIndex = Math.ceil((this.backsGroups[3].children.entries.length - 1) / 2);
-    var middleSprite = (this.backsGroups[1].children.entries as Phaser.GameObjects.Sprite[])[middleIndex];
+    var group = this.backsGroups[3];
 
-    this.backsGroups[1]
-      .setVisible(true)
-      .incY(this.options.middlePoint.y - middleSprite.y)
-      .incX(this.options.middlePoint.x - middleSprite.x - gameOptions.cardWidth / 4)
-      .rotateAround(this.options.middlePoint, this.options.initTiltAngleRadians);
-
-    for (var i = 0; i < this.backsGroups[1].children.entries.length; i++) {
-      (this.backsGroups[1].children.entries[i] as Phaser.GameObjects.Sprite)
-        .setRotation(this.options.initTiltAngleRadians - this.options.stepTiltAngleRadians * (middleIndex - i));
-    }
+    this.createTimeline(group, { ...this.options } as HandPositionOptions);
   }
 
   static initDeck() {
@@ -295,9 +240,81 @@ class Dealer {
     }
   }
 
+  static createTimeline(group: Phaser.GameObjects.Group, options: HandPositionOptions) {
+    var _targets = group.children.entries.slice(0, 3);
+    var middleIndex = Math.ceil(_targets.length / 2) - 1;
+    var timeLineThree = this._scene.tweens.createTimeline();
+
+    timeLineThree.add({
+      targets: _targets,
+      y: this.options.middlePoint.y,
+      x: this.options.middlePoint.x - gameOptions.cardWidth / 4,
+      ease: 'Sine.easeOut',
+      delay: this._scene.tweens.stagger(200, {}),
+      duration: 500,
+      onComplete: this.showCard,
+      onCompleteParams: [this._dealtCards, group, middleIndex, options],
+      onStart: this.dealCard,
+      onStartParams: [group, options],
+      callbackContext: this._scene
+    });
+
+    middleIndex = Math.ceil(5 / 2) - 1;
+    
+    timeLineThree.add({
+      targets: group.children.entries.slice(3, 5),
+      y: this.options.middlePoint.y,
+      x: this.options.middlePoint.x - gameOptions.cardWidth / 4,
+      ease: 'Sine.easeOut',
+      delay: this._scene.tweens.stagger(200, {}),
+      duration: 500,
+      onComplete: this.showCard,
+      onCompleteParams: [this._dealtCards, group, middleIndex, options],
+      onStart: this.dealCard,
+      onStartParams: [group],
+      callbackContext: this._scene
+    });
+
+    timeLineThree.play();
+  }
+
+  static dealCard(tween: Phaser.Tweens.Tween, targets: Phaser.GameObjects.Sprite[], group: GameObjects.Group, options: HandPositionOptions) {
+    targets.forEach((x) => x
+      .setVisible(true)
+      .setRotation(options.initTiltAngleRadians));
+    console.log('started dealing ' + targets.length);
+  }
+
+  static showCard(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[], dealtCards: Card[], group: GameObjects.Group, middleIndex: number, options: HandPositionOptions) {
+    console.log('finishing dealing ' + group.children.entries.length);
+
+    targets.forEach((sprite, i, targets) => {
+      sprite
+        .setRotation(options.initTiltAngleRadians);
+
+      sprite.x -= options.cardsOffset * (middleIndex - i);
+      sprite.y += options.allignFunc(i);
+
+      if (options.isMainPlayer) {
+        sprite
+          .setTexture(dealtCards[i].sprite.texture.key, dealtCards[i].sprite.frame.name)
+          .setName(dealtCards[i].sprite.name)
+          .setInteractive()
+          .on('pointerover', function (this: GameObjects.Sprite, e: any) {
+            this.y -= 15;
+            this.input.cursor = 'hand';
+          }, targets[i])
+          .on('pointerout', function (this: GameObjects.Sprite, event: any) {
+            this.y += 15;
+            this.input.cursor = 'pointer';
+          }, targets[i]);
+      }
+    });
+  }
+
   static ArrangeHandByStrength() {
     throw new Error("Method not implemented.");
-  }
+  }  
 }
 
 export default Dealer
