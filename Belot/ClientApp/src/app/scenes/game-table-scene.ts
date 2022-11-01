@@ -1,4 +1,5 @@
-import { Scene } from "phaser"
+import { GameObjects, Scene } from "phaser"
+import { gameOptions } from "../../main";
 import BelotGame from "../BelotEngine/Belot";
 import Dealer from "../BelotEngine/Dealer";
 import Player from "../BelotEngine/Player";
@@ -7,11 +8,13 @@ class GameTableScene extends Scene {
   windowWidth = window.innerWidth;
   windowHeight = window.innerHeight;
   _belotGame: BelotGame;
-  players: Player[] = [];  
+  players: Player[] = [];
+  center: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0);
+  container!: Phaser.GameObjects.Container;
 
   constructor() {
     super('PlayBelot');
-    this._belotGame = new BelotGame();
+    this._belotGame = new BelotGame();    
   }  
 
   create() {
@@ -27,10 +30,12 @@ class GameTableScene extends Scene {
     });
 
     this.cameras.main.once('camerafadeincomplete', function (camera: Phaser.Cameras.Scene2D.Camera) {
-      Dealer.FirstDeal();
+      Dealer.FirstDeal();      
     }); 
 
-    this.cameras.main.fadeIn(1500);    
+    this.cameras.main.fadeIn(1500);
+
+    this.center = new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight / 2);
   }
 }
 
