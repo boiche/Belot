@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\app\BelotEngine\utils.ts" />
+    <None Remove="ClientApp\src\app\GameObjects\GameAnnouncementsPopUp.ts" />
     <None Remove="ClientApp\src\game-engine\phaser\.editorconfig" />
     <None Remove="ClientApp\src\game-engine\phaser\.eslintignore" />
     <None Remove="ClientApp\src\game-engine\phaser\.eslintrc.json" />
@@ -9202,6 +9203,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\utils.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\GameAnnouncementsPopUp.ts" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

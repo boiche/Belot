@@ -12,8 +12,23 @@ export const gameOptions = {
   cardWidth: 223,
   cardHeight: 323,
   tweens: 200,
-  arrangeByStrength: false
+  arrangeByStrength: true
 };
+
+export const constants = {
+  belotGameObjectName: 'belotObject',
+  clubGameAnnouncement: 'clubsGameAnnouncement',
+  diamondsGameAnnouncement: 'diamondsGameAnnouncement',
+  heartsGameAnnouncement: 'heartsGameAnnouncement',
+  spadesGameAnnouncement: 'spadesGameAnnouncement',
+  noSuitGameAnnouncement: 'noSuitGameAnnouncement',
+  allSuitsGameAnnouncement: 'allSuitsGameAnnouncement',
+  doubleGameAnnouncement: 'doubleGameAnnouncement',
+  redoubleGameAnnouncement: 'redoubleGameAnnouncement',
+  passGameAnnouncement: 'passGameAnnouncement',
+  gameAnnouncementsBackground: 'gameAnnouncementsBackground',
+  cardBack: 'cardBack'
+}
 
 const providers = [
   { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }

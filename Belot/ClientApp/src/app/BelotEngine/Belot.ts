@@ -5,7 +5,8 @@ import Player from "./Player";
 
 class BelotGame {
   playerToPlay!: 0 | 1 | 2 | 3;
-  currentAnnounce!: GameAnnouncement;
+  currentAnnounce!: GameAnnouncement | null;
+  counter!: GameAnnouncement | null;
   teams: Team[] = [];
 
   constructor() {
