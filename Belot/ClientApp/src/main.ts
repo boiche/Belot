@@ -8,6 +8,8 @@ export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
 }
 
+export const belotServerAPI = "https://localhost:7126";
+
 export const gameOptions = {
   cardWidth: 223,
   cardHeight: 323,

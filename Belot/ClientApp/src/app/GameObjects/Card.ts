@@ -17,9 +17,9 @@ class Card {
 }
 
 enum Suit {
-  DIAMOND,
-  HEART,
   CLUB,
+  DIAMOND,
+  HEART,  
   SPADE
 }
 

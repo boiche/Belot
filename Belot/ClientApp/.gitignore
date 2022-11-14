@@ -15,6 +15,7 @@
 
 #idk
 /.angular/cache
+/.angular
 
 # IDEs and editors
 /.idea
