@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
+import Utils from "../BelotEngine/utils";
 
 class BootGameScene extends Scene {
   constructor() {
@@ -35,10 +36,7 @@ class BootGameScene extends Scene {
   }
 
   create() {
-    console.log("game is booting...");
-    this.add.image(0, 0, "background").setDisplaySize(window.innerWidth, window.innerHeight).setOrigin(0);
-    // simulate longer loading process
-    setTimeout(() => { console.log('completed'); this.scene.start("PlayBelot"); }, 2500);
+    this.scene.start("LoadingBelot");
   }
 }
 

@@ -3,6 +3,8 @@ import { Scene } from 'phaser'
 import BootGameScene from './boot-game-scene';
 import GameTableScene from './game-table-scene';
 import SpinnerPlugin from 'phaser3-rex-plugins/templates/spinner/spinner-plugin';
+import { HubConnection } from '@microsoft/signalr';
+import LoadingScene from './loading-scene';
 
 @Component({
   selector: 'thisIsNotComponent',
@@ -24,7 +26,7 @@ class MainScene extends Scene {
         mapping: "rexSpinner"
       }]
     },
-    scene: [BootGameScene, GameTableScene],
+    scene: [BootGameScene, LoadingScene, GameTableScene],
     scale: {
       mode: Phaser.Scale.ScaleModes.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,

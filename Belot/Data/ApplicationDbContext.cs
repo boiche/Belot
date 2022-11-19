@@ -1,4 +1,5 @@
-﻿using Belot.Models;
+﻿using Belot.Data.Configurations;
+using Belot.Models;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,15 @@ namespace Belot.Data
             : base(options, operationalStoreOptions)
         {
 
+        }
+
+        public DbSet<Game> Games { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.ApplyConfiguration(new GameConfiguration());
+            
+            base.OnModelCreating(builder);
         }
     }
 }

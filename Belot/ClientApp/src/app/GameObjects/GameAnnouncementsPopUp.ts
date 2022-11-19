@@ -62,14 +62,14 @@ class GameAnnouncementsPopUp {
         .setName(constants.belotGameObjectName + counters[i].texture.key)
         .setTint(disabledColor);
 
-      if (this.scene._belotGame.currentAnnounce) {
-        counters[i]
-          .clearTint()
-          .setInteractive({ cursor: 'pointer' })
-          .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
-          .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
-          .on('pointerdown', function (this: GameObjects.Sprite, event: any) { console.log('clicked ' + this.texture.key); });
-      }
+      //if (this.scene._belotGame.currentAnnounce) {
+      //  counters[i]
+      //    .clearTint()
+      //    .setInteractive({ cursor: 'pointer' })
+      //    .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
+      //    .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
+      //    .on('pointerdown', function (this: GameObjects.Sprite, event: any) { console.log('clicked ' + this.texture.key); });
+      //}
     }
 
     first = counters[0];

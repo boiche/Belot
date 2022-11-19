@@ -1,8 +1,7 @@
-import { GameObjects, Scene } from "phaser"
-import { count } from "rxjs/operators";
+import { GameObjects, Scene } from "phaser";
 import { constants } from "../../main";
 import { GameAnnouncement, GameAnnouncementType } from "../BelotEngine/Announcement";
-import BelotGame from "../BelotEngine/Belot";
+import BelotGame from "../BelotEngine/BelotGame";
 import Dealer from "../BelotEngine/Dealer";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 
@@ -75,16 +74,16 @@ class GameTableScene extends Scene {
   announce(announcement: string) {
     this.gameAnnouncements.hide();
 
-    switch (announcement) {
-      case constants.clubGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.CLUBS); break;
-      case constants.diamondsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.DIAMONDS); break;
-      case constants.heartsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.HEARTS); break;
-      case constants.spadesGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.SPADES); break;
-      case constants.noSuitGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.NOSUIT); break;
-      case constants.allSuitsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.ALLSUITS); break;
-      case constants.doubleGameAnnouncement: this._belotGame.counter = new GameAnnouncement(GameAnnouncementType.COUNTER); break;
-      case constants.redoubleGameAnnouncement: this._belotGame.counter = new GameAnnouncement(GameAnnouncementType.RECOUNTER); break;      
-    }
+    //switch (announcement) {
+    //  case constants.clubGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.CLUBS); break;
+    //  case constants.diamondsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.DIAMONDS); break;
+    //  case constants.heartsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.HEARTS); break;
+    //  case constants.spadesGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.SPADES); break;
+    //  case constants.noSuitGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.NOSUIT); break;
+    //  case constants.allSuitsGameAnnouncement: this._belotGame.currentAnnounce = new GameAnnouncement(GameAnnouncementType.ALLSUITS); break;
+    //  case constants.doubleGameAnnouncement: this._belotGame.counter = new GameAnnouncement(GameAnnouncementType.COUNTER); break;
+    //  case constants.redoubleGameAnnouncement: this._belotGame.counter = new GameAnnouncement(GameAnnouncementType.RECOUNTER); break;      
+    //}
 
     this.dealer.SecondDeal();
   }
