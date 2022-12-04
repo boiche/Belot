@@ -1,5 +1,8 @@
 ﻿namespace Belot.Models
 {
+    /// <summary>
+    /// Describes an object that is mapped to EF
+    /// </summary>
     public abstract class DataEntity
     {
         public DataEntity()

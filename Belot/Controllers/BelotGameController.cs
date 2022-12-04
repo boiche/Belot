@@ -24,6 +24,7 @@ namespace Belot.Controllers
         public GetAvailableGamesResponse GetAvailableGames()
         {
             var result = this._context.Games.Where(x => x.ConnectedPlayers < 4).ToList();
+            //var result = this._context.Games.Where(x => x.ConnectedPlayers < 4 && !x.HasStarted).ToList();
             return new GetAvailableGamesResponse()
             {
                 games = result

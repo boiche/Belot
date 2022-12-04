@@ -4,7 +4,9 @@
     <tr>
       <th>GameId</th>
       <th>Connected Players</th>
-      <th></th>
+      <th>
+        <div class="btn btn-outline-info" (click)="obtainGames()">Refresh</div>
+      </th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-game>

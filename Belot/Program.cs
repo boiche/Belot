@@ -1,5 +1,8 @@
 using Belot.Data;
 using Belot.Models;
+using Belot.Services;
+using Belot.Services.Belot;
+using Belot.Services.Interfaces;
 using Belot.SignalR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +37,7 @@ builder.Services.AddAuthentication()
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
 
 var app = builder.Build();
 

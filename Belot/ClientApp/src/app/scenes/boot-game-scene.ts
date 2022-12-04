@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
-import Utils from "../BelotEngine/utils";
+import { SignalRPlugin } from './main-scene';
 
 class BootGameScene extends Scene {
   constructor() {
@@ -37,6 +37,8 @@ class BootGameScene extends Scene {
 
   create() {
     this.scene.start("LoadingBelot");
+    var signalR = (this.plugins.get('signalR') as unknown as SignalRPlugin).Connection;
+    signalR.invoke("AwaitGame");
   }
 }
 

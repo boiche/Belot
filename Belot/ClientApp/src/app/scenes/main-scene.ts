@@ -2,31 +2,30 @@ import { Component, HostListener } from '@angular/core';
 import { Scene } from 'phaser'
 import BootGameScene from './boot-game-scene';
 import GameTableScene from './game-table-scene';
-import SpinnerPlugin from 'phaser3-rex-plugins/templates/spinner/spinner-plugin';
-import { HubConnection } from '@microsoft/signalr';
 import LoadingScene from './loading-scene';
+import ISignalRProxy from '../proxies/interfaces/ISignalRProxy';
+import SignalRProxy from '../proxies/signalRProxy';
 
 @Component({
   selector: 'thisIsNotComponent',
   templateUrl: './empty.html',
 })
 class MainScene extends Scene {
-  constructor() {
+  constructor(private connection: SignalRProxy) {
     super("belot");
+    this.connection = connection;
   }
 
   config: Phaser.Types.Core.GameConfig = {
     backgroundColor: 0x00000,
     width: window.innerWidth,
-    height: window.innerHeight,
-    plugins: {
-      scene: [{
-        key: "rexSpinner",
-        plugin: SpinnerPlugin,
-        mapping: "rexSpinner"
-      }]
-    },
+    height: window.innerHeight,    
     scene: [BootGameScene, LoadingScene, GameTableScene],
+    plugins: {
+      global: [
+        { key: 'signalR', plugin: SignalRPlugin, start: true, data: this.connection }
+      ]
+    },
     scale: {
       mode: Phaser.Scale.ScaleModes.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -56,5 +55,22 @@ class MainScene extends Scene {
   }
 }
 
+class SignalRPlugin extends Phaser.Plugins.BasePlugin {
+  private connection: ISignalRProxy;
 
-export default MainScene
+  constructor(pluginManager: Phaser.Plugins.PluginManager) {
+    super(pluginManager);
+    this.connection = SignalRProxy.prototype;
+  }
+
+  init(connection: ISignalRProxy) {
+    this.pluginManager.registerGameObject('connection', () => connection);
+    this.connection = connection;
+  }
+
+  public get Connection() {
+    return this.connection;
+  }
+}
+
+export { MainScene, SignalRPlugin }

@@ -9,7 +9,7 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
-import MainScene from './scenes/main-scene';
+import { MainScene } from './scenes/main-scene';
 import SignalRProxy from './proxies/signalRProxy';
 import BelotProxy from './proxies/belotProxy';
 

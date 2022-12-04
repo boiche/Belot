@@ -4,6 +4,12 @@
     {
         public Suit Suit { get; set; }
         public Rank Rank { get; set; }
+        public int FrameIndex { get; set; }
+
+        public override string ToString()
+        {
+            return $"Rank: {Rank}, Suit: {Suit}, FrameIndex: {FrameIndex}";
+        }
     }
 
     public enum Suit

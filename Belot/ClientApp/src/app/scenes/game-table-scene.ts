@@ -1,28 +1,30 @@
 import { GameObjects, Scene } from "phaser";
 import { constants } from "../../main";
-import { GameAnnouncement, GameAnnouncementType } from "../BelotEngine/Announcement";
-import BelotGame from "../BelotEngine/BelotGame";
 import Dealer from "../BelotEngine/Dealer";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
+import { SignalRPlugin } from "./main-scene";
 
 class GameTableScene extends Scene {
   windowWidth = window.innerWidth;
   windowHeight = window.innerHeight;
-  _belotGame: BelotGame;
   center: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0);
   dealer: Dealer;
   gameAnnouncements: GameAnnouncementsPopUp;
+  signalR!: SignalRPlugin;
+  gameId: string = "";
 
   constructor() {
     super('PlayBelot');
-    this._belotGame = new BelotGame();
     this.dealer = new Dealer();
-    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
+    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);    
   }  
 
-  create() {
+  create(gameId: any) {
+    this.gameId = gameId;
+    this.signalR = this.plugins.get('signalR') as SignalRPlugin;
     this.dealer._scene = this;
-    this.dealer.initDeck();
+    this.dealer._signalR = this.signalR;
+
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)
       .setOrigin(0)
@@ -36,10 +38,16 @@ class GameTableScene extends Scene {
       ease: Phaser.Math.Easing.Sine.Out,
       yoyo: false,
       duration: 1000
-    });    
+    });       
 
     this.cameras.main.once('camerafadeincomplete', function (camera: Phaser.Cameras.Scene2D.Camera) {
-      (camera.scene as GameTableScene).deal();
+      var scene = (camera.scene as GameTableScene);
+
+      // place players
+
+      scene.signalR.Connection.invoke('GetGameInfo', gameId).then((info: any) => {
+        scene.deal(info.dealerPlayer);
+      });      
     });    
     this.cameras.main.fadeIn(1500);
   }
@@ -52,13 +60,13 @@ class GameTableScene extends Scene {
     }
   }
 
-  deal() {
-    this.dealer.FirstDeal();
+  deal(playerNumber: PlayerNumber) {
+    this.dealer.FirstDeal(playerNumber);
   }  
   
   dealNew() {
     this.clearScene();
-    this.deal();
+    this.deal(0);
   }
 
   clearScene() {
@@ -85,7 +93,7 @@ class GameTableScene extends Scene {
     //  case constants.redoubleGameAnnouncement: this._belotGame.counter = new GameAnnouncement(GameAnnouncementType.RECOUNTER); break;      
     //}
 
-    this.dealer.SecondDeal();
+    //this.dealer.SecondDeal();
   }
 }
 

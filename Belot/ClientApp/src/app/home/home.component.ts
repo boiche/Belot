@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Guid } from 'guid-typescript';
-import MainScene from 'src/app/scenes/main-scene';
+import { MainScene } from 'src/app/scenes/main-scene';
 import BelotGame from '../BelotEngine/BelotGame';
 import BelotProxy from '../proxies/belotProxy';
 import SignalRProxy from '../proxies/signalRProxy';
@@ -13,14 +13,18 @@ import JoinGameRequest from '../server-api/requests/join-game-request';
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
-  scene!: Phaser.Scene;
   games: BelotGame[] = [];
+  scene: Phaser.Scene | undefined = undefined;
 
   constructor(private _router: Router, private _signalR: SignalRProxy, private belotProxy: BelotProxy) {
    
   }
 
   ngOnInit() {
+    this.obtainGames();
+  }
+
+  obtainGames() {
     var request = new GetAvailableGamesRequest();
     request.requestUrl = 'BelotGame/GetAvailableGames';
     this.belotProxy.getAvailableGames(request).subscribe((res) => {
@@ -30,27 +34,38 @@ export class HomeComponent implements OnInit {
 
   openGameTable(gameId: string) {
     document.body.innerHTML = "";
-    this._signalR.createConnection().startConnection().then(() => {
-      var scene = new MainScene();
+    var connection = this._signalR.createConnection();
+    this.scene = new MainScene(connection as SignalRProxy);
+    connection.startConnection().then(() => {      
       var request = new JoinGameRequest();
       request.gameId = gameId;
       this._signalR.invoke("JoinGame", request).then(function () {
-        scene.game.scene.start('PlayBelot');
+        //scene.game.scene.start('PlayBelot');
       }).catch((error) => {
         console.error(error);
       });
-    });;                
+    });
+
+    this._signalR.on('StartGame', (gameId) => {
+      console.log('game started');
+      this.scene?.game.scene.start('PlayBelot', gameId);
+    })
   }
 
   createGameTable() {
     document.body.innerHTML = "";
-    var scene = new MainScene(); 
-    this._signalR.createConnection().startConnection().then(() => {
+    var connection = this._signalR.createConnection();
+    this.scene = new MainScene(connection as SignalRProxy);
+    connection.startConnection().then(() => {
       this._signalR.invoke("CreateGame").then(function () {
-        scene.game.scene.start('PlayBelot');
+        //scene.game.scene.start('PlayBelot');
       }).catch((error) => {
         console.error(error);
       });  
     });
+
+    this._signalR.on('StartGame', (gameId) => {
+      this.scene?.game.scene.start('PlayBelot', gameId);
+    })
   }
 }
