@@ -19,7 +19,7 @@ namespace Belot.Services.Belot
         private void Shuffle()
         {
             Random random = new();
-            for (int i = 0, index = 0, randomIndex = random.Next(0, 32); i < this.Count * 2; i++, index++)
+            for (int i = 0, index = 0, randomIndex = random.Next(0, 32); i < 1024; i++, index++)
             {
                 while (randomIndex == index)
                 {

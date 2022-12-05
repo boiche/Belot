@@ -80,10 +80,33 @@ namespace Belot.SignalR
         public GetGameInfoResponse GetGameInfo(string gameId)
         {
             Guid.TryParse(gameId, out Guid id);
+
             return new GetGameInfoResponse()
             {
-                DealerPlayer = judgeManager.Judges[id].DealerPlayer
+                DealerPlayer = GetDealerIndex(id)
             };
+        }
+
+        /// <summary>
+        /// Gets the dealer seat based on current player's seat
+        /// </summary>
+        /// <param name="currentPlayer"></param>
+        /// <returns></returns>
+        private int GetDealerIndex(Guid id)
+        {
+            int dealerPlayer = judgeManager.Judges[id].DealerPlayer;
+            int currentPlayer = judgeManager.Judges[id].GetPlayer(Context.ConnectionId).PlayerIndex;
+            int result = 0;
+
+            while (currentPlayer != dealerPlayer)
+            {
+                result++;
+                currentPlayer++;
+                if (currentPlayer > 3)
+                    currentPlayer = 0;
+            }
+
+            return result;
         }
 
         public async Task CreateGame()
