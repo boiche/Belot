@@ -1,5 +1,6 @@
 ﻿using Belot.Data;
 using Belot.Models;
+using Belot.Models.Http.Requests;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Models.Http.Responses.SignalR;
 using Belot.Services.Belot;
@@ -31,11 +32,9 @@ namespace Belot.SignalR
         {
             Guid gameId = request.GameId;
 
-            gameEntry ??= context.Games.FirstOrDefault(x => x.Id == gameId);
+            gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
-            {
                 await CreateGame();
-            }
             
             
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
@@ -46,18 +45,18 @@ namespace Belot.SignalR
                 ConnectionId = Context.ConnectionId
             });
 
-            //if (gameEntry.ConnectedPlayers == 4)
-            //{
-            //    StartGames(gameId);
-            //    gameEntry.HasStarted = true;
-            //}
+            if (gameEntry.ConnectedPlayers == 4)
+            {
+                StartGames(gameId);
+                gameEntry.HasStarted = true;
+            }
 
-            StartGames(gameId);
+            //StartGames(gameId);
 
             context.SaveChanges();
         }
 
-        private async Task StartGames(Guid gameId)
+        private Task StartGames(Guid gameId)
         {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -69,7 +68,8 @@ namespace Belot.SignalR
 
             }
 
-            await Clients.Group(gameId.ToString()).StartGame(gameId);
+            Clients.Group(gameId.ToString()).StartGame(gameId);
+            return Task.CompletedTask;
         }
 
         public Task StartGame(Guid gameId)
@@ -79,7 +79,8 @@ namespace Belot.SignalR
 
         public GetGameInfoResponse GetGameInfo(string gameId)
         {
-            Guid.TryParse(gameId, out Guid id);
+            if (!Guid.TryParse(gameId, out Guid id))
+                throw new ArgumentException($"GetGameInfo expected valid Guid. Received: {gameId}");
 
             return new GetGameInfoResponse()
             {
@@ -120,8 +121,9 @@ namespace Belot.SignalR
                 ConnectedPlayers = 0,
             };
 
-            context.Games.Add(gameEntry);            
-            await JoinGame(new JoinGameRequest() { GameId = gameId });            
+            context.Games.Add(gameEntry);
+            context.SaveChanges();
+            await JoinGame(new JoinGameRequest() { GameId = gameId });              
         }
 
         public async Task LeaveGame(LeaveGameRequest request)
@@ -130,7 +132,7 @@ namespace Belot.SignalR
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            gameEntry ??= context.Games.FirstOrDefault(x => x.Id == gameId);
+            gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
             {
                 await CreateGame();
@@ -149,21 +151,35 @@ namespace Belot.SignalR
             }
         }      
 
-        public async Task DealCards(DealCardsRequest request)
+        public Task DealCards(DealCardsRequest request)
         {
             judgeManager.Judges[request.GameId].DealCards(Context.ConnectionId, request.Count);
+            return Task.CompletedTask;
         }
 
-        public async Task AwaitGame()
+        public Task AwaitGame()
         {
-            Debug.WriteLine("");
-            Debug.WriteLine("Player with connection " + Context.ConnectionId + " has joined the game");
-            Debug.WriteLine("");
+            DebugHelper.WriteLine(() => "Player with connection " + Context.ConnectionId + " has joined the game");
+
+            return Task.CompletedTask;
         }
 
-        public Player GetPlayerInfo(Guid gameId)
+        public Task Pass(string gameId)
         {
-            return judgeManager.Judges[gameId].GetPlayer(Context.ConnectionId);
+            Guid.TryParse(gameId, out Guid id);
+            judgeManager.Judges[id].NextToPlay();
+            return Clients.Group(id.ToString()).RefreshPlayer();
+        }
+
+        public Player GetPlayerInfo(string gameId)
+        {
+            Guid.TryParse(gameId, out Guid id);
+            return judgeManager.Judges[id].GetPlayer(Context.ConnectionId);
+        }
+
+        public Task RefreshPlayer()
+        {
+            return Task.CompletedTask;
         }
     }
 }

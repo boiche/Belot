@@ -1,11 +1,18 @@
+import { Guid } from "guid-typescript";
 import { GameObjects } from "phaser"
 import { constants } from "../../main";
+import ISignalRProxy from "../proxies/interfaces/ISignalRProxy";
 import GameTableScene from "../scenes/game-table-scene";
+import { SignalRPlugin } from "../scenes/main-scene";
+import BaseRequest from "../server-api/requests/base-request";
+import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
 
 class GameAnnouncementsPopUp {
   sprites: GameObjects.Sprite[];
   scene: GameTableScene;
   depth: number;
+  shown: boolean = false;
+  signalR!: SignalRPlugin; 
 
   constructor(scene: GameTableScene, depth: number) {
     this.sprites = [];
@@ -90,7 +97,10 @@ class GameAnnouncementsPopUp {
       .setName(constants.belotGameObjectName + constants.passGameAnnouncement)
       .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
       .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
-      .on('pointerdown', function (this: GameObjects.Sprite, event: any) { (this.scene as GameTableScene).dealNew(); })
+      .on('pointerdown', function (this: GameObjects.Sprite, event: any) {
+        var scene = (this.scene as GameTableScene);
+        scene.signalR.Connection.invoke("Pass", scene.gameId);
+      })
       .setX(first.x + first.width / 2)
       .setY(first.y + first.height * 1.4);
 
@@ -100,16 +110,20 @@ class GameAnnouncementsPopUp {
     this.scene.cameras.main.ignore(this.scene.dealer.backsGroups[0].getChildren());
 
     this.sprites = announcements.concat(counters).concat([pass, background]);
+
+    this.shown = true;
   }
 
   hide() {
     for (var i = 0; i < this.sprites.length; i++) {
       this.sprites[i]
         .removeAllListeners()
+        .removeFromDisplayList()        
         .removeInteractive();
 
-      this.scene.children.remove(this.sprites[i], false);
+      this.scene.children.getByName(this.sprites[i].name)?.destroy();
     }
+    this.shown = false;
   }
 }
 

@@ -9,6 +9,7 @@ export class GameTableSceneDemo extends Scene {
   boardArray: { tileValue: number, tileSprite: Phaser.GameObjects.Sprite, upgraded: boolean }[][] = [];
   canMove: boolean = true;
   movingTiles = 0;
+  a = 2;
 
   create() {
     for (var i = 0; i < 4; i++) {

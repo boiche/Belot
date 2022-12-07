@@ -7,9 +7,12 @@ namespace Belot
         public static void WriteLine(Func<string> action)
         {
             Debug.WriteLine("");
-            Debug.WriteLine(action.Invoke());
-            Console.WriteLine(action.Invoke());
+            Debug.WriteLine(action.Invoke());            
             Debug.WriteLine("");
+
+            Console.WriteLine();
+            Console.WriteLine(action.Invoke());
+            Console.WriteLine();
         }
     }
 }

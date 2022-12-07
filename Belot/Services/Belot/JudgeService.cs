@@ -8,15 +8,24 @@ namespace Belot.Services.Belot
     /// </summary>
     public class BelotJudgeService : IJudgeService
     {
-        private Deck _cards;
+        private readonly Deck _cards;
         private readonly List<Player> players;
-        private int dealerPlayer;
-        private bool _firstDealStarted = false;
+        private int dealerPlayer = -1;
+        private int playerToPlay;
 
         public int DealerPlayer
         {
             get => dealerPlayer;
             internal set => dealerPlayer = value > 3 ? 0 : value;
+        }
+        public int PlayerToPlay
+        {
+            get => playerToPlay;
+            internal set
+            {
+                playerToPlay = value > 3 ? 0 : value;
+                players.ForEach(x => x.IsOnTurn = x.PlayerIndex == playerToPlay);
+            }
         }
 
         public BelotJudgeService()
@@ -62,12 +71,22 @@ namespace Belot.Services.Belot
         /// </summary>
         public void StartGame()
         {
-            DealerPlayer = new Random().Next(0, 4);
+            if (DealerPlayer < 0)
+                DealerPlayer = new Random().Next(0, 4);
+            else
+                DealerPlayer++;
+
+            PlayerToPlay = DealerPlayer + 1;
         }
 
         internal Player GetPlayer(string connectionId)
         {
             return this.players.First(x => x.ConnectionId == connectionId);
+        }
+
+        internal void NextToPlay()
+        {
+            PlayerToPlay++;
         }
     }
 }

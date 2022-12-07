@@ -34,16 +34,12 @@ export class HomeComponent implements OnInit {
 
   openGameTable(gameId: string) {
     document.body.innerHTML = "";
-    var connection = this._signalR.createConnection();
+    var connection = this._signalR.createConnection(gameId);
     this.scene = new MainScene(connection as SignalRProxy);
     connection.startConnection().then(() => {      
       var request = new JoinGameRequest();
       request.gameId = gameId;
-      this._signalR.invoke("JoinGame", request).then(function () {
-        //scene.game.scene.start('PlayBelot');
-      }).catch((error) => {
-        console.error(error);
-      });
+      this._signalR.invoke("JoinGame", request)
     });
 
     this._signalR.on('StartGame', (gameId) => {
@@ -54,17 +50,14 @@ export class HomeComponent implements OnInit {
 
   createGameTable() {
     document.body.innerHTML = "";
-    var connection = this._signalR.createConnection();
+    var connection = this._signalR.createConnection("");
     this.scene = new MainScene(connection as SignalRProxy);
     connection.startConnection().then(() => {
-      this._signalR.invoke("CreateGame").then(function () {
-        //scene.game.scene.start('PlayBelot');
-      }).catch((error) => {
-        console.error(error);
-      });  
+      this._signalR.invoke("CreateGame")
     });
 
     this._signalR.on('StartGame', (gameId) => {
+      this._signalR._gameId = gameId;
       this.scene?.game.scene.start('PlayBelot', gameId);
     })
   }

@@ -1,4 +1,5 @@
-﻿using Belot.Models.Http.Requests.SignalR;
+﻿using Belot.Models;
+using Belot.Models.Http.Requests.SignalR;
 using Belot.Models.Http.Responses.SignalR;
 
 namespace Belot.SignalR
@@ -27,5 +28,7 @@ namespace Belot.SignalR
         /// <returns></returns>
         Task CreateGame();
         Task DealCards(DealCardsRequest request);
+        Task Pass(string gameId);
+        Task RefreshPlayer();
     }
 }

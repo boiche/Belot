@@ -131,10 +131,9 @@ class Dealer {
     });
 
     //TODO: create type for this promise result
-    var playerInfo = await this._signalR.Connection.invoke("GetPlayerInfo", this._scene.gameId);
+    var playerInfo = await this._signalR.Connection.getPlayer();
     var mainPlayerIndex = playerInfo.playerIndex;
     var mainPlayerCards = playerInfo.playingHand;
-    console.log(mainPlayerCards);
 
     for (var i = 0; i < mainPlayerCards.length; i++) {
       var current = mainPlayerCards[i];

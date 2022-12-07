@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core";
 import * as signalR from '@microsoft/signalr';
+import { Guid } from "guid-typescript";
 import { belotServerAPI } from '../../main';
+import Player from "../BelotEngine/Player";
 import BaseRequest from "../server-api/requests/base-request";
+import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
 import ISignalRProxy from "./interfaces/ISignalRProxy";
 
 @Injectable({
@@ -9,14 +12,23 @@ import ISignalRProxy from "./interfaces/ISignalRProxy";
 })
 class SignalRProxy implements ISignalRProxy {
   connection!: signalR.HubConnection;
+  _gameId!: string;
 
-  createConnection(): ISignalRProxy {
+  public async getPlayer(): Promise<Player> {
+    var request = new BaseSignalRRequest();
+    request.gameId = this._gameId;
+    return await this.connection.invoke("GetPlayerInfo", this._gameId);
+  }
+
+  createConnection(gameId: string): ISignalRProxy {
     this.connection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Debug)
       .withUrl(belotServerAPI.signalR)      
       .build();
 
     this.connection.serverTimeoutInMilliseconds = 999999;    
+
+    this._gameId = gameId;
 
     return this;
   }
@@ -39,7 +51,7 @@ class SignalRProxy implements ISignalRProxy {
 
   private checkConnection() {
     if (!this.connection) {
-      this.createConnection();
+      this.createConnection(this._gameId);
     }
   }
 }

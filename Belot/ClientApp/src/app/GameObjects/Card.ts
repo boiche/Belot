@@ -4,12 +4,14 @@ class Card {
     this.rank = rank;
     this.sprite = sprite;
     this.dealt = false;
+    this.frameIndex = -1;
   }
 
   suit: Suit = Suit.DIAMOND;
   rank: Rank = Rank.SEVEN;
   dealt: boolean;
   sprite: Phaser.GameObjects.Sprite;
+  frameIndex: number;
 
   equal(card: Card) {
     return card.rank === this.rank && card.suit === this.suit;
