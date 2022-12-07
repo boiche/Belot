@@ -30,5 +30,6 @@ namespace Belot.SignalR
         Task DealCards(DealCardsRequest request);
         Task Pass(string gameId);
         Task RefreshPlayer();
+        Task DealNew();
     }
 }

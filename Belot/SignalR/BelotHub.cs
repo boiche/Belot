@@ -36,7 +36,6 @@ namespace Belot.SignalR
             if (gameEntry is null)
                 await CreateGame();
             
-            
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
             gameEntry.ConnectedPlayers++;
             judgeManager.Judges[gameId].AddPlayer(new Player()
@@ -47,7 +46,7 @@ namespace Belot.SignalR
 
             if (gameEntry.ConnectedPlayers == 4)
             {
-                StartGames(gameId);
+                StartGameInternal(gameId);
                 gameEntry.HasStarted = true;
             }
 
@@ -56,7 +55,7 @@ namespace Belot.SignalR
             context.SaveChanges();
         }
 
-        private Task StartGames(Guid gameId)
+        private Task StartGameInternal(Guid gameId)
         {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -164,11 +163,24 @@ namespace Belot.SignalR
             return Task.CompletedTask;
         }
 
-        public Task Pass(string gameId)
+        public async Task Pass(string gameId)
         {
             Guid.TryParse(gameId, out Guid id);
+            judgeManager.Judges[id].GetPlayer(Context.ConnectionId).SetAnnouncement(GameAnnouncement.PASS);
             judgeManager.Judges[id].NextToPlay();
-            return Clients.Group(id.ToString()).RefreshPlayer();
+
+            if (judgeManager.Judges[id].CheckAnnouncement(Context.ConnectionId, GameAnnouncement.PASS))
+            {
+                DealNewInternal(id);
+                await Clients.Group(id.ToString()).DealNew();
+            }
+
+            Clients.Group(id.ToString()).RefreshPlayer();
+        }
+
+        public Task DealNew()
+        {            
+            return Task.CompletedTask;
         }
 
         public Player GetPlayerInfo(string gameId)
@@ -180,6 +192,11 @@ namespace Belot.SignalR
         public Task RefreshPlayer()
         {
             return Task.CompletedTask;
+        }
+
+        public void DealNewInternal(Guid gameId)
+        {
+            judgeManager.Judges[gameId].DealNew();
         }
     }
 }

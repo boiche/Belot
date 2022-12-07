@@ -9,29 +9,31 @@ namespace Belot.Services.Belot
     public class BelotJudgeService : IJudgeService
     {
         private readonly Deck _cards;
-        private readonly List<Player> players;
-        private int dealerPlayer = -1;
-        private int playerToPlay;
+        private readonly List<Player> _players;
+        private GameAnnouncement _currentAnnouncement;
+        private int _dealerPlayer = -1;
+        private int _playerToPlay;
+        private int _passes = 0;
 
         public int DealerPlayer
         {
-            get => dealerPlayer;
-            internal set => dealerPlayer = value > 3 ? 0 : value;
+            get => _dealerPlayer;
+            internal set => _dealerPlayer = value > 3 ? 0 : value;
         }
         public int PlayerToPlay
         {
-            get => playerToPlay;
+            get => _playerToPlay;
             internal set
             {
-                playerToPlay = value > 3 ? 0 : value;
-                players.ForEach(x => x.IsOnTurn = x.PlayerIndex == playerToPlay);
+                _playerToPlay = value > 3 ? 0 : value;
+                _players.ForEach(x => x.IsOnTurn = x.PlayerIndex == _playerToPlay);
             }
         }
 
         public BelotJudgeService()
         {
             _cards = new Deck();
-            players = new List<Player>();
+            _players = new List<Player>();
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace Belot.Services.Belot
         /// <param name="cards"></param>
         public void DealCards(string playerConnectionId, int count)
         {
-            Player player = players.First(x => x.ConnectionId == playerConnectionId);
+            Player player = _players.First(x => x.ConnectionId == playerConnectionId);
             for (int i = 0; i < count; i++)
             {
                 //TODO: apply real deal logic
@@ -56,15 +58,15 @@ namespace Belot.Services.Belot
         /// <param name="player"></param>
         public void AddPlayer(Player player)
         {
-            player.PlayerIndex = this.players.Count;
-            players.Add(player);
+            player.PlayerIndex = this._players.Count;
+            _players.Add(player);
         }
 
         /// <summary>
         /// Removes a player from the game
         /// </summary>
         /// <param name="player"></param>
-        public void RemovePlayer(string connectionId) => players.Remove(players.First(x => x.ConnectionId == connectionId));
+        public void RemovePlayer(string connectionId) => _players.Remove(_players.First(x => x.ConnectionId == connectionId));
 
         /// <summary>
         /// Prepares all necessary objects in order to start a game in random manner
@@ -81,12 +83,47 @@ namespace Belot.Services.Belot
 
         internal Player GetPlayer(string connectionId)
         {
-            return this.players.First(x => x.ConnectionId == connectionId);
+            return this._players.First(x => x.ConnectionId == connectionId);
         }
 
         internal void NextToPlay()
         {
             PlayerToPlay++;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>Wether to start new deal or continue current deal.</returns>
+        internal bool CheckAnnouncement(string connectionId, GameAnnouncement announcement)
+        {
+            if (announcement > _currentAnnouncement)
+            {
+                _passes = 0;
+                _currentAnnouncement = announcement;
+                GetPlayer(connectionId).SetAnnouncement(announcement);
+            }
+            else if (announcement == GameAnnouncement.PASS)
+                _passes++;
+            
+            return _passes == 4 || (_passes == 3 && _currentAnnouncement > GameAnnouncement.PASS);
+        }
+
+        internal void DealNew()
+        {
+            foreach (var player in _players)
+            {
+                foreach (var card in player.PlayingHand)
+                {
+                    this._cards.Enqueue(card);
+                }
+                player.PlayingHand.Clear();
+            }
+
+            DealerPlayer++;
+            PlayerToPlay = DealerPlayer + 1;
+            _passes = 0;
+            _currentAnnouncement = GameAnnouncement.PASS;
         }
     }
 }

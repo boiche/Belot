@@ -69,10 +69,10 @@ class GameTableScene extends Scene {
 
   update() {
     if (this.dealer.firstDealReady) {
-      if (this.currentPlayer.isOnTurn) {
+      if (this.currentPlayer.isOnTurn && !this.gameAnnouncements.shown) {
         this.gameAnnouncements.show();
       }
-      else {
+      else if (!this.currentPlayer.isOnTurn && this.gameAnnouncements.shown) {
         this.gameAnnouncements.hide();
       }
     }
@@ -87,6 +87,7 @@ class GameTableScene extends Scene {
   
   dealNew() {
     this.clearScene();
+    this.dealer.firstDealReady = false;
     this.deal();
   }
 
