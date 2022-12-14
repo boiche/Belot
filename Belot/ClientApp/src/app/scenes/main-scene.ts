@@ -14,12 +14,15 @@ class MainScene extends Scene {
   constructor(private connection: SignalRProxy) {
     super("belot");
     this.connection = connection;
+    this.resizeGame();
   }
+
+  gameWidth = 0; gameHeight = 0;  
 
   config: Phaser.Types.Core.GameConfig = {
     backgroundColor: 0x00000,
-    width: window.innerWidth,
-    height: window.innerHeight,    
+    width: this.gameWidth,
+    height: this.gameHeight,    
     scene: [BootGameScene, LoadingScene, GameTableScene],
     plugins: {
       global: [
@@ -52,6 +55,8 @@ class MainScene extends Scene {
       canvas.style.height = windowHeight + "px";
     }
 
+    this.gameWidth = Number.parseInt(canvas.style.width.replace('px', ''));
+    this.gameHeight = Number.parseInt(canvas.style.height.replace('px', ''));
   }
 }
 

@@ -26,14 +26,15 @@ class HandAnnouncement extends Announcement {
 }
 
 enum GameAnnouncementType {
+  PASS,
   CLUBS,
   DIAMONDS,
   HEARTS,
   SPADES,
   NOSUIT,
   ALLSUITS,
-  COUNTER,
-  RECOUNTER
+  DOUBLE,
+  REDOUBLE,
 }
 
 enum HandAnnouncementType {

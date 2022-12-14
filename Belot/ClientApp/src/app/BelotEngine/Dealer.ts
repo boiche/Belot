@@ -1,8 +1,9 @@
-import { Game, GameObjects } from "phaser";
+import { Game, GameObjects, Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
 import Card from "../GameObjects/Card";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
+import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
 
 enum TypeDeal {
   FirstDeal,
@@ -102,6 +103,7 @@ class Dealer {
   _dealtCards: any;
   secondDealReady = false;
   currentDeal!: 0 | 1;
+  absoluteDealerIndex!: PlayerNumber;
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
@@ -142,7 +144,6 @@ class Dealer {
         .setOrigin(0)
         .setName("suit: " + current.suit + " rank: " + current.rank);
     }
-
     this.initPlayers();
 
     var timelineWholeDeal = this._scene.tweens.createTimeline();
@@ -305,7 +306,7 @@ class Dealer {
       .setVisible(true));
   }
 
-  async showCard(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[], options: HandPositionOptions, cardsInHand: Phaser.GameObjects.Sprite[], dealer: Dealer, forPlayer: PlayerNumber, mainPlayerCards: Card[], dealerIndex: number) {
+  showCard(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[], options: HandPositionOptions, cardsInHand: Phaser.GameObjects.Sprite[], dealer: Dealer, forPlayer: PlayerNumber, mainPlayerCards: Card[], dealerIndex: number) {
     var middleIndex = Math.ceil(cardsInHand.length / 2) - 1, count = cardsInHand.length;    
 
     for (var i = 0; i < count; i++) {
@@ -388,30 +389,44 @@ class Dealer {
           .disableInteractive()
           .on('pointerover', function (this: GameObjects.Sprite, event: any) {
             this.y -= 15;
-          }, targets[i])
+            console.log('over of card ' + this.name);
+          })
           .on('pointerout', function (this: GameObjects.Sprite, event: any) {
             this.y += 15;
-          }, targets[i])
+            console.log('out of card ' + this.name);
+          })
           .on('pointerdown', function (this: GameObjects.Sprite, event: any) {            
             var scene = (this.scene as GameTableScene);
             scene.dealer.throwCard(this);            
-          }, targets[i]);
+          });
 
         console.log("card with index " + i + " is card " + sprite.name);
+        dealer._scene.currentPlayer.playingHand.push(new Card(mainPlayerCards[i].suit, mainPlayerCards[i].rank, sprite));
       }
     }
 
-    if (cardsInHand.length === 5 && forPlayer === dealerIndex) {
+    if (cardsInHand.length === 5 && forPlayer === dealerIndex) {      
       dealer.firstDealReady = true;
+
+      if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
+        dealer._signalR.Connection.invoke('FirstDealCompleted', dealer._scene.gameId);
+      }        
+    }
+    if (cardsInHand.length === 8 && forPlayer === dealerIndex) {
+      if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
+        dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);
+      } 
     } 
   }
 
-  disableCards(tween: Phaser.Tweens.Tween, sprite: Phaser.GameObjects.Sprite, cards: Phaser.GameObjects.Group) {
-    cards.getChildren().forEach(x => x.disableInteractive());
+  disableCards() {
+    this._scene.currentPlayer.playingHand.forEach(x => x.sprite.disableInteractive());
   }
 
-  enableCards(tween: Phaser.Tweens.Tween, sprite: GameObjects.Sprite, cards: Phaser.GameObjects.Group) {
-    cards.getChildren().forEach(x => x.setInteractive());
+  enableCards() {
+    console.log('enabling player cards');
+    console.log(this._scene.currentPlayer.playingHand);
+    this._scene.currentPlayer.playingHand.forEach(x => x.sprite.setInteractive());
   }
 
   throwCard(sprite: Phaser.GameObjects.Sprite) {
@@ -423,7 +438,6 @@ class Dealer {
       x: window.innerWidth / 2 - gameOptions.cardWidth / 2 * Math.random(),
       y: window.innerHeight / 2 - gameOptions.cardHeight / 2 * Math.random(),
       onStart: this.disableCards,
-      onStartParams: [this.backsGroups[0]],
       onComplete: this.collectCards,
       onCompleteParams: [this.backsGroups[0]],
       callbackScope: this
@@ -436,8 +450,6 @@ class Dealer {
     var up = new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2);
     var left = new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, window.innerHeight / 2 - gameOptions.cardHeight / 4);
     var right = new Phaser.Geom.Point(window.innerWidth, window.innerHeight / 2 - gameOptions.cardHeight / 4);
-
-    this.enableCards(tween, sprite, cards);
   }
 
   clearCards(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[]) {
@@ -464,4 +476,4 @@ class Dealer {
   }  
 }
 
-export default Dealer
+export { Dealer, TypeDeal }

@@ -1,30 +1,39 @@
-import { Guid } from "guid-typescript";
 import { GameObjects } from "phaser"
 import { constants } from "../../main";
-import ISignalRProxy from "../proxies/interfaces/ISignalRProxy";
+import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
-import BaseRequest from "../server-api/requests/base-request";
-import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
+import GameAnnouncementRequest from "../server-api/requests/signalR/game-announcement-request";
 
 class GameAnnouncementsPopUp {
   sprites: GameObjects.Sprite[];
   scene: GameTableScene;
   depth: number;
   shown: boolean = false;
-  signalR!: SignalRPlugin; 
+  signalR!: SignalRPlugin;
+  announcementsData: { enabled: boolean }[] = [];
+  hoverColor = 0xD3DCE5;
+  disabledColor = 0x878787;
 
   constructor(scene: GameTableScene, depth: number) {
     this.sprites = [];
     this.scene = scene;
     this.depth = depth;
+    this.initControls();
+  }
+
+  updateAnnouncements(newAnnouncement: GameAnnouncementType): void {
+    for (var index = 0; index < newAnnouncement; index++) {
+      this.announcementsData[index]
+        .enabled = false;
+    }
   }
 
   show() {
     var hoverColor = 0xD3DCE5;
     var disabledColor = 0x878787;
 
-    var clubs = this.scene.add.sprite(0, 0, constants.clubGameAnnouncement)
+    var clubs = this.scene.add.sprite(0, 0, constants.clubGameAnnouncement);
     var diamonds = this.scene.add.sprite(0, 0, constants.diamondsGameAnnouncement);
     var hearts = this.scene.add.sprite(0, 0, constants.heartsGameAnnouncement);
     var spades = this.scene.add.sprite(0, 0, constants.spadesGameAnnouncement);
@@ -39,11 +48,35 @@ class GameAnnouncementsPopUp {
     for (var i = 0; i < announcements.length; i++) {
       announcements[i]
         .setDepth(this.depth)
-        .setName(constants.belotGameObjectName + announcements[i].texture.key)
-        .setInteractive({ cursor: 'pointer' })
-        .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
-        .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
-        .on('pointerdown', function (this: GameObjects.Sprite, event: any) { (this.scene as GameTableScene).announce(this.texture.key); });
+        .setTint(disabledColor)
+        .setName(constants.belotGameObjectName + announcements[i].texture.key);
+
+      var enabled = this.announcementsData[i].enabled;
+      if (enabled) {
+        announcements[i]
+          .setInteractive({ cursor: 'pointer' })
+          .clearTint()
+          .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
+          .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
+          .on('pointerdown', function (this: GameObjects.Sprite, event: any) {
+            var scene = (this.scene as GameTableScene);
+            var request = new GameAnnouncementRequest();
+            switch (this.texture.key) {
+              case constants.clubGameAnnouncement: request.announcement = GameAnnouncementType.CLUBS; break;
+              case constants.diamondsGameAnnouncement: request.announcement = GameAnnouncementType.DIAMONDS; break;
+              case constants.heartsGameAnnouncement: request.announcement = GameAnnouncementType.HEARTS; break;
+              case constants.spadesGameAnnouncement: request.announcement = GameAnnouncementType.SPADES; break;
+              case constants.noSuitGameAnnouncement: request.announcement = GameAnnouncementType.NOSUIT; break;
+              case constants.allSuitsGameAnnouncement: request.announcement = GameAnnouncementType.ALLSUITS; break;
+            }
+
+            request.gameId = scene.gameId;            
+
+            scene.signalR.Connection.invoke("Announce", request);
+
+            scene.gameAnnouncements.hide();
+          });
+      }
     }
 
     var first = announcements[0];
@@ -99,7 +132,13 @@ class GameAnnouncementsPopUp {
       .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
       .on('pointerdown', function (this: GameObjects.Sprite, event: any) {
         var scene = (this.scene as GameTableScene);
-        scene.signalR.Connection.invoke("Pass", scene.gameId);
+        var request = new GameAnnouncementRequest();
+        request.gameId = scene.gameId;
+        request.announcement = GameAnnouncementType.PASS;
+
+        scene.signalR.Connection.invoke("Announce", request);
+
+        scene.gameAnnouncements.hide();
       })
       .setX(first.x + first.width / 2)
       .setY(first.y + first.height * 1.4);
@@ -124,6 +163,16 @@ class GameAnnouncementsPopUp {
       this.scene.children.getByName(this.sprites[i].name)?.destroy();
     }
     this.shown = false;
+  }
+
+  initControls() {
+    for (var i = 0; i < 8; i++) {
+      this.announcementsData.push({ enabled: true });
+    }
+  }
+
+  reset() {
+    this.announcementsData.forEach(x => x.enabled = true);
   }
 }
 

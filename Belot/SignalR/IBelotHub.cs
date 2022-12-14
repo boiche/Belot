@@ -28,8 +28,15 @@ namespace Belot.SignalR
         /// <returns></returns>
         Task CreateGame();
         Task DealCards(DealCardsRequest request);
-        Task Pass(string gameId);
+        Task Announce(GameAnnouncementRequest request);
         Task RefreshPlayer();
         Task DealNew();
+        Task UpdateClientAnnouncements(GameAnnouncement announcement);
+        Task SecondDeal();
+        /// <summary>
+        /// Indicates client that he is on turn.
+        /// </summary>
+        /// <returns></returns>
+        Task OnTurn(Turn turn);
     }
 }

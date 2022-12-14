@@ -4,5 +4,6 @@
     {
         public Game Game { get; set; }
         public int DealerPlayer { get; set; }
+        public int DealerPlayerRealtive { get; internal set; }
     }
 }

@@ -11,23 +11,32 @@ namespace Belot.Services.Belot
         private readonly Deck _cards;
         private readonly List<Player> _players;
         private GameAnnouncement _currentAnnouncement;
-        private int _dealerPlayer = -1;
-        private int _playerToPlay;
+        private int _dealerPlayerIndex = -1;
+        private int _playerToPlayIndex;
         private int _passes = 0;
 
-        public int DealerPlayer
+        /// <summary>
+        /// The player who deals in current game
+        /// </summary>
+        public Player DealerPlayer
         {
-            get => _dealerPlayer;
-            internal set => _dealerPlayer = value > 3 ? 0 : value;
+            get => _players[_dealerPlayerIndex];
         }
-        public int PlayerToPlay
+
+        /// <summary>
+        /// The player that is on turn.
+        /// </summary>
+        public Player PlayerToPlay
         {
-            get => _playerToPlay;
-            internal set
-            {
-                _playerToPlay = value > 3 ? 0 : value;
-                _players.ForEach(x => x.IsOnTurn = x.PlayerIndex == _playerToPlay);
-            }
+            get => _players[_playerToPlayIndex];
+        }
+
+        /// <summary>
+        /// The player who will throw first a card in current game
+        /// </summary>
+        public Player FirstToPlay 
+        { 
+            get => _players[CheckPlayerIndex(_dealerPlayerIndex + 1)]; 
         }
 
         public BelotJudgeService()
@@ -45,7 +54,6 @@ namespace Belot.Services.Belot
             Player player = _players.First(x => x.ConnectionId == playerConnectionId);
             for (int i = 0; i < count; i++)
             {
-                //TODO: apply real deal logic
                 player.PlayingHand.Add(_cards.Dequeue());
             }
 
@@ -73,12 +81,12 @@ namespace Belot.Services.Belot
         /// </summary>
         public void StartGame()
         {
-            if (DealerPlayer < 0)
-                DealerPlayer = new Random().Next(0, 4);
+            if (_dealerPlayerIndex < 0)
+                _dealerPlayerIndex = new Random().Next(0, 4);
             else
-                DealerPlayer++;
+                _dealerPlayerIndex = CheckPlayerIndex(_dealerPlayerIndex++);
 
-            PlayerToPlay = DealerPlayer + 1;
+            _playerToPlayIndex = CheckPlayerIndex(_dealerPlayerIndex + 1);
         }
 
         internal Player GetPlayer(string connectionId)
@@ -86,16 +94,15 @@ namespace Belot.Services.Belot
             return this._players.First(x => x.ConnectionId == connectionId);
         }
 
-        internal void NextToPlay()
-        {
-            PlayerToPlay++;
-        }
+        internal void NextToPlay() => _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);        
 
         /// <summary>
-        /// 
+        /// Checks current state of passes.
         /// </summary>
-        /// <returns>Wether to start new deal or continue current deal.</returns>
-        internal bool CheckAnnouncement(string connectionId, GameAnnouncement announcement)
+        /// <returns>Whether to start new deal or continue announcing.</returns>
+        internal bool CheckPasses() => _passes == 4;
+
+        internal void Announce(string connectionId, GameAnnouncement announcement)
         {
             if (announcement > _currentAnnouncement)
             {
@@ -105,8 +112,6 @@ namespace Belot.Services.Belot
             }
             else if (announcement == GameAnnouncement.PASS)
                 _passes++;
-            
-            return _passes == 4 || (_passes == 3 && _currentAnnouncement > GameAnnouncement.PASS);
         }
 
         internal void DealNew()
@@ -120,10 +125,33 @@ namespace Belot.Services.Belot
                 player.PlayingHand.Clear();
             }
 
-            DealerPlayer++;
-            PlayerToPlay = DealerPlayer + 1;
+            DealerPlayer.PlayerIndex++;
+            PlayerToPlay.PlayerIndex = DealerPlayer.PlayerIndex + 1;
             _passes = 0;
             _currentAnnouncement = GameAnnouncement.PASS;
         }
+
+        /// <summary>
+        /// Checks current state of announcements.
+        /// </summary>
+        /// <returns>Whether to start second deal or continue announcing.</returns>
+        internal bool CheckSecondDeal()
+        {
+            bool result = _passes == 3 && _currentAnnouncement > GameAnnouncement.PASS;
+
+            if (result)
+            {
+                _playerToPlayIndex = CheckPlayerIndex(_dealerPlayerIndex + 1);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Ensures that given index is valid player index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        private int CheckPlayerIndex(int index) => index > 3 ? 0 : index;
     }
 }

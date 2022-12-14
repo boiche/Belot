@@ -1,18 +1,15 @@
 ﻿using Belot.Data;
 using Belot.Models;
-using Belot.Models.Http.Requests;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Models.Http.Responses.SignalR;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace Belot.SignalR
 {
-    public class BelotHub : Hub<IBelotHub>, IBelotHub
+    public partial class BelotHub : Hub<IBelotHub>, IBelotHub
     {
         readonly ApplicationDbContext context;
         readonly IJudgeManager<BelotJudgeService> judgeManager;
@@ -23,6 +20,7 @@ namespace Belot.SignalR
             this.context = context;
             this.judgeManager = judgeManager;
         }
+        
         public override Task OnConnectedAsync()
         {
             return base.OnConnectedAsync();
@@ -50,31 +48,10 @@ namespace Belot.SignalR
                 gameEntry.HasStarted = true;
             }
 
-            //StartGames(gameId);
+            //StartGameInternal(gameId);
 
             context.SaveChanges();
-        }
-
-        private Task StartGameInternal(Guid gameId)
-        {
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-
-            judgeManager.Judges[gameId].StartGame();
-
-            while (stopwatch.ElapsedMilliseconds < 2000)
-            {
-
-            }
-
-            Clients.Group(gameId.ToString()).StartGame(gameId);
-            return Task.CompletedTask;
-        }
-
-        public Task StartGame(Guid gameId)
-        {
-            return Task.Run(() => gameId);
-        }
+        }        
 
         public GetGameInfoResponse GetGameInfo(string gameId)
         {
@@ -83,30 +60,9 @@ namespace Belot.SignalR
 
             return new GetGameInfoResponse()
             {
-                DealerPlayer = GetDealerIndex(id)
+                DealerPlayerRealtive = GetRelativeDealerIndex(id),
+                DealerPlayer = judgeManager.Judges[id].DealerPlayer.PlayerIndex
             };
-        }
-
-        /// <summary>
-        /// Gets the dealer seat based on current player's seat
-        /// </summary>
-        /// <param name="currentPlayer"></param>
-        /// <returns></returns>
-        private int GetDealerIndex(Guid id)
-        {
-            int dealerPlayer = judgeManager.Judges[id].DealerPlayer;
-            int currentPlayer = judgeManager.Judges[id].GetPlayer(Context.ConnectionId).PlayerIndex;
-            int result = 0;
-
-            while (currentPlayer != dealerPlayer)
-            {
-                result++;
-                currentPlayer++;
-                if (currentPlayer > 3)
-                    currentPlayer = 0;
-            }
-
-            return result;
         }
 
         public async Task CreateGame()
@@ -154,33 +110,38 @@ namespace Belot.SignalR
         {
             judgeManager.Judges[request.GameId].DealCards(Context.ConnectionId, request.Count);
             return Task.CompletedTask;
-        }
+        }        
 
-        public Task AwaitGame()
+        public async Task Announce(GameAnnouncementRequest request)
         {
-            DebugHelper.WriteLine(() => "Player with connection " + Context.ConnectionId + " has joined the game");
+            judgeManager.Judges[request.GameId].GetPlayer(Context.ConnectionId).SetAnnouncement(request.Announcement);            
+            judgeManager.Judges[request.GameId].Announce(Context.ConnectionId, request.Announcement);
+            judgeManager.Judges[request.GameId].NextToPlay();
 
-            return Task.CompletedTask;
-        }
-
-        public async Task Pass(string gameId)
-        {
-            Guid.TryParse(gameId, out Guid id);
-            judgeManager.Judges[id].GetPlayer(Context.ConnectionId).SetAnnouncement(GameAnnouncement.PASS);
-            judgeManager.Judges[id].NextToPlay();
-
-            if (judgeManager.Judges[id].CheckAnnouncement(Context.ConnectionId, GameAnnouncement.PASS))
+            if (judgeManager.Judges[request.GameId].CheckSecondDeal())
             {
-                DealNewInternal(id);
-                await Clients.Group(id.ToString()).DealNew();
+                await Clients.Group(request.GameId.ToString()).SecondDeal();
+                Clients.Client(judgeManager.Judges[request.GameId].FirstToPlay.ConnectionId).OnTurn(new Turn()
+                { 
+                    TurnCode = TurnCodes.ThrowCard
+                });
             }
+            else
+            {
+                Turn turn = new Turn()
+                {
+                    TurnCode = TurnCodes.Announcement
+                };
+                if (judgeManager.Judges[request.GameId].CheckPasses())
+                {
+                    DealNewInternal(request.GameId);
+                    await Clients.Group(request.GameId.ToString()).DealNew();
+                    Clients.Client(judgeManager.Judges[request.GameId].FirstToPlay.ConnectionId).OnTurn(turn);
+                }
 
-            Clients.Group(id.ToString()).RefreshPlayer();
-        }
-
-        public Task DealNew()
-        {            
-            return Task.CompletedTask;
+                Clients.Group(request.GameId.ToString()).UpdateClientAnnouncements(request.Announcement);
+                Clients.Client(judgeManager.Judges[request.GameId].PlayerToPlay.ConnectionId).OnTurn(turn);
+            }
         }
 
         public Player GetPlayerInfo(string gameId)
@@ -189,14 +150,24 @@ namespace Belot.SignalR
             return judgeManager.Judges[id].GetPlayer(Context.ConnectionId);
         }
 
-        public Task RefreshPlayer()
+        public async Task FirstDealCompleted(string gameId)
         {
-            return Task.CompletedTask;
+            Guid.TryParse(gameId, out Guid GameId);
+            DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.Judges[GameId].PlayerToPlay.ConnectionId}");
+            await Clients.Client(judgeManager.Judges[GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
+            {
+                TurnCode = TurnCodes.Announcement
+            });
         }
 
-        public void DealNewInternal(Guid gameId)
+        public async Task SecondDealCompleted(string gameId)
         {
-            judgeManager.Judges[gameId].DealNew();
+            Guid.TryParse(gameId, out Guid GameId);
+            DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.Judges[GameId].PlayerToPlay.ConnectionId}");
+            await Clients.Client(judgeManager.Judges[GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
+            {
+                TurnCode = TurnCodes.ThrowCard
+            });
         }
     }
 }
