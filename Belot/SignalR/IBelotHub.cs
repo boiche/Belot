@@ -38,5 +38,14 @@ namespace Belot.SignalR
         /// </summary>
         /// <returns></returns>
         Task OnTurn(Turn turn);
+
+        /// <summary>
+        /// Indicates client that a card was thrown and execute visualization of it.
+        /// </summary>
+        /// <param name="card">The thrown card</param>
+        /// <param name="gameId">The game in which the card is thrown</param>
+        /// <param name="opponentConnectionId">The player that threw the card</param>
+        /// <returns></returns>
+        Task ShowOpponentCard(ShowOpponentCardResponse response);
     }
 }

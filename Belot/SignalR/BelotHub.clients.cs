@@ -1,4 +1,5 @@
 ﻿using Belot.Models;
+using Belot.Models.Http.Responses.SignalR;
 
 namespace Belot.SignalR
 {
@@ -39,6 +40,11 @@ namespace Belot.SignalR
         public Task OnTurn(Turn turn)
         {
             return Task.Run(() => turn);
+        }
+
+        public Task ShowOpponentCard(ShowOpponentCardResponse response)
+        {
+            return Task.Run(() => response);
         }
     }
 }

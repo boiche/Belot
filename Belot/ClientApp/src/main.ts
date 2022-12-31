@@ -13,11 +13,22 @@ export const belotServerAPI = {
   signalR: "https://localhost:7126/belotGame/"
 };
 
+export function getScales(): { X: number, Y: number} {  
+  const ratioX = 17.219730941704036;
+  const ratioY = 5.752321981424148;
+
+  var X = (window.innerWidth / ratioX) / gameOptions.cardWidth;
+  var Y = (window.innerHeight / ratioY) / gameOptions.cardHeight;
+
+
+  return { X, Y };
+}
+
 export const gameOptions = {
   cardWidth: 223,
   cardHeight: 323,
   tweens: 200,
-  arrangeByStrength: true
+  arrangeByStrength: true  
 };
 
 export const constants = {
@@ -32,7 +43,8 @@ export const constants = {
   redoubleGameAnnouncement: 'redoubleGameAnnouncement',
   passGameAnnouncement: 'passGameAnnouncement',
   gameAnnouncementsBackground: 'gameAnnouncementsBackground',
-  cardBack: 'cardBack'
+  cardBack: 'cardBack',
+  cardsSpritesheet: 'belotCards'
 }
 
 const providers = [

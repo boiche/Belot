@@ -94,6 +94,9 @@ namespace Belot.Services.Belot
             return this._players.First(x => x.ConnectionId == connectionId);
         }
 
+        /// <summary>
+        /// Passes the turn to the next player.
+        /// </summary>
         internal void NextToPlay() => _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);        
 
         /// <summary>
@@ -153,5 +156,30 @@ namespace Belot.Services.Belot
         /// <param name="index"></param>
         /// <returns></returns>
         private int CheckPlayerIndex(int index) => index > 3 ? 0 : index;
+
+        /// <summary>
+        /// Computes the relative index of a player based on the main player provided.
+        /// </summary>
+        /// <param name="connectionId">Player's connection to be computed</param>
+        /// <param name="mainPlayer">Main player's connection</param>
+        /// <returns></returns>
+        internal int GetRelativePlayerIndex(string connectionId, string mainPlayer)
+        {
+            int result = 0;
+            int opponentIndex = GetPlayer(connectionId).PlayerIndex;
+            int mainPlayerIndex = GetPlayer(mainPlayer).PlayerIndex;
+
+            while (opponentIndex != mainPlayerIndex)
+            {
+                result++;
+                mainPlayerIndex++;
+                if (mainPlayerIndex > 3)
+                    mainPlayerIndex = 0;
+            }
+
+            return result;
+        }
+
+        internal IEnumerable<Player> GetPlayers() => _players;
     }
 }

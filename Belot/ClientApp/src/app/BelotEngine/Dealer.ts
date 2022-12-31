@@ -1,9 +1,10 @@
 import { Game, GameObjects, Scene } from "phaser";
-import { constants, gameOptions } from "../../main";
+import { constants, gameOptions, getScales } from "../../main";
 import Card from "../GameObjects/Card";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
+import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
 
 enum TypeDeal {
   FirstDeal,
@@ -19,6 +20,7 @@ class HandPositionOptions  {
     return this.player === 0
   }
   player: 0 | 1 | 2 | 3 = 0;
+  scales = getScales();
 
   readonly mainPlayerConfiguration = {
     allignFuncs: {
@@ -104,6 +106,7 @@ class Dealer {
   secondDealReady = false;
   currentDeal!: 0 | 1;
   absoluteDealerIndex!: PlayerNumber;
+  scales = getScales();
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
@@ -139,7 +142,7 @@ class Dealer {
 
     for (var i = 0; i < mainPlayerCards.length; i++) {
       var current = mainPlayerCards[i];
-      current.sprite = this._scene.add.sprite(0, 0, 'belotCards', current.frameIndex)
+      current.sprite = this._scene.add.sprite(0, 0, constants.cardsSpritesheet, current.frameIndex)
         .setVisible(false)
         .setOrigin(0)
         .setName("suit: " + current.suit + " rank: " + current.rank);
@@ -250,7 +253,7 @@ class Dealer {
           .setVisible(false)
           .setName(constants.belotGameObjectName + constants.cardBack)
           .setDepth(2 + initLength + i)
-          .setScale(0.5, 0.5)
+          .setScale(this.scales.X, this.scales.Y)
           .setOrigin(0)          
           .setX(this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 4)
           .setY(this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4);
@@ -384,8 +387,10 @@ class Dealer {
       if (forPlayer === 0 && sprite.name.includes(constants.cardBack)) {
         sprite
           .setTexture(mainPlayerCards[i].sprite.texture.key, mainPlayerCards[i].sprite.frame.name)
-          .setName(constants.belotGameObjectName + mainPlayerCards[i].sprite.name)
+          .setName(constants.belotGameObjectName + ' ' + mainPlayerCards[i].sprite.name)
           .setInteractive({ cursor: 'pointer' })
+          .setData('suit', mainPlayerCards[i].suit)
+          .setData('rank', mainPlayerCards[i].rank)
           .disableInteractive()
           .on('pointerover', function (this: GameObjects.Sprite, event: any) {
             this.y -= 15;
@@ -397,10 +402,14 @@ class Dealer {
           })
           .on('pointerdown', function (this: GameObjects.Sprite, event: any) {            
             var scene = (this.scene as GameTableScene);
-            scene.dealer.throwCard(this);            
+
+            let request = new ShowOpponentCardRequest();
+            request.gameId = scene.gameId;
+            request.card = new Card(this.getData('suit') as number, this.getData('rank') as number, this);
+
+            scene.signalR.Connection.invoke("ThrowCard", request);          
           });
 
-        console.log("card with index " + i + " is card " + sprite.name);
         dealer._scene.currentPlayer.playingHand.push(new Card(mainPlayerCards[i].suit, mainPlayerCards[i].rank, sprite));
       }
     }
@@ -429,19 +438,55 @@ class Dealer {
     this._scene.currentPlayer.playingHand.forEach(x => x.sprite.setInteractive());
   }
 
-  throwCard(sprite: Phaser.GameObjects.Sprite) {
+  public throwCard(cardInfo: Card, playerRelativeIndex: PlayerNumber) {
+    var sprite: GameObjects.Sprite;    
+
+    switch (playerRelativeIndex) {
+      case 0: {
+        sprite = this._scene.currentPlayer.playingHand.filter(x => x.equal(cardInfo))[0].sprite; //this._scene.children.getByName('suit: ' + cardInfo.suit + ' rank: ' + cardInfo.rank) as GameObjects.Sprite;
+      } break;
+      case 1: {
+        sprite = this._scene.add.sprite(
+            this.options.rightPlayerConfiguration.middlePoint.x,
+            this.options.rightPlayerConfiguration.middlePoint.y,
+            constants.cardsSpritesheet,
+            cardInfo.frameIndex)
+          .setScale(this.scales.X, this.scales.Y);
+      } break;
+      case 2: {
+        sprite = this._scene.add.sprite(
+            this.options.upPLayerConfiguration.middlePoint.x,
+            this.options.upPLayerConfiguration.middlePoint.y,
+            constants.cardsSpritesheet,
+            cardInfo.frameIndex)
+          .setScale(this.scales.X, this.scales.Y);
+      } break;
+      case 3: {
+        sprite = this._scene.add.sprite(
+            this.options.leftPlayerConfiguration.middlePoint.x,
+            this.options.leftPlayerConfiguration.middlePoint.y,
+            constants.cardsSpritesheet,
+            cardInfo.frameIndex)
+          .setScale(this.scales.X, this.scales.Y);
+      } break;
+    }
+
+    if (playerRelativeIndex !== 0) {
+      this.backsGroups[playerRelativeIndex].remove(this.backsGroups[playerRelativeIndex].children.getArray()[0] as GameObjects.Sprite, true, true);
+    }
+
     sprite.removeInteractive().removeAllListeners();
 
     this._scene.add.tween({
       targets: [sprite],
       ease: "Quart.easeOut",
-      x: window.innerWidth / 2 - gameOptions.cardWidth / 2 * Math.random(),
-      y: window.innerHeight / 2 - gameOptions.cardHeight / 2 * Math.random(),
-      onStart: this.disableCards,
+      x: this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 2 * Math.random(),
+      y: this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4 * Math.random(),
+      onStart: playerRelativeIndex === 0 ? this.disableCards : undefined,
       onComplete: this.collectCards,
       onCompleteParams: [this.backsGroups[0]],
       callbackScope: this
-    });
+    });        
   }
 
   //TODO: this method is for demo of collecting the cards to the player. OBSOLETE !!!

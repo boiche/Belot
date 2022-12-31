@@ -11,7 +11,7 @@ class BootGameScene extends Scene {
     let frameConfig: Phaser.Types.Loader.FileTypes.ImageFrameConfig = {
       frameWidth: gameOptions.cardWidth,
       frameHeight: gameOptions.cardHeight
-    };
+    };    
 
     let backgroundConfig: Phaser.Types.Loader.FileTypes.ImageFrameConfig = {
       frameWidth: window.innerWidth,
@@ -19,7 +19,7 @@ class BootGameScene extends Scene {
     };
 
     this.load.spritesheet("cards", "assets/sprites/cards_svg.png", frameConfig);
-    this.load.spritesheet("belotCards", "assets/sprites/belot_spritesheet.png", frameConfig);
+    this.load.spritesheet(constants.cardsSpritesheet, "assets/sprites/belot_spritesheet.png", frameConfig);
     this.load.image("background", "assets/sprites/Background.png");
     this.load.spritesheet("cardBack", "assets/sprites/back.png", frameConfig);
     this.load.image("tableCloth", "assets/sprites/table_cloth.png");
@@ -35,7 +35,7 @@ class BootGameScene extends Scene {
     this.load.image(constants.gameAnnouncementsBackground, "assets/sprites/gameAnnouncements/background.png");
   }
 
-  create() {
+  create() {    
     this.scene.start("LoadingBelot");
     var signalR = (this.plugins.get('signalR') as unknown as SignalRPlugin).Connection;
     signalR.invoke("AwaitGame");

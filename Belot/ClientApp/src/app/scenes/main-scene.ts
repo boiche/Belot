@@ -15,6 +15,8 @@ class MainScene extends Scene {
     super("belot");
     this.connection = connection;
     this.resizeGame();
+
+    document.documentElement.requestFullscreen();
   }
 
   gameWidth = 0; gameHeight = 0;  
@@ -34,7 +36,7 @@ class MainScene extends Scene {
       autoCenter: Phaser.Scale.CENTER_BOTH,
       width: window.innerWidth,
       height: window.innerHeight,
-    }
+    }    
   };
 
   game: Phaser.Game = new Phaser.Game(this.config);
@@ -56,7 +58,7 @@ class MainScene extends Scene {
     }
 
     this.gameWidth = Number.parseInt(canvas.style.width.replace('px', ''));
-    this.gameHeight = Number.parseInt(canvas.style.height.replace('px', ''));
+    this.gameHeight = Number.parseInt(canvas.style.height.replace('px', ''));    
   }
 }
 

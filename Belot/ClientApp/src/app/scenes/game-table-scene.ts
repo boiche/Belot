@@ -5,6 +5,7 @@ import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
+import Card from "../GameObjects/Card";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
@@ -50,6 +51,9 @@ class GameTableScene extends Scene {
           turnManager.beforeThrow();
         } break;
       }
+    });
+    this.signalR.Connection.on('ShowOpponentCard', (cardInfo: any) => {
+      this.dealer.throwCard(cardInfo.card, cardInfo.opponentRelativeIndex);
     });
 
     var image = this.add.image(0, 0, "tableCloth")

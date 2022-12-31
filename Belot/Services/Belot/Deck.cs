@@ -51,9 +51,10 @@ namespace Belot.Services.Belot
         private void Initialize()
         {
             int frameIndex = 0;
-            for (int suit = 0; suit < 4; suit++)
+
+            for (int rank = 7; rank < 15; rank++)
             {
-                for (int rank = 7; rank < 15; rank++)
+                for (int suit = 0; suit < 4; suit++)
                 {
                     this.Enqueue(new Card()
                     {

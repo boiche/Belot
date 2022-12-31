@@ -46,6 +46,7 @@
     <None Remove="ClientApp\src\app\server-api\requests\join-game-request.ts" />
     <None Remove="ClientApp\src\app\server-api\requests\signalR\base-signalr-request.ts" />
     <None Remove="ClientApp\src\app\server-api\requests\signalR\game-announcement-request.ts" />
+    <None Remove="ClientApp\src\app\server-api\requests\signalR\show-opponent-card-request.ts" />
     <None Remove="ClientApp\src\app\server-api\responses\base-response.ts" />
     <None Remove="ClientApp\src\app\server-api\responses\get-available-games-response.ts" />
     <None Remove="ClientApp\src\app\server-api\responses\signalR\on-turn-response.ts" />
@@ -67,6 +68,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\join-game-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\base-signalr-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\game-announcement-request.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\show-opponent-card-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\responses\base-response.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\responses\get-available-games-response.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\GameObjects\Turn.ts" />

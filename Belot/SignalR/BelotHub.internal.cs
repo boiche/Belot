@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using Belot.Models;
+using Belot.Models.Http.Requests.SignalR;
+using System.Diagnostics;
 
 namespace Belot.SignalR
 {
@@ -36,19 +38,15 @@ namespace Belot.SignalR
         /// <returns></returns>
         private int GetRelativeDealerIndex(Guid id)
         {
-            int dealerPlayer = judgeManager.Judges[id].DealerPlayer.PlayerIndex;
-            int currentPlayer = judgeManager.Judges[id].GetPlayer(Context.ConnectionId).PlayerIndex;
-            int result = 0;
+            return judgeManager.Judges[id].GetRelativePlayerIndex(judgeManager.Judges[id].DealerPlayer.ConnectionId, Context.ConnectionId);
+        }
 
-            while (currentPlayer != dealerPlayer)
-            {
-                result++;
-                currentPlayer++;
-                if (currentPlayer > 3)
-                    currentPlayer = 0;
-            }
-
-            return result;
+        private void RemoveCardInternal(ThrowCardRequest request)
+        {
+            var playingHand = judgeManager.Judges[request.GameId].GetPlayer(Context.ConnectionId).PlayingHand;
+            Card cardToRemove = playingHand.First(x => x.Rank == request.Card.Rank && x.Suit == request.Card.Suit);
+            request.Card.FrameIndex = cardToRemove.FrameIndex;
+            playingHand.Remove(cardToRemove);
         }
     }
 }

@@ -169,5 +169,29 @@ namespace Belot.SignalR
                 TurnCode = TurnCodes.ThrowCard
             });
         }
+
+        public Task ThrowCard(ThrowCardRequest request)
+        {
+            RemoveCardInternal(request);
+
+            foreach (var player in judgeManager.Judges[request.GameId].GetPlayers())
+            {
+                var response = new ShowOpponentCardResponse()
+                {
+                    Card = request.Card,
+                    OpponentRelativeIndex = judgeManager.Judges[request.GameId].GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
+                };
+
+                Clients.Client(player.ConnectionId).ShowOpponentCard(response);                
+            }
+
+            judgeManager.Judges[request.GameId].NextToPlay();
+            Clients.Client(judgeManager.Judges[request.GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
+            {
+                TurnCode = TurnCodes.ThrowCard
+            });
+
+            return Task.CompletedTask;
+        }
     }
 }
