@@ -1,4 +1,4 @@
-﻿using Belot.Models;
+﻿using Belot.Models.Belot;
 using Belot.Models.Http.Responses.SignalR;
 
 namespace Belot.SignalR
@@ -43,6 +43,11 @@ namespace Belot.SignalR
         }
 
         public Task ShowOpponentCard(ShowOpponentCardResponse response)
+        {
+            return Task.Run(() => response);
+        }
+
+        public Task CollectCards(CollectCardsResponse response)
         {
             return Task.Run(() => response);
         }

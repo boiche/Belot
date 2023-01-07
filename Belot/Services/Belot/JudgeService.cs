@@ -1,4 +1,5 @@
-﻿using Belot.Models;
+﻿using Belot.Models.Belot;
+using Belot.Models.Http.Requests.SignalR;
 using Belot.Services.Interfaces;
 
 namespace Belot.Services.Belot
@@ -9,11 +10,11 @@ namespace Belot.Services.Belot
     public class BelotJudgeService : IJudgeService
     {
         private readonly Deck _cards;
-        private readonly List<Player> _players;
-        private GameAnnouncement _currentAnnouncement;
+        private readonly List<Player> _players;        
         private int _dealerPlayerIndex = -1;
         private int _playerToPlayIndex;
         private int _passes = 0;
+        private readonly GameInfo _gameInfo;
 
         /// <summary>
         /// The player who deals in current game
@@ -38,11 +39,13 @@ namespace Belot.Services.Belot
         { 
             get => _players[CheckPlayerIndex(_dealerPlayerIndex + 1)]; 
         }
+        internal GameHandInfo LastHand { get => _gameInfo.Hands.LastOrDefault(); }
 
         public BelotJudgeService()
         {
+            _gameInfo = new GameInfo();
             _cards = new Deck();
-            _players = new List<Player>();
+            _players = new List<Player>();            
         }
 
         /// <summary>
@@ -85,8 +88,13 @@ namespace Belot.Services.Belot
                 _dealerPlayerIndex = new Random().Next(0, 4);
             else
                 _dealerPlayerIndex = CheckPlayerIndex(_dealerPlayerIndex++);
-
+            
             _playerToPlayIndex = CheckPlayerIndex(_dealerPlayerIndex + 1);
+        }
+
+        public void UpdateGameHand(ThrowCardRequest request)
+        {
+            _gameInfo.UpdateHand(request);
         }
 
         internal Player GetPlayer(string connectionId)
@@ -97,7 +105,16 @@ namespace Belot.Services.Belot
         /// <summary>
         /// Passes the turn to the next player.
         /// </summary>
-        internal void NextToPlay() => _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);        
+        internal void NextToPlay()
+        {
+            if (_gameInfo.LastHandFinished)            
+                _playerToPlayIndex = _players.IndexOf(_players.First(x => x.ConnectionId == _gameInfo.Hands[^1].WonBy));
+            
+            else
+                _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);
+        }
+
+        internal bool LastHandFinished() => _gameInfo.LastHandFinished;
 
         /// <summary>
         /// Checks current state of passes.
@@ -107,10 +124,10 @@ namespace Belot.Services.Belot
 
         internal void Announce(string connectionId, GameAnnouncement announcement)
         {
-            if (announcement > _currentAnnouncement)
+            if (announcement > _gameInfo.CurrentAnnouncement)
             {
                 _passes = 0;
-                _currentAnnouncement = announcement;
+                _gameInfo.CurrentAnnouncement = announcement;
                 GetPlayer(connectionId).SetAnnouncement(announcement);
             }
             else if (announcement == GameAnnouncement.PASS)
@@ -131,7 +148,7 @@ namespace Belot.Services.Belot
             DealerPlayer.PlayerIndex++;
             PlayerToPlay.PlayerIndex = DealerPlayer.PlayerIndex + 1;
             _passes = 0;
-            _currentAnnouncement = GameAnnouncement.PASS;
+            _gameInfo.CurrentAnnouncement = GameAnnouncement.PASS;
         }
 
         /// <summary>
@@ -140,7 +157,7 @@ namespace Belot.Services.Belot
         /// <returns>Whether to start second deal or continue announcing.</returns>
         internal bool CheckSecondDeal()
         {
-            bool result = _passes == 3 && _currentAnnouncement > GameAnnouncement.PASS;
+            bool result = _passes == 3 && _gameInfo.CurrentAnnouncement > GameAnnouncement.PASS;
 
             if (result)
             {

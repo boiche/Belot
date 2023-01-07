@@ -55,6 +55,9 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('ShowOpponentCard', (cardInfo: any) => {
       this.dealer.throwCard(cardInfo.card, cardInfo.opponentRelativeIndex);
     });
+    this.signalR.Connection.on('CollectCards', (collectCardsInfo: any) => {
+      this.dealer.collectCards(collectCardsInfo.opponentRelativeIndex);
+    });
 
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)

@@ -1,5 +1,5 @@
 using Belot.Data;
-using Belot.Models;
+using Belot.Models.DataEntries;
 using Belot.Services;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;

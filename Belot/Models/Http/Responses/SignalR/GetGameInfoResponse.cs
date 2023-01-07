@@ -1,4 +1,6 @@
-﻿namespace Belot.Models.Http.Responses.SignalR
+﻿using Belot.Models.DataEntries;
+
+namespace Belot.Models.Http.Responses.SignalR
 {
     public class GetGameInfoResponse
     {

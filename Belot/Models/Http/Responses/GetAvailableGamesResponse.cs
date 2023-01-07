@@ -1,4 +1,6 @@
-﻿namespace Belot.Models.Http.Responses
+﻿using Belot.Models.DataEntries;
+
+namespace Belot.Models.Http.Responses
 {
     public class GetAvailableGamesResponse : BaseResponse
     {

@@ -1,4 +1,6 @@
-﻿namespace Belot.Models
+﻿using Belot.Models.DataEntries;
+
+namespace Belot.Models
 {
     /// <summary>
     /// Describes an object that is mapped to EF

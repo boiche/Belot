@@ -1,4 +1,4 @@
-﻿using Belot.Models;
+﻿using Belot.Models.Belot;
 using System.Diagnostics;
 
 namespace Belot.Services.Belot

@@ -1,5 +1,5 @@
 ﻿using Belot.Data.Configurations;
-using Belot.Models;
+using Belot.Models.DataEntries;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;

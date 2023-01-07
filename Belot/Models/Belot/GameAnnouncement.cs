@@ -1,4 +1,4 @@
-﻿namespace Belot.Models
+﻿namespace Belot.Models.Belot
 {
     public enum GameAnnouncement
     {

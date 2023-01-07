@@ -1,4 +1,4 @@
-﻿using Belot.Models;
+﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using System.Diagnostics;
 
@@ -41,12 +41,25 @@ namespace Belot.SignalR
             return judgeManager.Judges[id].GetRelativePlayerIndex(judgeManager.Judges[id].DealerPlayer.ConnectionId, Context.ConnectionId);
         }
 
+        /// <summary>
+        /// Removes a card of player's playing hand
+        /// </summary>
+        /// <param name="request"></param>
         private void RemoveCardInternal(ThrowCardRequest request)
         {
             var playingHand = judgeManager.Judges[request.GameId].GetPlayer(Context.ConnectionId).PlayingHand;
             Card cardToRemove = playingHand.First(x => x.Rank == request.Card.Rank && x.Suit == request.Card.Suit);
             request.Card.FrameIndex = cardToRemove.FrameIndex;
             playingHand.Remove(cardToRemove);
+        }
+
+        /// <summary>
+        /// Updates currently played turn with the given card
+        /// </summary>
+        /// <param name="request"></param>
+        private void UpdateTurnInternal(ThrowCardRequest request)
+        {
+            judgeManager.Judges[request.GameId].UpdateGameHand(request);
         }
     }
 }

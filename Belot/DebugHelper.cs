@@ -2,6 +2,9 @@
 
 namespace Belot
 {
+    /// <summary>
+    /// Provides basic internal debug methods
+    /// </summary>
     public static class DebugHelper
     {
         public static void WriteLine(Func<string> action)

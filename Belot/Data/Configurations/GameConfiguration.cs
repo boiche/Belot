@@ -1,4 +1,4 @@
-﻿using Belot.Models;
+﻿using Belot.Models.DataEntries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,6 @@
-﻿namespace Belot.Models.Http.Requests.SignalR
+﻿using Belot.Models.Belot;
+
+namespace Belot.Models.Http.Requests.SignalR
 {
     public class GameAnnouncementRequest : BaseSignalRRequest
     {

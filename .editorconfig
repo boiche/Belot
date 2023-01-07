@@ -58,6 +58,12 @@ dotnet_diagnostic.IDE0022.severity = none
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = silent
 
+# IDE0025: Use expression body for properties
+dotnet_diagnostic.IDE0025.severity = silent
+
+# CS8603: Possible null reference return.
+dotnet_diagnostic.CS8603.severity = silent
+
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4

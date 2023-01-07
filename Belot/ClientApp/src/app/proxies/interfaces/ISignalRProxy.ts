@@ -6,4 +6,5 @@ export default interface ISignalRProxy {
   invoke(method: string, ...args: any[]): Promise<any>;
   on(method: string, callback: (...args: any[]) => void): void;
   getPlayer(): Promise<Player>;
+  getConnectionId(): string | null;
 }

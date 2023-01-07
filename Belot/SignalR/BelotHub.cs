@@ -1,11 +1,13 @@
 ﻿using Belot.Data;
-using Belot.Models;
+using Belot.Models.Belot;
+using Belot.Models.DataEntries;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Models.Http.Responses.SignalR;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Belot.SignalR
 {
@@ -173,6 +175,7 @@ namespace Belot.SignalR
         public Task ThrowCard(ThrowCardRequest request)
         {
             RemoveCardInternal(request);
+            UpdateTurnInternal(request);
 
             foreach (var player in judgeManager.Judges[request.GameId].GetPlayers())
             {
@@ -182,14 +185,24 @@ namespace Belot.SignalR
                     OpponentRelativeIndex = judgeManager.Judges[request.GameId].GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
                 };
 
-                Clients.Client(player.ConnectionId).ShowOpponentCard(response);                
-            }
+                Clients.Client(player.ConnectionId).ShowOpponentCard(response);
+
+                if (judgeManager.Judges[request.GameId].LastHandFinished())
+                {
+                    var collectCardsResponse = new CollectCardsResponse()
+                    {
+                        OpponentRelativeIndex = judgeManager.Judges[request.GameId].GetRelativePlayerIndex(player.ConnectionId, judgeManager.Judges[request.GameId].LastHand.WonBy)
+                    };
+
+                    Clients.Client(player.ConnectionId).CollectCards(collectCardsResponse);
+                }
+            }            
 
             judgeManager.Judges[request.GameId].NextToPlay();
             Clients.Client(judgeManager.Judges[request.GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
             {
                 TurnCode = TurnCodes.ThrowCard
-            });
+            });            
 
             return Task.CompletedTask;
         }

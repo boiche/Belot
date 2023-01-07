@@ -1,4 +1,4 @@
-﻿namespace Belot.Models
+﻿namespace Belot.Models.Belot
 {
     /// <summary>
     /// Describes a turn in belot game

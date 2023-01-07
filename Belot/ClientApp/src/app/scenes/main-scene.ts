@@ -16,7 +16,7 @@ class MainScene extends Scene {
     this.connection = connection;
     this.resizeGame();
 
-    document.documentElement.requestFullscreen();
+    //document.documentElement.requestFullscreen()
   }
 
   gameWidth = 0; gameHeight = 0;  

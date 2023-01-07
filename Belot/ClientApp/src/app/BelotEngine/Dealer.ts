@@ -32,7 +32,8 @@ class HandPositionOptions  {
     },
     initAngle: 0,    
     middlePoint: new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight - gameOptions.cardHeight / 1.5),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight - gameOptions.cardHeight / 1.5)    
+    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight - gameOptions.cardHeight / 1.5),
+    collectPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight)
   }
   readonly leftPlayerConfiguration = {
     allignFuncs: {
@@ -44,7 +45,8 @@ class HandPositionOptions  {
     },
     initAngle: 270,
     middlePoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, window.innerHeight / 2),
-    goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, window.innerHeight / 2 - gameOptions.cardWidth / 4)
+    goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, window.innerHeight / 2 - gameOptions.cardWidth / 4),
+    collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, window.innerHeight / 2 - gameOptions.cardHeight / 4)
   }
   readonly upPLayerConfiguration = {
     allignFuncs: {
@@ -56,7 +58,8 @@ class HandPositionOptions  {
     },
     initAngle: 180,
     middlePoint: new Phaser.Geom.Point(window.innerWidth / 2, gameOptions.cardHeight / 1.5),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5)    
+    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
+    collectPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
   }
   readonly rightPlayerConfiguration = {
     allignFuncs: {
@@ -68,7 +71,8 @@ class HandPositionOptions  {
     },
     initAngle: 90,
     middlePoint: new Phaser.Geom.Point(window.innerWidth - gameOptions.cardWidth * 2.5, window.innerHeight / 2),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth - gameOptions.cardWidth * 2.5, window.innerHeight / 2 + gameOptions.cardWidth / 4)    
+    goalPoint: new Phaser.Geom.Point(window.innerWidth - gameOptions.cardWidth * 2.5, window.innerHeight / 2 + gameOptions.cardWidth / 4),
+    collectPoint: new Phaser.Geom.Point(window.innerWidth, window.innerHeight / 2 - gameOptions.cardHeight / 4)
   }
 
   readonly threeAllignFunc = (i: number, playerIndex: number): number => { var sign = playerIndex < 2 ? 1 : -1; return (3.75 * Math.pow(i, 2) - 7.5 * i + 3.75) * sign; };
@@ -401,11 +405,12 @@ class Dealer {
             console.log('out of card ' + this.name);
           })
           .on('pointerdown', function (this: GameObjects.Sprite, event: any) {            
-            var scene = (this.scene as GameTableScene);
+            var scene = (this.scene as GameTableScene);            
 
             let request = new ShowOpponentCardRequest();
             request.gameId = scene.gameId;
             request.card = new Card(this.getData('suit') as number, this.getData('rank') as number, this);
+            request.opponentConnectionId = scene.signalR.Connection.getConnectionId();
 
             scene.signalR.Connection.invoke("ThrowCard", request);          
           });
@@ -476,6 +481,7 @@ class Dealer {
     }
 
     sprite.removeInteractive().removeAllListeners();
+    sprite.setData('thrown', true);
 
     this._scene.add.tween({
       targets: [sprite],
@@ -483,18 +489,31 @@ class Dealer {
       x: this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 2 * Math.random(),
       y: this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4 * Math.random(),
       onStart: playerRelativeIndex === 0 ? this.disableCards : undefined,
-      onComplete: this.collectCards,
-      onCompleteParams: [this.backsGroups[0]],
       callbackScope: this
     });        
   }
 
-  //TODO: this method is for demo of collecting the cards to the player. OBSOLETE !!!
-  collectCards(tween: Phaser.Tweens.Tween, sprite: GameObjects.Sprite, cards: Phaser.GameObjects.Group) {
-    var main = new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight);
-    var up = new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2);
-    var left = new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, window.innerHeight / 2 - gameOptions.cardHeight / 4);
-    var right = new Phaser.Geom.Point(window.innerWidth, window.innerHeight / 2 - gameOptions.cardHeight / 4);
+  collectCards(opponentRelativeIndex: PlayerNumber) {
+    var collectPoint: Phaser.Geom.Point;
+
+    var thrownCards = this._scene.children.getAll().filter(x => x.getData('thrown') === true) as GameObjects.Sprite[];
+    console.log(thrownCards);
+
+    switch (opponentRelativeIndex) {
+      case 0: collectPoint = this.options.mainPlayerConfiguration.collectPoint; break;
+      case 1: collectPoint = this.options.rightPlayerConfiguration.collectPoint; break;
+      case 2: collectPoint = this.options.upPLayerConfiguration.collectPoint; break;
+      case 3: collectPoint = this.options.leftPlayerConfiguration.collectPoint; break;      
+    }
+
+    this._scene.add.tween({
+      targets: thrownCards,
+      delay: 250,
+      ease: 'Expo.easeOut',
+      x: collectPoint.x,
+      y: collectPoint.y,
+      onComplete: this.clearCards
+    });
   }
 
   clearCards(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[]) {
@@ -502,23 +521,6 @@ class Dealer {
       targets[i].scene.children.remove(targets[i], true).removeAllListeners().removeInteractive();
     }
   }
-
-  ArrangeHandByStrength() {
-    //this._dealtCards.sort((first, second) => {
-    //  if (first.suit > second.suit)
-    //    return -1;
-    //  else if (first.suit < second.suit)
-    //    return 1;
-    //  else {
-    //    if (first.rank > second.rank)
-    //      return -1;
-    //    else if (first.rank < second.rank)
-    //      return 1;
-    //    else
-    //      throw('cannot have two equal cards');
-    //  }
-    //});
-  }  
 }
 
 export { Dealer, TypeDeal }

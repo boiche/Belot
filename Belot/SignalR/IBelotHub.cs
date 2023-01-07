@@ -1,4 +1,4 @@
-﻿using Belot.Models;
+﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Models.Http.Responses.SignalR;
 
@@ -47,5 +47,11 @@ namespace Belot.SignalR
         /// <param name="opponentConnectionId">The player that threw the card</param>
         /// <returns></returns>
         Task ShowOpponentCard(ShowOpponentCardResponse response);
+        
+        /// <summary>
+        /// Indicates clients that the current hand has been completed and to trigger collection animation
+        /// </summary>
+        /// <returns></returns>
+        Task CollectCards(CollectCardsResponse response);
     }
 }

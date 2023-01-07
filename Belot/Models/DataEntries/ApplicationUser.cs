@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Belot.Models
+namespace Belot.Models.DataEntries
 {
     public class ApplicationUser : IdentityUser
     {

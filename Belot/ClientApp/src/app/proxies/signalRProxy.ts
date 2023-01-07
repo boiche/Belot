@@ -54,6 +54,10 @@ class SignalRProxy implements ISignalRProxy {
       this.createConnection(this._gameId);
     }
   }
+
+  getConnectionId(): string | null {
+    return this.connection.connectionId;
+  }
 }
 
 export default SignalRProxy

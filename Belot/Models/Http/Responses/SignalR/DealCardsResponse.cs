@@ -1,4 +1,6 @@
-﻿namespace Belot.Models.Http.Responses.SignalR
+﻿using Belot.Models.Belot;
+
+namespace Belot.Models.Http.Responses.SignalR
 {
     public class DealCardsResponse
     {

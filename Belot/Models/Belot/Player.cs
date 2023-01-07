@@ -1,4 +1,4 @@
-﻿namespace Belot.Models
+﻿namespace Belot.Models.Belot
 {
     public class Player
     {
@@ -14,6 +14,6 @@
             PlayingHand = new List<Card>();
         }
 
-        internal void SetAnnouncement(GameAnnouncement announcement) => this.Announcement = announcement;        
+        internal void SetAnnouncement(GameAnnouncement announcement) => Announcement = announcement;
     }
 }
