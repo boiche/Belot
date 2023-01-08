@@ -30,6 +30,7 @@ namespace Belot.Models.Belot
         public GameAnnouncement CurrentAnnouncement { get => _currentAnnouncement; set => _currentAnnouncement = value; }
         public bool IsGameOver { get => _score.IsGameOver(); }
         internal List<GameHandInfo> Hands { get => _hands; }
+        internal GameScore Score { get => _score; }
 
         private void CreateNewHand()
         {
@@ -81,6 +82,11 @@ namespace Belot.Models.Belot
 
         internal void UpdateHand(ThrowCardRequest request)
         {
+            if (gameAnnouncement == GameAnnouncement.PASS)
+            {
+                throw new InvalidOperationException("Game announcement cannot be PASS");
+            }
+
             PlayedCards.Add(request.OpponentConnectionId, request.Card);
             if (PlayedCards.Count == 4)
             {
@@ -88,11 +94,8 @@ namespace Belot.Models.Belot
 
                 if (isSuit)
                 {
-                    if (PlayedCards.Any(x => ((int)x.Value.Suit) == ((int)gameAnnouncement) - 1))
-                    {
-                        var winner = PlayedCards.Where(x => ((int)x.Value.Suit) == ((int)gameAnnouncement) - 1).OrderByDescending(x => x.Value.Rank).First();
-                        this.WonBy = winner.Key;
-                    }
+                    var winner = PlayedCards.GetWinnerSingleSuit((Suit)(((int)gameAnnouncement) - 1));
+                    this.WonBy = winner.Key;
                 }
                 else
                 {
@@ -101,7 +104,7 @@ namespace Belot.Models.Belot
                         var winner = PlayedCards.GetWinnerNoSuit();
                         WonBy = winner.Key;
                     }
-                    else if(gameAnnouncement == GameAnnouncement.ALLSUITS)
+                    else
                     {
                         var winner = PlayedCards.GetWinnerAllSuits();
                         WonBy = winner.Key;
@@ -116,6 +119,14 @@ namespace Belot.Models.Belot
         public int TeamA { get; set; }
         public int TeamB { get; set; }
 
-        public bool IsGameOver() => TeamA >= 151 || TeamB >= 151;        
+        public bool IsGameOver() => TeamA >= 151 || TeamB >= 151;
+
+        internal void CalculateScore(List<GameHandInfo> playedHands)
+        {
+            foreach (var hand in playedHands)
+            {
+
+            }
+        }
     }
 }

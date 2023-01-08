@@ -198,5 +198,13 @@ namespace Belot.Services.Belot
         }
 
         internal IEnumerable<Player> GetPlayers() => _players;
+
+        internal bool GameFinished() => _gameInfo.Hands.Count == 8;
+
+        internal void FinishGame()
+        {
+            _gameInfo.Score.CalculateScore();
+            _gameInfo.Hands.Clear();
+        }
     }
 }

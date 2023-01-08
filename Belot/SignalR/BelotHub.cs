@@ -196,13 +196,20 @@ namespace Belot.SignalR
 
                     Clients.Client(player.ConnectionId).CollectCards(collectCardsResponse);
                 }
-            }            
+            }
 
-            judgeManager.Judges[request.GameId].NextToPlay();
-            Clients.Client(judgeManager.Judges[request.GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
+            if (judgeManager.Judges[request.GameId].GameFinished())
             {
-                TurnCode = TurnCodes.ThrowCard
-            });            
+                judgeManager.Judges[request.GameId].FinishGame();
+            }
+            else
+            {
+                judgeManager.Judges[request.GameId].NextToPlay();
+                Clients.Client(judgeManager.Judges[request.GameId].PlayerToPlay.ConnectionId).OnTurn(new Turn()
+                {
+                    TurnCode = TurnCodes.ThrowCard
+                });
+            }                        
 
             return Task.CompletedTask;
         }

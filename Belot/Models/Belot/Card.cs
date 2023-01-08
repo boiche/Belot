@@ -6,6 +6,11 @@
         public Rank Rank { get; set; }
         public int FrameIndex { get; set; }
 
+        public bool Equals(Card? other)
+        {
+            return other.Suit == this.Suit && other.Rank == this.Rank;            
+        }
+
         public override string ToString()
         {
             return $"Rank: {Rank}, Suit: {Suit}, FrameIndex: {FrameIndex}";

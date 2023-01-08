@@ -501,9 +501,9 @@ class Dealer {
 
     switch (opponentRelativeIndex) {
       case 0: collectPoint = this.options.mainPlayerConfiguration.collectPoint; break;
-      case 1: collectPoint = this.options.rightPlayerConfiguration.collectPoint; break;
+      case 1: collectPoint = this.options.leftPlayerConfiguration.collectPoint; break;
       case 2: collectPoint = this.options.upPLayerConfiguration.collectPoint; break;
-      case 3: collectPoint = this.options.leftPlayerConfiguration.collectPoint; break;      
+      case 3: collectPoint = this.options.rightPlayerConfiguration.collectPoint; break;      
     }
 
     this._scene.add.tween({
