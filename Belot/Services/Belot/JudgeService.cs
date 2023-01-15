@@ -10,18 +10,17 @@ namespace Belot.Services.Belot
     public class BelotJudgeService : IJudgeService
     {
         private readonly Deck _cards;
-        private readonly List<Player> _players;        
         private int _dealerPlayerIndex = -1;
         private int _playerToPlayIndex;
         private int _passes = 0;
-        private readonly GameInfo _gameInfo;
+        private readonly GameInfo _gameInfo;        
 
         /// <summary>
         /// The player who deals in current game
         /// </summary>
         public Player DealerPlayer
         {
-            get => _players[_dealerPlayerIndex];
+            get => _gameInfo.Players[_dealerPlayerIndex];
         }
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Belot.Services.Belot
         /// </summary>
         public Player PlayerToPlay
         {
-            get => _players[_playerToPlayIndex];
+            get => _gameInfo.Players[_playerToPlayIndex];
         }
 
         /// <summary>
@@ -37,15 +36,23 @@ namespace Belot.Services.Belot
         /// </summary>
         public Player FirstToPlay 
         { 
-            get => _players[CheckPlayerIndex(_dealerPlayerIndex + 1)]; 
+            get => _gameInfo.Players[CheckPlayerIndex(_dealerPlayerIndex + 1)]; 
         }
+
+        /// <summary>
+        /// The player whose annouce is played
+        /// </summary>
+        public Player Announcer 
+        {
+            get => _gameInfo.Players.MaxBy(x => x.Announcement);            
+        }
+
         internal GameHandInfo LastHand { get => _gameInfo.Hands.LastOrDefault(); }
 
         public BelotJudgeService()
         {
             _gameInfo = new GameInfo();
-            _cards = new Deck();
-            _players = new List<Player>();            
+            _cards = new Deck();                      
         }
 
         /// <summary>
@@ -54,7 +61,7 @@ namespace Belot.Services.Belot
         /// <param name="cards"></param>
         public void DealCards(string playerConnectionId, int count)
         {
-            Player player = _players.First(x => x.ConnectionId == playerConnectionId);
+            Player player = _gameInfo.Players.First(x => x.ConnectionId == playerConnectionId);
             for (int i = 0; i < count; i++)
             {
                 player.PlayingHand.Add(_cards.Dequeue());
@@ -69,15 +76,15 @@ namespace Belot.Services.Belot
         /// <param name="player"></param>
         public void AddPlayer(Player player)
         {
-            player.PlayerIndex = this._players.Count;
-            _players.Add(player);
+            player.PlayerIndex = this._gameInfo.Players.Count;
+            _gameInfo.Players.Add(player);
         }
 
         /// <summary>
         /// Removes a player from the game
         /// </summary>
         /// <param name="player"></param>
-        public void RemovePlayer(string connectionId) => _players.Remove(_players.First(x => x.ConnectionId == connectionId));
+        public void RemovePlayer(string connectionId) => _gameInfo.Players.Remove(_gameInfo.Players.First(x => x.ConnectionId == connectionId));
 
         /// <summary>
         /// Prepares all necessary objects in order to start a game in random manner
@@ -99,7 +106,7 @@ namespace Belot.Services.Belot
 
         internal Player GetPlayer(string connectionId)
         {
-            return this._players.First(x => x.ConnectionId == connectionId);
+            return this._gameInfo.Players.First(x => x.ConnectionId == connectionId);
         }
 
         /// <summary>
@@ -108,7 +115,7 @@ namespace Belot.Services.Belot
         internal void NextToPlay()
         {
             if (_gameInfo.LastHandFinished)            
-                _playerToPlayIndex = _players.IndexOf(_players.First(x => x.ConnectionId == _gameInfo.Hands[^1].WonBy));
+                _playerToPlayIndex = _gameInfo.Players.IndexOf(_gameInfo.Players.First(x => x.ConnectionId == _gameInfo.Hands[^1].WonBy));
             
             else
                 _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);
@@ -136,7 +143,7 @@ namespace Belot.Services.Belot
 
         internal void DealNew()
         {
-            foreach (var player in _players)
+            foreach (var player in _gameInfo.Players)
             {
                 foreach (var card in player.PlayingHand)
                 {
@@ -145,8 +152,9 @@ namespace Belot.Services.Belot
                 player.PlayingHand.Clear();
             }
 
-            DealerPlayer.PlayerIndex++;
-            PlayerToPlay.PlayerIndex = DealerPlayer.PlayerIndex + 1;
+            _dealerPlayerIndex = CheckPlayerIndex(DealerPlayer.PlayerIndex + 1);
+            _playerToPlayIndex = CheckPlayerIndex(DealerPlayer.PlayerIndex + 1);
+
             _passes = 0;
             _gameInfo.CurrentAnnouncement = GameAnnouncement.PASS;
         }
@@ -194,17 +202,24 @@ namespace Belot.Services.Belot
                     mainPlayerIndex = 0;
             }
 
+            if (result > 3)
+            {
+                throw new Exception("Player index cannot be greater than 3");
+            }
+
             return result;
         }
 
-        internal IEnumerable<Player> GetPlayers() => _players;
+        internal IEnumerable<Player> GetPlayers() => _gameInfo.Players;
 
-        internal bool GameFinished() => _gameInfo.Hands.Count == 8;
+        internal bool GameFinished() => _gameInfo.Hands.Count == 8 && _gameInfo.Hands.Last().WonBy != default;
 
         internal void FinishGame()
         {
-            _gameInfo.Score.CalculateScore();
+            _gameInfo.GameScore.CalculateScore();
             _gameInfo.Hands.Clear();
         }
+
+        internal Score GetScore() => _gameInfo.GameScore.Score;
     }
 }

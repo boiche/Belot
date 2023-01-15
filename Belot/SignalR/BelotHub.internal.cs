@@ -36,9 +36,9 @@ namespace Belot.SignalR
         /// Gets the dealer seat based on current player's seat
         /// </summary>
         /// <returns></returns>
-        private int GetRelativeDealerIndex(Guid id)
+        private int GetRelativeDealerIndex(Guid gameId)
         {
-            return judgeManager.Judges[id].GetRelativePlayerIndex(judgeManager.Judges[id].DealerPlayer.ConnectionId, Context.ConnectionId);
+            return judgeManager.Judges[gameId].GetRelativePlayerIndex(judgeManager.Judges[gameId].DealerPlayer.ConnectionId, Context.ConnectionId);
         }
 
         /// <summary>

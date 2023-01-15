@@ -1,5 +1,5 @@
 import { GameObjects, Scene } from "phaser";
-import { constants } from "../../main";
+import { constants, gameOptions } from "../../main";
 import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
@@ -58,6 +58,10 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('CollectCards', (collectCardsInfo: any) => {
       this.dealer.collectCards(collectCardsInfo.opponentRelativeIndex);
     });
+    this.signalR.Connection.on("ShowScore", (score) => {
+      console.log('showing score');
+      console.log(score);
+    });
 
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)
@@ -72,16 +76,49 @@ class GameTableScene extends Scene {
       ease: Phaser.Math.Easing.Sine.Out,
       yoyo: false,
       duration: 1000
-    });       
+    });
+
+    this.drawSidebars();
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
+
       scene.deal(TypeDeal.FirstDeal);
       await scene.signalR.Connection.getPlayer().then((player) => {
         scene.currentPlayer = player;
       })
     });    
     this.cameras.main.fadeIn(1500);
+  }
+
+  drawSidebars() {
+    var sidebarGraphics = this.add.graphics();
+    var sidebarWidth = this.dealer.options.leftPlayerConfiguration.middlePoint.x - gameOptions.cardHeight / 2 - 65;
+
+    var mainColor = 0x630801;
+    var secondaryColor = 0xb18380;
+
+    sidebarGraphics.fillGradientStyle(mainColor, secondaryColor, mainColor, secondaryColor, 1);
+    sidebarGraphics.fillRect(0, 0, sidebarWidth, window.innerHeight);
+
+    sidebarGraphics.lineStyle(10, 0x00000, 1);
+    sidebarGraphics.lineBetween(sidebarWidth, 0, sidebarWidth, window.innerHeight);
+
+    sidebarGraphics.fillGradientStyle(secondaryColor, mainColor, secondaryColor, mainColor, 1);
+    sidebarGraphics.fillRect(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0, sidebarWidth, window.innerHeight);
+
+    sidebarGraphics.lineStyle(10, 0x00000, 1);
+    sidebarGraphics.lineBetween(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, window.innerHeight);
+
+    sidebarGraphics.fillStyle(0xd2b14c, 1);
+    var rectangle = new Phaser.Geom.Rectangle(30, 30, sidebarWidth - 60, 200);
+    sidebarGraphics.fillRectShape(rectangle);
+
+    sidebarGraphics.lineStyle(5, 0x00000, 1);
+    sidebarGraphics.strokeLineShape(rectangle.getLineA());
+    sidebarGraphics.strokeLineShape(rectangle.getLineB());
+    sidebarGraphics.strokeLineShape(rectangle.getLineC());
+    sidebarGraphics.strokeLineShape(rectangle.getLineD());
   }
 
   deal(deal: TypeDeal) {
@@ -97,11 +134,13 @@ class GameTableScene extends Scene {
   }  
   
   dealNew() {
+    console.log('dealing new...');
+
     this.clearScene();
 
     this.gameAnnouncements.reset();
+    this.currentPlayer.playingHand = [];
 
-    this.dealer.firstDealReady = false;
     this.deal(TypeDeal.FirstDeal);
   }
 
@@ -111,7 +150,7 @@ class GameTableScene extends Scene {
       toRemove[i]
         .removeInteractive()
         .removeAllListeners();
-      this.children.remove(toRemove[i], false);      
+      this.children.remove(toRemove[i], false);
     }
   }
 }

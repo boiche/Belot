@@ -53,5 +53,6 @@ namespace Belot.SignalR
         /// </summary>
         /// <returns></returns>
         Task CollectCards(CollectCardsResponse response);
+        Task ShowScore(ShowScoreResponse response);
     }
 }

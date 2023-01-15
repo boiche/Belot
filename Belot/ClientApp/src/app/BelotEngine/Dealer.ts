@@ -5,6 +5,7 @@ import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
+import { TurnManager } from "./TurnManager";
 
 enum TypeDeal {
   FirstDeal,
@@ -141,7 +142,6 @@ class Dealer {
 
     //TODO: create type for this promise result
     var playerInfo = await this._signalR.Connection.getPlayer();
-    var mainPlayerIndex = playerInfo.playerIndex;
     var mainPlayerCards = playerInfo.playingHand;
 
     for (var i = 0; i < mainPlayerCards.length; i++) {
@@ -154,7 +154,7 @@ class Dealer {
     this.initPlayers();
 
     var timelineWholeDeal = this._scene.tweens.createTimeline();
-    var currentPlayer: number = dealerIndex === 3 ? 0 : dealerIndex + 1;
+    var currentPlayer: number = dealerIndex >= 3 ? 0 : dealerIndex + 1;
     var goalPoints: Phaser.Geom.Point[] = [
       this.options.mainPlayerConfiguration.goalPoint,
       this.options.rightPlayerConfiguration.goalPoint,
@@ -164,7 +164,7 @@ class Dealer {
 
     if (typeDeal === TypeDeal.FirstDeal) {
       for (var i = 0; i < 4; i++) {
-        this.options.player = currentPlayer as PlayerNumber;        
+        this.options.player = currentPlayer as PlayerNumber;
         var playersBacks = this.backsGroups[currentPlayer].getChildren().slice(0, 3) as GameObjects.Sprite[];
 
         timelineWholeDeal.add({
@@ -204,7 +204,7 @@ class Dealer {
         currentPlayer++;
         if (currentPlayer > 3) {
           currentPlayer = 0;
-        }
+        }              
       }
     }
     else {
@@ -428,7 +428,7 @@ class Dealer {
     }
     if (cardsInHand.length === 8 && forPlayer === dealerIndex) {
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
-        dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);
+        dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);        
       } 
     } 
   }
@@ -448,7 +448,10 @@ class Dealer {
 
     switch (playerRelativeIndex) {
       case 0: {
-        sprite = this._scene.currentPlayer.playingHand.filter(x => x.equal(cardInfo))[0].sprite; //this._scene.children.getByName('suit: ' + cardInfo.suit + ' rank: ' + cardInfo.rank) as GameObjects.Sprite;
+        var card = this._scene.currentPlayer.playingHand.filter(x => x.equal(cardInfo))[0];
+        var index = this._scene.currentPlayer.playingHand.indexOf(card);
+        this._scene.currentPlayer.playingHand.splice(index, 1);
+        sprite = card.sprite;
       } break;
       case 1: {
         sprite = this._scene.add.sprite(

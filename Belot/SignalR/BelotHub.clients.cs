@@ -51,5 +51,10 @@ namespace Belot.SignalR
         {
             return Task.Run(() => response);
         }
+
+        public Task ShowScore(ShowScoreResponse response)
+        {
+            return Task.Run(() => response);
+        }
     }
 }
