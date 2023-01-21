@@ -162,6 +162,9 @@ namespace Belot.Services.Belot
         {
             Score.LastGameTeamA = default;
             Score.LastGameTeamB = default;
+            Score.IsVutreTeamA = default;
+            Score.IsVutreTeamB = default;
+            Score.IsCapo = default;
 
             List<string> playerIds = _gameInfo.Players.Select(x => x.ConnectionId).ToList();
             Player announcer = _gameInfo.Players.MaxBy(x => x.Announcement);
@@ -194,7 +197,10 @@ namespace Belot.Services.Belot
             if (playerIds.IndexOf(announcer.ConnectionId) % 2 == 0) //is announcer of TeamA
             {
                 if (Score.LastGameTeamA < Score.LastGameTeamB)
+                {
+                    Score.IsVutreTeamA = true;
                     Score.TeamB += Round(Score.LastGameTeamA + Score.LastGameTeamB, announcer.Announcement);
+                }
                 else if (Score.LastGameTeamA == Score.LastGameTeamB) //TODO: keep Score.TeamA score for next game
                     Score.TeamB += Round(Score.LastGameTeamB, announcer.Announcement);
                 else
@@ -207,7 +213,10 @@ namespace Belot.Services.Belot
             else
             {
                 if (Score.LastGameTeamB < Score.LastGameTeamA)
+                {
+                    Score.IsVutreTeamB = true;
                     Score.TeamA += Round(Score.LastGameTeamA + Score.LastGameTeamB, announcer.Announcement);
+                }
                 else if (Score.LastGameTeamB == Score.LastGameTeamA) //TODO: keep Score.TeamB score for next game
                     Score.TeamA += Round(Score.LastGameTeamA, announcer.Announcement);
                 else
@@ -221,11 +230,11 @@ namespace Belot.Services.Belot
         private int Round(int score, GameAnnouncement announcement)
         {
             if (announcement <= GameAnnouncement.SPADES)
-                return score / 10 + score % 6 >= 0 ? 1 : 0;
+                return score / 10 + (score % 6 >= 0 ? 1 : 0);
             if (announcement == GameAnnouncement.ALLSUITS)
-                return score / 10 + score % 5 >= 0 ? 1 : 0;
+                return score / 10 + (score % 5 >= 0 ? 1 : 0);
             else
-                return score / 10 + score % 5 >= 0 ? 1 : 0;
+                return score / 10 + (score % 5 >= 0 ? 1 : 0);
         }
     }
 }

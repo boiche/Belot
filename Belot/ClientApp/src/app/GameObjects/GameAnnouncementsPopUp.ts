@@ -4,10 +4,9 @@ import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import GameAnnouncementRequest from "../server-api/requests/signalR/game-announcement-request";
+import { BasePopUp } from "./BasePopUp";
 
-class GameAnnouncementsPopUp {
-  sprites: GameObjects.Sprite[];
-  scene: GameTableScene;
+class GameAnnouncementsPopUp extends BasePopUp {
   depth: number;
   shown: boolean = false;
   signalR!: SignalRPlugin;
@@ -16,8 +15,7 @@ class GameAnnouncementsPopUp {
   disabledColor = 0x878787;
 
   constructor(scene: GameTableScene, depth: number) {
-    this.sprites = [];
-    this.scene = scene;
+    super(scene);
     this.depth = depth;
     this.initControls();
   }
@@ -29,7 +27,7 @@ class GameAnnouncementsPopUp {
     }
   }
 
-  show() {
+  override show() {
     var hoverColor = 0xD3DCE5;
     var disabledColor = 0x878787;
 
@@ -147,22 +145,10 @@ class GameAnnouncementsPopUp {
     const extraCamera = this.scene.cameras.add();
     extraCamera.ignore(this.scene.children.getByName('tableCloth') as GameObjects.Image);
     this.scene.cameras.main.ignore(this.scene.dealer.backsGroups[0].getChildren());
-
+    
     this.sprites = announcements.concat(counters).concat([pass, background]);
 
     this.shown = true;
-  }
-
-  hide() {
-    for (var i = 0; i < this.sprites.length; i++) {
-      this.sprites[i]
-        .removeAllListeners()
-        .removeFromDisplayList()        
-        .removeInteractive();
-
-      this.scene.children.getByName(this.sprites[i].name)?.destroy();
-    }
-    this.shown = false;
   }
 
   initControls() {

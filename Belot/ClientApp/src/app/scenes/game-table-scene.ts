@@ -3,10 +3,12 @@ import { constants, gameOptions } from "../../main";
 import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
+import GameScore from "../BelotEngine/GameScore";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
 import Card from "../GameObjects/Card";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
+import GameScorePopUp from "../GameObjects/GameScorePopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
 
@@ -29,6 +31,10 @@ class GameTableScene extends Scene {
   }  
 
   create(gameId: any) {
+    var tempScore = new GameScore();
+    tempScore.lastGameTeamA = 14;
+    tempScore.lastGameTeamB = 12;
+
     this.gameId = gameId;
     this._belotGame.gameId = gameId;
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
@@ -58,9 +64,10 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('CollectCards', (collectCardsInfo: any) => {
       this.dealer.collectCards(collectCardsInfo.opponentRelativeIndex);
     });
-    this.signalR.Connection.on("ShowScore", (score) => {
-      console.log('showing score');
+    this.signalR.Connection.on('ShowScore', (score: GameScore) => {
       console.log(score);
+      var popup = new GameScorePopUp(this, score, 10);
+      popup.show();
     });
 
     var image = this.add.image(0, 0, "tableCloth")
@@ -85,6 +92,7 @@ class GameTableScene extends Scene {
 
       scene.deal(TypeDeal.FirstDeal);
       await scene.signalR.Connection.getPlayer().then((player) => {
+        console.log(player);
         scene.currentPlayer = player;
       })
     });    

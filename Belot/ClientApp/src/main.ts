@@ -43,6 +43,8 @@ export const constants = {
   redoubleGameAnnouncement: 'redoubleGameAnnouncement',
   passGameAnnouncement: 'passGameAnnouncement',
   gameAnnouncementsBackground: 'gameAnnouncementsBackground',
+  gameScoreBackground: 'gameScoreBackground',
+  gameScoreItem: 'gameScoreItem',
   cardBack: 'cardBack',
   cardsSpritesheet: 'belotCards'
 }

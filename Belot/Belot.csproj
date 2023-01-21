@@ -34,8 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\BelotEngine\GameScore.ts" />
     <None Remove="ClientApp\src\app\BelotEngine\TurnManager.ts" />
     <None Remove="ClientApp\src\app\BelotEngine\utils.ts" />
+    <None Remove="ClientApp\src\app\GameObjects\BasePopUp.ts" />
     <None Remove="ClientApp\src\app\proxies\baseProxy.ts" />
     <None Remove="ClientApp\src\app\proxies\belotProxy.ts" />
     <None Remove="ClientApp\src\app\proxies\interfaces\ISignalRProxy.ts" />
@@ -57,7 +59,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\GameScore.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\TurnManager.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\BasePopUp.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\proxies\baseProxy.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\scenes\loading-scene.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\proxies\belotProxy.ts" />
@@ -76,6 +80,7 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\src\app\server-api\responses\signalR\" />
+    <Folder Include="ClientApp\src\assets\sprites\gameScore\" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

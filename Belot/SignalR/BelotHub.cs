@@ -41,7 +41,8 @@ namespace Belot.SignalR
             judgeManager.Judges[gameId].AddPlayer(new Player()
             {
                 Username = "some username",
-                ConnectionId = Context.ConnectionId
+                ConnectionId = Context.ConnectionId,
+                Team = gameEntry.ConnectedPlayers % 2 == 1 ? 0 : 1
             });
 
             if (gameEntry.ConnectedPlayers == 4)
@@ -208,7 +209,7 @@ namespace Belot.SignalR
                 {
                     Score = judgeManager.Judges[request.GameId].GetScore()
                 };
-                Clients.Group(Context.ConnectionId).ShowScore(showScoreResponse);
+                Clients.Group(request.GameId.ToString()).ShowScore(showScoreResponse);
             }
             else
             {

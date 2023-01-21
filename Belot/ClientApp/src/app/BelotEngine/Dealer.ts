@@ -438,9 +438,9 @@ class Dealer {
   }
 
   enableCards() {
-    console.log('enabling player cards');
-    console.log(this._scene.currentPlayer.playingHand);
+    console.log('enabling player cards');    
     this._scene.currentPlayer.playingHand.forEach(x => x.sprite.setInteractive());
+    console.log(this._scene.currentPlayer.playingHand);
   }
 
   public throwCard(cardInfo: Card, playerRelativeIndex: PlayerNumber) {

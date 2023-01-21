@@ -21,5 +21,9 @@
         /// The score of team B for the last game only
         /// </summary>
         public int LastGameTeamB { get; set; }
+
+        public bool IsCapo { get; set; }
+        public bool IsVutreTeamA { get; set; }
+        public bool IsVutreTeamB { get; set; }
     }
 }
