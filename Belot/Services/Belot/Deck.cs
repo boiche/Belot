@@ -67,6 +67,17 @@ namespace Belot.Services.Belot
             }
         }
 
+        internal void CollectCards(List<GameHandInfo> hands)
+        {
+            foreach (var hand in hands)
+            {
+                foreach (var card in hand.PlayedCards)
+                {
+                    this.Enqueue(card.Value);
+                }
+            }
+        }
+
         private void Cut(int index)
         {
             try

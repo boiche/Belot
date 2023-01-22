@@ -3,7 +3,7 @@ import GameTableScene from '../scenes/game-table-scene';
 
 export abstract class BasePopUp {
   protected shown: boolean;
-  protected sprites: GameObjects.Sprite[];
+  protected sprites: GameObjects.GameObject[];
   protected abstract show(): void;
   protected scene: GameTableScene;
 

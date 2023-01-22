@@ -225,6 +225,9 @@ namespace Belot.Services.Belot
                     Score.TeamB += Round(Score.LastGameTeamB, announcer.Announcement);
                 }
             }
+
+            Score.LastGameTeamA = Round(Score.LastGameTeamA, announcer.Announcement);
+            Score.LastGameTeamB = Round(Score.LastGameTeamB, announcer.Announcement);
         }
 
         private int Round(int score, GameAnnouncement announcement)

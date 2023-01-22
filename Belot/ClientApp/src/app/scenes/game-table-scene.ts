@@ -22,6 +22,7 @@ class GameTableScene extends Scene {
   signalR!: SignalRPlugin;
   gameId: string = "";
   currentPlayer!: Player;
+  totalGameScoreOriginPoint!: Phaser.Geom.Point;
 
   constructor() {
     super('PlayBelot');
@@ -65,9 +66,10 @@ class GameTableScene extends Scene {
       this.dealer.collectCards(collectCardsInfo.opponentRelativeIndex);
     });
     this.signalR.Connection.on('ShowScore', (score: GameScore) => {
-      console.log(score);
       var popup = new GameScorePopUp(this, score, 10);
       popup.show();
+
+      this.updateTotalScore(score);
     });
 
     var image = this.add.image(0, 0, "tableCloth")
@@ -118,6 +120,13 @@ class GameTableScene extends Scene {
     sidebarGraphics.lineStyle(10, 0x00000, 1);
     sidebarGraphics.lineBetween(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, window.innerHeight);
 
+    // totalScore
+    var config: Phaser.Types.GameObjects.Text.TextStyle = {
+      color: '#000000',
+      fontStyle: 'bold',
+      fontSize: '52'
+    };
+
     sidebarGraphics.fillStyle(0xd2b14c, 1);
     var rectangle = new Phaser.Geom.Rectangle(30, 30, sidebarWidth - 60, 200);
     sidebarGraphics.fillRectShape(rectangle);
@@ -127,6 +136,28 @@ class GameTableScene extends Scene {
     sidebarGraphics.strokeLineShape(rectangle.getLineB());
     sidebarGraphics.strokeLineShape(rectangle.getLineC());
     sidebarGraphics.strokeLineShape(rectangle.getLineD());
+
+    var weLabel = this.add.text(rectangle.x + 20, rectangle.y + 20, 'WE', config)
+      .setName(constants.gameScoreTotalItem + 'weLabel')
+      .setDepth(10)
+      .setFontSize(42);
+
+    var youLabel = this.add.text(weLabel.x + weLabel.width + 20, weLabel.y, 'YOU', config)
+      .setName(constants.gameScoreTotalItem + ' youLabel')
+      .setDepth(10)
+      .setFontSize(42);
+
+    this.add.text(weLabel.x, weLabel.y + weLabel.height + 15, '0', config)
+      .setName(constants.gameScoreTotalItem + ' weScoreLabel')
+      .setDepth(10)
+      .setFontSize(42);
+
+    this.add.text(youLabel.x, youLabel.y + youLabel.height + 15, '0', config)
+      .setName(constants.gameScoreTotalItem + ' youScoreLabel')
+      .setDepth(10)
+      .setFontSize(42);
+
+    this.totalGameScoreOriginPoint = new Phaser.Geom.Point(rectangle.x, rectangle.y);
   }
 
   deal(deal: TypeDeal) {
@@ -160,6 +191,17 @@ class GameTableScene extends Scene {
         .removeAllListeners();
       this.children.remove(toRemove[i], false);
     }
+  }
+
+  updateTotalScore(score: any) {
+    var weScoreLabel = this.children.getByName(constants.gameScoreTotalItem + ' weScoreLabel') as GameObjects.Text;
+    var youScoreLabel = this.children.getByName(constants.gameScoreTotalItem + ' youScoreLabel') as GameObjects.Text;
+
+    var weScore = this.currentPlayer.team == 0 ? score.score.teamA.toString() : score.score.teamB.toString();
+    var youScore = this.currentPlayer.team == 0 ? score.score.teamB.toString() : score.score.teamA.toString();
+
+    weScoreLabel.text = weScore;
+    youScoreLabel.text = youScore;
   }
 }
 

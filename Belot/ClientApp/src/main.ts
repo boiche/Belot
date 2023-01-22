@@ -45,6 +45,7 @@ export const constants = {
   gameAnnouncementsBackground: 'gameAnnouncementsBackground',
   gameScoreBackground: 'gameScoreBackground',
   gameScoreItem: 'gameScoreItem',
+  gameScoreTotalItem: 'gameScoreTotalItem',
   cardBack: 'cardBack',
   cardsSpritesheet: 'belotCards'
 }

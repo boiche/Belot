@@ -217,6 +217,9 @@ namespace Belot.Services.Belot
         internal void FinishGame()
         {
             _gameInfo.GameScore.CalculateScore();
+
+            _cards.CollectCards(_gameInfo.Hands);            
+
             _gameInfo.Hands.Clear();
         }
 

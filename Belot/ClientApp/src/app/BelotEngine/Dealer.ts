@@ -1,11 +1,9 @@
-import { Game, GameObjects, Scene } from "phaser";
+import { GameObjects } from "phaser";
 import { constants, gameOptions, getScales } from "../../main";
 import Card from "../GameObjects/Card";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
-import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
-import { TurnManager } from "./TurnManager";
 
 enum TypeDeal {
   FirstDeal,
@@ -435,6 +433,9 @@ class Dealer {
 
   disableCards() {
     this._scene.currentPlayer.playingHand.forEach(x => x.sprite.disableInteractive());
+    if (this._scene.currentPlayer.isOnTurn) {
+      this.enableCards();
+    }
   }
 
   enableCards() {
@@ -493,7 +494,8 @@ class Dealer {
       y: this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4 * Math.random(),
       onStart: playerRelativeIndex === 0 ? this.disableCards : undefined,
       callbackScope: this
-    });        
+    });
+    this._scene.currentPlayer.isOnTurn = false;
   }
 
   collectCards(opponentRelativeIndex: PlayerNumber) {
