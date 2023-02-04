@@ -1,13 +1,25 @@
 import { GameObjects } from "phaser";
 import { constants, gameOptions, getScales } from "../../main";
-import Card from "../GameObjects/Card";
+import { Card } from "../GameObjects/Card";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
+import { GameAnnouncementType } from "./Announcement";
+import Player from "./Player";
 
 enum TypeDeal {
   FirstDeal,
   SecondDeal
+}
+
+class CurrentPlayerHand {
+  sorted: Card[];
+  initial: Card[];
+
+  constructor(sorted: Card[], initial: Card[]) {
+    this.sorted = sorted;
+    this.initial = initial;
+  }
 }
 
 class HandPositionOptions  {
@@ -109,13 +121,13 @@ class Dealer {
   secondDealReady = false;
   currentDeal!: 0 | 1;
   absoluteDealerIndex!: PlayerNumber;
-  scales = getScales();
+  scales = getScales();  
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
     this.backsGroups = [];
 
-    this.CreateBacks(5, dealerIndex); 
+    this.CreateBacks(5); 
 
     this.Deal(dealerIndex, 5, TypeDeal.FirstDeal);
   }
@@ -124,7 +136,7 @@ class Dealer {
     this.options.setCardsOffset(gameOptions.cardWidth / 3);
     this.currentDeal = 1;
 
-    this.CreateBacks(3, dealerIndex);
+    this.CreateBacks(3);
 
     this.Deal(dealerIndex, 3, TypeDeal.SecondDeal);
   }
@@ -138,12 +150,14 @@ class Dealer {
       gameId: this._scene.gameId
     });
 
-    //TODO: create type for this promise result
+    //TODO: create type for this promise result    
+    var announcement = this?._scene?._belotGame?.currentAnnouncement?.type;
     var playerInfo = await this._signalR.Connection.getPlayer();
-    var mainPlayerCards = playerInfo.playingHand;
 
-    for (var i = 0; i < mainPlayerCards.length; i++) {
-      var current = mainPlayerCards[i];
+    var playerHandInfo = new CurrentPlayerHand(Player.sortPlayingHand(playerInfo.playingHand, announcement ?? GameAnnouncementType.PASS), playerInfo.playingHand);
+
+    for (var i = 0; i < playerHandInfo.initial.length; i++) {
+      var current = playerHandInfo.initial[i];
       current.sprite = this._scene.add.sprite(0, 0, constants.cardsSpritesheet, current.frameIndex)
         .setVisible(false)
         .setOrigin(0)
@@ -164,6 +178,7 @@ class Dealer {
       for (var i = 0; i < 4; i++) {
         this.options.player = currentPlayer as PlayerNumber;
         var playersBacks = this.backsGroups[currentPlayer].getChildren().slice(0, 3) as GameObjects.Sprite[];
+        const cardsInHandCount = 3;
 
         timelineWholeDeal.add({
           targets: playersBacks,
@@ -175,7 +190,7 @@ class Dealer {
           duration: 200,
           callbackContext: this._scene,
           onComplete: this.showCard,
-          onCompleteParams: [this.options, playersBacks, this, currentPlayer, mainPlayerCards, dealerIndex],
+          onCompleteParams: [this.options, playersBacks, this, currentPlayer, playerHandInfo, dealerIndex, cardsInHandCount],
         });
         currentPlayer++;
         if (currentPlayer > 3) {
@@ -186,6 +201,7 @@ class Dealer {
       for (var i = 0; i < 4; i++) {
         this.options.player = currentPlayer as PlayerNumber;
         var playersBacks = this.backsGroups[currentPlayer].getChildren() as GameObjects.Sprite[];
+        const cardsInHandCount = 5;
 
         timelineWholeDeal.add({
           targets: this.backsGroups[currentPlayer].getChildren().slice(3, 5),
@@ -197,7 +213,7 @@ class Dealer {
           duration: 200,
           callbackContext: this._scene,
           onComplete: this.showCard,
-          onCompleteParams: [this.options, playersBacks, this, currentPlayer, mainPlayerCards, dealerIndex],
+          onCompleteParams: [this.options, playersBacks, this, currentPlayer, playerHandInfo, dealerIndex, cardsInHandCount],
         });
         currentPlayer++;
         if (currentPlayer > 3) {
@@ -209,6 +225,7 @@ class Dealer {
       for (var i = 0; i < 4; i++) {
         this.options.player = currentPlayer as PlayerNumber;
         var playersBacks = this.backsGroups[currentPlayer].getChildren() as GameObjects.Sprite[];
+        const cardsInHandCount = 8;
 
         timelineWholeDeal.add({
           targets: this.backsGroups[currentPlayer].getChildren().slice(5, 8),
@@ -220,7 +237,7 @@ class Dealer {
           duration: 200,
           callbackContext: this._scene,
           onComplete: this.showCard,
-          onCompleteParams: [this.options, playersBacks, this, currentPlayer, mainPlayerCards, dealerIndex],
+          onCompleteParams: [this.options, playersBacks, this, currentPlayer, playerHandInfo, dealerIndex, cardsInHandCount],
         });
         currentPlayer++;
         if (currentPlayer > 3) {
@@ -232,7 +249,7 @@ class Dealer {
     timelineWholeDeal.play();
   }
 
-  CreateBacks(count: number, dealerIndex: number) {
+  CreateBacks(count: number) {
     if (this._scene.children.getByName("scene_middle") === null) {
       var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setName("scene_middle").setDepth(100);
       graphics.fillPointShape(new Phaser.Geom.Point(this.options.sceneMiddlePoint.x, this.options.sceneMiddlePoint.y), 10);
@@ -311,11 +328,14 @@ class Dealer {
       .setVisible(true));
   }
 
-  showCard(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[], options: HandPositionOptions, cardsInHand: Phaser.GameObjects.Sprite[], dealer: Dealer, forPlayer: PlayerNumber, mainPlayerCards: Card[], dealerIndex: number) {
-    var middleIndex = Math.ceil(cardsInHand.length / 2) - 1, count = cardsInHand.length;    
+  /**
+ * Shows the dealt cards. Invoked on completion of the timeline of deal.
+ */
+  showCard(tween: Phaser.Tweens.Tween, targets: GameObjects.Sprite[], options: HandPositionOptions, backs: Phaser.GameObjects.Sprite[], dealer: Dealer, forPlayer: PlayerNumber, mainPlayerCards: CurrentPlayerHand, dealerIndex: number, cardsInHandCount: number) {
+    var middleIndex = Math.ceil(backs.length / 2) - 1, count = backs.length;    
 
     for (var i = 0; i < count; i++) {
-      var xOffset = 0, yOffset = 0, angle = 0, sprite = cardsInHand[i];      
+      var xOffset = 0, yOffset = 0, angle = 0, sprite = backs[i];      
 
       switch (forPlayer) {
         case 0: {
@@ -388,19 +408,17 @@ class Dealer {
 
       if (forPlayer === 0 && sprite.name.includes(constants.cardBack)) {
         sprite
-          .setTexture(mainPlayerCards[i].sprite.texture.key, mainPlayerCards[i].sprite.frame.name)
-          .setName(constants.belotGameObjectName + ' ' + mainPlayerCards[i].sprite.name)
+          .setTexture(mainPlayerCards.initial[i].sprite.texture.key, mainPlayerCards.initial[i].sprite.frame.name)
+          .setName(constants.belotGameObjectName + ' ' + mainPlayerCards.initial[i].sprite.name)
           .setInteractive({ cursor: 'pointer' })
-          .setData('suit', mainPlayerCards[i].suit)
-          .setData('rank', mainPlayerCards[i].rank)
+          .setData('suit', mainPlayerCards.initial[i].suit)
+          .setData('rank', mainPlayerCards.initial[i].rank)
           .disableInteractive()
           .on('pointerover', function (this: GameObjects.Sprite, event: any) {
             this.y -= 15;
-            console.log('over of card ' + this.name);
           })
           .on('pointerout', function (this: GameObjects.Sprite, event: any) {
             this.y += 15;
-            console.log('out of card ' + this.name);
           })
           .on('pointerdown', function (this: GameObjects.Sprite, event: any) {            
             var scene = (this.scene as GameTableScene);            
@@ -413,24 +431,44 @@ class Dealer {
             scene.signalR.Connection.invoke("ThrowCard", request);          
           });
 
-        dealer._scene.currentPlayer.playingHand.push(new Card(mainPlayerCards[i].suit, mainPlayerCards[i].rank, sprite));
+        dealer._scene.currentPlayer.playingHand.push(new Card(mainPlayerCards.initial[i].suit, mainPlayerCards.initial[i].rank, sprite));
       }
     }
 
-    if (cardsInHand.length === 5 && forPlayer === dealerIndex) {      
+    // show cards in order
+    if (forPlayer === 0) {
+      var initialVisible = mainPlayerCards.initial.slice(0, cardsInHandCount);
+      var visible = mainPlayerCards.sorted.filter(x => initialVisible.includes(x));      
+      for (var i = 0; i < visible.length; i++) {
+        //TODO: sometimes at first deal cards duplicate its textures. Find a proper way to swap textures (or POSITION). The less changes the better.
+        //'initialVisible' contains the cards that should be visible. 'visible' contains them in what order to be shown.
+
+        var currentVisible = dealer._scene.children.getByName(constants.belotGameObjectName + ' ' + visible[i].sprite.name) as GameObjects.Sprite;
+        var currentInitial = dealer._scene.children.getByName(constants.belotGameObjectName + ' ' + initialVisible[i].sprite.name) as GameObjects.Sprite;
+
+        currentInitial
+          .setTexture(currentInitial.texture.key, mainPlayerCards.sorted[i].frameIndex)
+          .setName(constants.belotGameObjectName + ' ' + "suit: " + visible[i].suit + " rank: " + visible[i].rank);
+      }
+    }
+
+    if (backs.length === 5 && forPlayer === dealerIndex) {      
       dealer.firstDealReady = true;
 
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
         dealer._signalR.Connection.invoke('FirstDealCompleted', dealer._scene.gameId);
       }        
     }
-    if (cardsInHand.length === 8 && forPlayer === dealerIndex) {
+    if (backs.length === 8 && forPlayer === dealerIndex) {
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
         dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);        
       } 
     } 
   }
 
+  /**
+ * Disables user's hand. Invoked on completion of throw.
+ */
   disableCards() {
     this._scene.currentPlayer.playingHand.forEach(x => x.sprite.disableInteractive());
     if (this._scene.currentPlayer.isOnTurn) {

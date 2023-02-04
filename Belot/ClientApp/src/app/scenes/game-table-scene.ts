@@ -6,7 +6,7 @@ import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
 import GameScore from "../BelotEngine/GameScore";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
-import Card from "../GameObjects/Card";
+import { Card } from "../GameObjects/Card";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 import GameScorePopUp from "../GameObjects/GameScorePopUp";
 import Turn from "../GameObjects/Turn";

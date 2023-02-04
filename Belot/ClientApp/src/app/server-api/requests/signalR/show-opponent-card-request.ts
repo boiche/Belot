@@ -1,4 +1,4 @@
-import Card from "../../../GameObjects/Card";
+import { Card } from "../../../GameObjects/Card";
 import BaseSignalRRequest from "./base-signalr-request";
 
 export default class ShowOpponentCardRequest extends BaseSignalRRequest {
