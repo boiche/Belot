@@ -12,8 +12,8 @@ class Card {
   dealt: boolean;
   sprite: Phaser.GameObjects.Sprite;
   frameIndex: number;
-  
-  get SuitStrength() {
+
+  get SuitStrength(): number {
     switch (this.rank) {
       case Rank.SEVEN: return SingleSuit.SEVEN;
       case Rank.EIGHT: return SingleSuit.EIGHT;
@@ -26,7 +26,7 @@ class Card {
     }
   }
 
-  get NoSuitStrength() {
+  get NoSuitStrength(): number {
     switch (this.rank) {
       case Rank.SEVEN: return NoSuit.SEVEN;
       case Rank.EIGHT: return NoSuit.EIGHT;

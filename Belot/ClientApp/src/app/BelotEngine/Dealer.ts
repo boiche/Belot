@@ -438,17 +438,22 @@ class Dealer {
     // show cards in order
     if (forPlayer === 0) {
       var initialVisible = mainPlayerCards.initial.slice(0, cardsInHandCount);
-      var visible = mainPlayerCards.sorted.filter(x => initialVisible.includes(x));      
-      for (var i = 0; i < visible.length; i++) {
-        //TODO: sometimes at first deal cards duplicate its textures. Find a proper way to swap textures (or POSITION). The less changes the better.
-        //'initialVisible' contains the cards that should be visible. 'visible' contains them in what order to be shown.
+      var sortedVisible = mainPlayerCards.sorted.filter(x => initialVisible.includes(x));
+      var playerCards = dealer._scene.children.getChildren().filter(x => x.name.startsWith(constants.belotGameObjectName + ' suit:'));
 
-        var currentVisible = dealer._scene.children.getByName(constants.belotGameObjectName + ' ' + visible[i].sprite.name) as GameObjects.Sprite;
-        var currentInitial = dealer._scene.children.getByName(constants.belotGameObjectName + ' ' + initialVisible[i].sprite.name) as GameObjects.Sprite;
+      for (var i = 0; i < playerCards.length; i++) {
+        var currentSorted = playerCards.filter(x => x.name === constants.belotGameObjectName + ' ' + sortedVisible[i].sprite.name)[0] as GameObjects.Sprite;
+        var currentInitial = playerCards[i] as GameObjects.Sprite;
+
+        var temp = currentInitial.name;
 
         currentInitial
-          .setTexture(currentInitial.texture.key, mainPlayerCards.sorted[i].frameIndex)
-          .setName(constants.belotGameObjectName + ' ' + "suit: " + visible[i].suit + " rank: " + visible[i].rank);
+          .setTexture(currentInitial.texture.key, sortedVisible[i].frameIndex)
+          .setName(constants.belotGameObjectName + ' ' + "suit: " + sortedVisible[i].suit + " rank: " + sortedVisible[i].rank);
+
+        currentSorted
+          .setTexture(currentSorted.texture.key, initialVisible.filter(x => constants.belotGameObjectName + ' ' + x.sprite.name === currentInitial.name)[0].frameIndex)
+          .setName(temp);
       }
     }
 
