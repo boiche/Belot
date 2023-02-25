@@ -1,7 +1,7 @@
 import { Card, Suit } from "../GameObjects/Card";
 import { GameAnnouncementType } from "./Announcement";
 
-class Player {
+export default class Player {
   constructor(username: string, playerIndex: number, team: Teams) {
     this.playerIndex = playerIndex;
     this.username = username;
@@ -12,10 +12,11 @@ class Player {
   playerIndex: number;
   username: string;
   isOnTurn: boolean = false;
+  /** This field contains the cards sorted */
   playingHand: Card[];
   team: Teams;
 
-  public static sortPlayingHand(playingHand: Card[], announcement: GameAnnouncementType): Card[] {
+  public sortPlayingHand(playingHand: Card[], announcement: GameAnnouncementType): Card[] {
     var sortedPlayingHand: Card[] = [];
     switch (announcement) {
       case GameAnnouncementType.CLUBS: {
@@ -98,6 +99,10 @@ class Player {
         for (var i = 0; i < 4; i++) {
           var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => this.SuitComparison(x, y));
 
+          console.log("current suit to sort is: " + i);
+          console.log("sorted suit");
+          console.log(currentSuit);
+
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
           }
@@ -108,6 +113,10 @@ class Player {
         for (var i = 0; i < 4; i++) {
           var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
+          console.log("current suit to sort is: " + i);
+          console.log("sorted suit");
+          console.log(currentSuit);
+
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
           }
@@ -115,21 +124,34 @@ class Player {
       }
     }
 
-    console.log('sorted hand is');
-    console.log(sortedPlayingHand);
-    console.log('current announcement is ' + announcement);
-
-
     //NB: KEEP EYE ON THIS. COULD CAUSE UNEXPECTED BEHAVIOUR
-    playingHand = sortedPlayingHand;
+    playingHand = sortedPlayingHand;    
 
     return sortedPlayingHand;
   }
+  public getSortedIntersection(cards: Card[]): Card[] {
+    var result: Card[] = [];    
 
-  private static NoSuitComparison(x: Card, y: Card): number {
+    if (cards.length === this.playingHand.length) {
+      return this.playingHand;
+    }
+
+    for (var i = 0; i < this.playingHand.length; i++) {
+      cards.forEach(x => {
+        if (this.playingHand[i].equal(x)) {
+          result.push(this.playingHand[i]);
+          return;
+        }
+      });
+    }
+
+    return result;
+  }
+
+  private NoSuitComparison(x: Card, y: Card): number {
     return new Card(x.suit, x.rank, x.sprite).NoSuitStrength - new Card(y.suit, y.rank, y.sprite).NoSuitStrength;
   }
-  private static SuitComparison(x: Card, y: Card): number {
+  private SuitComparison(x: Card, y: Card): number {
     return new Card(x.suit, x.rank, x.sprite).SuitStrength - new Card(y.suit, y.rank, y.sprite).SuitStrength;
   }
 }
@@ -138,4 +160,3 @@ enum Teams {
   TeamA,
   TeamB
 }
-export default Player

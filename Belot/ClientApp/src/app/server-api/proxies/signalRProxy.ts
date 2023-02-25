@@ -13,7 +13,7 @@ class SignalRProxy implements ISignalRProxy {
   connection!: signalR.HubConnection;
   _gameId!: string;
 
-  public async getPlayer(): Promise<Player> {
+  public async getPlayer(): Promise<any> {
     var request = new BaseSignalRRequest();
     request.gameId = this._gameId;
     return await this.connection.invoke("GetPlayerInfo", this._gameId);

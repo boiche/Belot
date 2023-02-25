@@ -60,9 +60,7 @@ class GameTableScene extends Scene {
 
       switch (turnInfo.turnCode) {
         case TurnCodes.Announcement: turnManager.announce(); break;
-        case TurnCodes.ThrowCard: {
-          turnManager.beforeThrow();
-        } break;
+        case TurnCodes.ThrowCard: turnManager.beforeThrow(); break;
       }
     });
     this.signalR.Connection.on('ShowOpponentCard', (cardInfo: any) => {
@@ -97,12 +95,13 @@ class GameTableScene extends Scene {
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
-
-      scene.deal(TypeDeal.FirstDeal);
+      
       await scene.signalR.Connection.getPlayer().then((player) => {
         console.log(player);
-        scene.currentPlayer = player;
-      })
+        scene.currentPlayer = new Player(player.username, player.playerIndex, player.team);
+      });
+
+      scene.deal(TypeDeal.FirstDeal);
     });    
     this.cameras.main.fadeIn(1500);
   }
