@@ -1,3 +1,5 @@
+import { GameObjects } from "phaser";
+
 class Announcement {
   text: string;
   announcer!: 0 | 1 | 2 | 3;
@@ -9,8 +11,9 @@ class Announcement {
 
 class GameAnnouncement extends Announcement {
   type: GameAnnouncementType;
+  static empty: GameAnnouncement = new GameAnnouncement(0);
 
-  constructor(type: GameAnnouncementType) {
+  constructor(type: GameAnnouncementType | number) {
     super(type.toString());
     this.type = type;
   }
@@ -18,11 +21,19 @@ class GameAnnouncement extends Announcement {
 
 class HandAnnouncement extends Announcement {
   type: HandAnnouncementType;
+  details: HandAnnouncementDetails;
 
   constructor(type: HandAnnouncementType) {
     super(type.toString());
     this.type = type;
+    this.details = new HandAnnouncementDetails();
   }
+}
+
+class HandAnnouncementDetails {
+  lowestRank!: number;
+  highestRank!: number;
+  sprites!: GameObjects.Sprite[];
 }
 
 enum GameAnnouncementType {

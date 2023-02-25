@@ -10,8 +10,8 @@ import { HomeComponent } from './home/home.component';
 import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
 import { MainScene } from './scenes/main-scene';
-import SignalRProxy from './proxies/signalRProxy';
-import BelotProxy from './proxies/belotProxy';
+import SignalRProxy from './server-api/proxies/signalRProxy';
+import BelotProxy from './server-api/proxies/belotProxy';
 
 @NgModule({
   declarations: [

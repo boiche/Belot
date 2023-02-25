@@ -1,5 +1,5 @@
 import { GameObjects } from "phaser"
-import { constants } from "../../main";
+import { constants, gameOptions } from "../../main";
 import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
@@ -20,7 +20,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
     this.initControls();
   }
 
-  updateAnnouncements(newAnnouncement: GameAnnouncementType): void {
+  disableAnnouncements(newAnnouncement: GameAnnouncementType): void {
     for (var index = 0; index < newAnnouncement; index++) {
       this.announcementsData[index]
         .enabled = false;
@@ -28,7 +28,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
   }
 
   override show() {
-    var hoverColor = 0xD3DCE5;
+    var hoverColor = gameOptions.hoverColor;
     var disabledColor = 0x878787;
 
     var clubs = this.scene.add.sprite(0, 0, constants.clubGameAnnouncement);
@@ -99,16 +99,9 @@ class GameAnnouncementsPopUp extends BasePopUp {
         .setDepth(this.depth)
         .setName(constants.belotGameObjectName + counters[i].texture.key)
         .setTint(disabledColor);
-
-      //if (this.scene._belotGame.currentAnnounce) {
-      //  counters[i]
-      //    .clearTint()
-      //    .setInteractive({ cursor: 'pointer' })
-      //    .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(hoverColor); this.input.cursor = 'hand'; })
-      //    .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
-      //    .on('pointerdown', function (this: GameObjects.Sprite, event: any) { console.log('clicked ' + this.texture.key); });
-      //}
     }
+
+    //TODO: disable counter if already declared
 
     first = counters[0];
     var counterAnnouncements = this.scene.add.group(counters);

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import GetAvailableGamesRequest from "../server-api/requests/get-available-games-request";
-import GetAvailableGamesResponse from "../server-api/responses/get-available-games-response";
+import GetAvailableGamesRequest from "../requests/get-available-games-request";
+import GetAvailableGamesResponse from "../responses/get-available-games-response";
 import BaseProxy from "./baseProxy";
 import * as axios from 'axios'
 

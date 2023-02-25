@@ -5,9 +5,9 @@ namespace Belot.SignalR
 {
     public partial class BelotHub
     {
-        public Task SecondDeal()
+        public Task SecondDeal(GameAnnouncement announcement)
         {
-            return Task.CompletedTask;
+            return Task.Run(() => announcement);
         }
 
         public Task StartGame(Guid gameId)

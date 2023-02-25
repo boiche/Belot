@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { belotServerAPI } from "../../main";
+import { belotServerAPI } from "../../../main";
 import * as axios from 'axios';
-import BaseRequest from "../server-api/requests/base-request";
-import BaseResponse from "../server-api/responses/base-response";
+import BaseRequest from "../requests/base-request";
+import BaseResponse from "../responses/base-response";
 import { defer, from, Observable, ObservableInput, ObservedValueOf } from "rxjs";
 
 @Injectable()

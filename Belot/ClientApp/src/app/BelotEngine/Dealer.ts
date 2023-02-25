@@ -12,6 +12,7 @@ enum TypeDeal {
   SecondDeal
 }
 
+/** This class is used for internal description of the dealt state and sorted state of player's hand */
 class CurrentPlayerHand {
   sorted: Card[];
   initial: Card[];
@@ -421,14 +422,28 @@ class Dealer {
             this.y += 15;
           })
           .on('pointerdown', function (this: GameObjects.Sprite, event: any) {            
-            var scene = (this.scene as GameTableScene);            
+            var scene = (this.scene as GameTableScene);
+            var isRightClick: boolean = false;
+            event = event || window.event;
 
-            let request = new ShowOpponentCardRequest();
-            request.gameId = scene.gameId;
-            request.card = new Card(this.getData('suit') as number, this.getData('rank') as number, this);
-            request.opponentConnectionId = scene.signalR.Connection.getConnectionId();
+            if ('which' in event) {
+              isRightClick = event.which === 3; 
+            }
+            else if ('button' in event) {
+              isRightClick = event.button === 2;
+            }
 
-            scene.signalR.Connection.invoke("ThrowCard", request);          
+            if (isRightClick) {
+              this.setTint(6);
+            }
+            else {
+              let request = new ShowOpponentCardRequest();
+              request.gameId = scene.gameId;
+              request.card = new Card(this.getData('suit') as number, this.getData('rank') as number, this);
+              request.opponentConnectionId = scene.signalR.Connection.getConnectionId();
+
+              scene.signalR.Connection.invoke("ThrowCard", request);          
+            }            
           });
 
         dealer._scene.currentPlayer.playingHand.push(new Card(mainPlayerCards.initial[i].suit, mainPlayerCards.initial[i].rank, sprite));
@@ -446,14 +461,21 @@ class Dealer {
         var currentInitial = playerCards[i] as GameObjects.Sprite;
 
         var temp = currentInitial.name;
+        var initialTemp = initialVisible.filter(x => constants.belotGameObjectName + ' ' + x.sprite.name === currentInitial.name)[0];
 
         currentInitial
           .setTexture(currentInitial.texture.key, sortedVisible[i].frameIndex)
+          .setData('suit', sortedVisible[i].suit)
+          .setData('rank', sortedVisible[i].rank)
           .setName(constants.belotGameObjectName + ' ' + "suit: " + sortedVisible[i].suit + " rank: " + sortedVisible[i].rank);
 
         currentSorted
-          .setTexture(currentSorted.texture.key, initialVisible.filter(x => constants.belotGameObjectName + ' ' + x.sprite.name === currentInitial.name)[0].frameIndex)
+          .setTexture(currentSorted.texture.key, initialTemp.frameIndex)
+          .setData('suit', initialTemp.suit)
+          .setData('rank', initialTemp.rank)
           .setName(temp);
+
+        dealer._scene.currentPlayer.playingHand[i] = sortedVisible[i];
       }
     }
 

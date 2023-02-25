@@ -19,7 +19,7 @@ class Player {
     var sortedPlayingHand: Card[] = [];
     switch (announcement) {
       case GameAnnouncementType.CLUBS: {
-        var diamonds = playingHand.filter(x => x.suit === Suit.CLUB).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+        var diamonds = playingHand.filter(x => x.suit === Suit.CLUB).sort((x, y) => this.SuitComparison(x, y));
         var nonDiamonds = playingHand.filter(x => x.suit !== Suit.CLUB);
 
         for (var i = 0; i < diamonds.length; i++) {
@@ -30,7 +30,7 @@ class Player {
           if (i == Suit.CLUB) {
             continue;
           }
-          var currentSuit = nonDiamonds.filter(x => x.suit === i).sort((x, y) => x.SuitStrength > y.SuitStrength ? 1 : -1);
+          var currentSuit = nonDiamonds.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -38,7 +38,7 @@ class Player {
         }
       } break;
       case GameAnnouncementType.DIAMONDS: {
-        var diamonds = playingHand.filter(x => x.suit === Suit.DIAMOND).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+        var diamonds = playingHand.filter(x => x.suit === Suit.DIAMOND).sort((x, y) => this.SuitComparison(x, y));
         var nonDiamonds = playingHand.filter(x => x.suit !== Suit.DIAMOND);
 
         for (var i = 0; i < diamonds.length; i++) {
@@ -49,7 +49,7 @@ class Player {
           if (i == Suit.DIAMOND) {
             continue;
           }
-          var currentSuit = nonDiamonds.filter(x => x.suit === i).sort((x, y) => x.SuitStrength > y.SuitStrength ? 1 : -1);
+          var currentSuit = nonDiamonds.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -57,7 +57,7 @@ class Player {
         }
       } break;
       case GameAnnouncementType.HEARTS: {
-        var hearts = playingHand.filter(x => x.suit === Suit.HEART).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+        var hearts = playingHand.filter(x => x.suit === Suit.HEART).sort((x, y) => this.SuitComparison(x, y));
         var nonHearts = playingHand.filter(x => x.suit !== Suit.HEART);
 
         for (var i = 0; i < hearts.length; i++) {
@@ -68,7 +68,7 @@ class Player {
           if (i == Suit.HEART) {
             continue;
           }
-          var currentSuit = nonHearts.filter(x => x.suit === i).sort((x, y) => x.SuitStrength > y.SuitStrength ? 1 : -1);
+          var currentSuit = nonHearts.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -76,7 +76,7 @@ class Player {
         }
       } break;
       case GameAnnouncementType.SPADES: {
-        var spades = playingHand.filter(x => x.suit === Suit.SPADE).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+        var spades = playingHand.filter(x => x.suit === Suit.SPADE).sort((x, y) => this.SuitComparison(x, y));
         var nonSpades = playingHand.filter(x => x.suit !== Suit.SPADE);
 
         for (var i = 0; i < spades.length; i++) {
@@ -87,7 +87,7 @@ class Player {
           if (i == Suit.SPADE) {
             continue;
           }
-          var currentSuit = nonSpades.filter(x => x.suit === i).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+          var currentSuit = nonSpades.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -96,7 +96,7 @@ class Player {
       } break;
       case GameAnnouncementType.ALLSUITS: {
         for (var i = 0; i < 4; i++) {
-          var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => x.SuitStrength < y.SuitStrength ? 1 : -1);
+          var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => this.SuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -106,7 +106,7 @@ class Player {
       // NOSUIT, PASS
       default: {                
         for (var i = 0; i < 4; i++) {
-          var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => new Card(x.suit, x.rank, x.sprite).NoSuitStrength - new Card(y.suit, y.rank, y.sprite).NoSuitStrength);
+          var currentSuit = playingHand.filter(x => x.suit === i).sort((x, y) => this.NoSuitComparison(x, y));
 
           for (var y = 0; y < currentSuit.length; y++) {
             sortedPlayingHand.push(currentSuit[y]);
@@ -114,7 +114,23 @@ class Player {
         }
       }
     }
+
+    console.log('sorted hand is');
+    console.log(sortedPlayingHand);
+    console.log('current announcement is ' + announcement);
+
+
+    //NB: KEEP EYE ON THIS. COULD CAUSE UNEXPECTED BEHAVIOUR
+    playingHand = sortedPlayingHand;
+
     return sortedPlayingHand;
+  }
+
+  private static NoSuitComparison(x: Card, y: Card): number {
+    return new Card(x.suit, x.rank, x.sprite).NoSuitStrength - new Card(y.suit, y.rank, y.sprite).NoSuitStrength;
+  }
+  private static SuitComparison(x: Card, y: Card): number {
+    return new Card(x.suit, x.rank, x.sprite).SuitStrength - new Card(y.suit, y.rank, y.sprite).SuitStrength;
   }
 }
 

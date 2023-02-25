@@ -1,10 +1,9 @@
 import { Injectable } from "@angular/core";
 import * as signalR from '@microsoft/signalr';
-import { Guid } from "guid-typescript";
-import { belotServerAPI } from '../../main';
-import Player from "../BelotEngine/Player";
-import BaseRequest from "../server-api/requests/base-request";
-import BaseSignalRRequest from "../server-api/requests/signalR/base-signalr-request";
+import { belotServerAPI } from '../../../main';
+import Player from "../../BelotEngine/Player";
+import BaseRequest from "../requests/base-request";
+import BaseSignalRRequest from "../requests/signalR/base-signalr-request";
 import ISignalRProxy from "./interfaces/ISignalRProxy";
 
 @Injectable({

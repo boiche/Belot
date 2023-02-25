@@ -34,6 +34,7 @@ class BootGameScene extends Scene {
     this.load.image(constants.passGameAnnouncement, "assets/sprites/gameAnnouncements/suit_button_pass.png");
     this.load.image(constants.gameAnnouncementsBackground, "assets/sprites/gameAnnouncements/background.png");
     this.load.image(constants.gameScoreBackground, "assets/sprites/gameScore/background.png");
+    this.load.image(constants.optionsButton, "assets/sprites/options_button.png");
   }
 
   create() {    

@@ -32,7 +32,7 @@ namespace Belot.SignalR
         Task RefreshPlayer();
         Task DealNew();
         Task UpdateClientAnnouncements(GameAnnouncement announcement);
-        Task SecondDeal();
+        Task SecondDeal(GameAnnouncement announcement);
         /// <summary>
         /// Indicates client that he is on turn.
         /// </summary>

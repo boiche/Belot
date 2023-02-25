@@ -1,14 +1,15 @@
-import { GameObjects, Scene } from "phaser";
+import { GameObjects, Geom, Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
-import { GameAnnouncementType } from "../BelotEngine/Announcement";
+import { GameAnnouncement, GameAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
 import GameScore from "../BelotEngine/GameScore";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
-import { Card } from "../GameObjects/Card";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 import GameScorePopUp from "../GameObjects/GameScorePopUp";
+import HandAnnounementsRectangle from "../GameObjects/handAnnouncementsRectangle";
+import OptionsPopUp from "../GameObjects/OptionsPopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
 
@@ -19,6 +20,8 @@ class GameTableScene extends Scene {
   _belotGame: BelotGame;
   dealer: Dealer;
   gameAnnouncements: GameAnnouncementsPopUp;
+  optionsPopUp: OptionsPopUp;
+  handAnnouncements: HandAnnounementsRectangle;
   signalR!: SignalRPlugin;
   gameId: string = "";
   currentPlayer!: Player;
@@ -28,6 +31,8 @@ class GameTableScene extends Scene {
     super('PlayBelot');
     this.dealer = new Dealer();
     this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
+    this.handAnnouncements = new HandAnnounementsRectangle(this);
+    this.optionsPopUp = new OptionsPopUp(this);
     this._belotGame = new BelotGame();
   }  
 
@@ -44,9 +49,10 @@ class GameTableScene extends Scene {
     this.dealer._signalR = this.signalR;
 
     this.signalR.Connection.on('DealNew', () => this.dealNew());
-    this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType) => this.gameAnnouncements.updateAnnouncements(newAnnouncement));
-    this.signalR.Connection.on('SecondDeal', () => {
+    this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType) => this.gameAnnouncements.disableAnnouncements(newAnnouncement));
+    this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
+      this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo);
       this.deal(TypeDeal.SecondDeal);
     });
     this.signalR.Connection.on('OnTurn', (turnInfo: Turn) => {      
@@ -87,7 +93,7 @@ class GameTableScene extends Scene {
       duration: 1000
     });
 
-    this.drawSidebars();
+    this.drawSidebars();    
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
@@ -104,6 +110,7 @@ class GameTableScene extends Scene {
   drawSidebars() {
     var sidebarGraphics = this.add.graphics();
     var sidebarWidth = this.dealer.options.leftPlayerConfiguration.middlePoint.x - gameOptions.cardHeight / 2 - 65;
+    var rightSidebarPoint: Geom.Point = new Geom.Point(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0);
 
     var mainColor = 0x630801;
     var secondaryColor = 0xb18380;
@@ -115,10 +122,10 @@ class GameTableScene extends Scene {
     sidebarGraphics.lineBetween(sidebarWidth, 0, sidebarWidth, window.innerHeight);
 
     sidebarGraphics.fillGradientStyle(secondaryColor, mainColor, secondaryColor, mainColor, 1);
-    sidebarGraphics.fillRect(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0, sidebarWidth, window.innerHeight);
+    sidebarGraphics.fillRect(rightSidebarPoint.x, rightSidebarPoint.y, sidebarWidth, window.innerHeight);
 
     sidebarGraphics.lineStyle(10, 0x00000, 1);
-    sidebarGraphics.lineBetween(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, window.innerHeight);
+    sidebarGraphics.lineBetween(rightSidebarPoint.x, rightSidebarPoint.y, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, window.innerHeight);
 
     // totalScore
     var config: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -158,6 +165,21 @@ class GameTableScene extends Scene {
       .setFontSize(42);
 
     this.totalGameScoreOriginPoint = new Phaser.Geom.Point(rectangle.x, rectangle.y);
+
+    //option button
+    this.add.image(rightSidebarPoint.x + 30, rightSidebarPoint.y + 30, constants.optionsButton)
+      .setScale(0.5, 0.5)
+      .setOrigin(0, 0)
+      .setInteractive({ cursor: 'pointer' })
+      .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(gameOptions.hoverColor); this.input.cursor = 'hand'; })
+      .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
+      .on('pointerdown', function (this: GameObjects.Sprite, event: any) {
+        var scene = (this.scene as GameTableScene);
+
+        scene.optionsPopUp.show();
+      });
+
+    this.handAnnouncements.draw(rightSidebarPoint);
   }
 
   deal(deal: TypeDeal) {
@@ -202,6 +224,12 @@ class GameTableScene extends Scene {
 
     weScoreLabel.text = weScore;
     youScoreLabel.text = youScore;
+  }
+
+  update() {
+    if (this.currentPlayer?.playingHand?.length === 8 && !this.handAnnouncements.enabled) {
+      this.handAnnouncements.showHandAnnouncements();
+    }
   }
 }
 

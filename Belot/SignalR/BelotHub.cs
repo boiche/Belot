@@ -124,7 +124,7 @@ namespace Belot.SignalR
 
             if (judgeManager.Judges[request.GameId].CheckSecondDeal())
             {
-                await Clients.Group(request.GameId.ToString()).SecondDeal();
+                await Clients.Group(request.GameId.ToString()).SecondDeal(judgeManager.Judges[request.GameId].Announcer.Announcement);
                 Clients.Client(judgeManager.Judges[request.GameId].FirstToPlay.ConnectionId).OnTurn(new Turn()
                 { 
                     TurnCode = TurnCodes.ThrowCard
@@ -140,7 +140,6 @@ namespace Belot.SignalR
                 {
                     DealNewInternal(request.GameId);
                     await Clients.Group(request.GameId.ToString()).DealNew();
-                    //Clients.Client(judgeManager.Judges[request.GameId].FirstToPlay.ConnectionId).OnTurn(turn);
                 }
                 else
                 {

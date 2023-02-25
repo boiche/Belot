@@ -1,4 +1,4 @@
-import Player from "../../BelotEngine/Player";
+import Player from "../../../BelotEngine/Player";
 
 export default interface ISignalRProxy {
   createConnection(gameId: string): ISignalRProxy;

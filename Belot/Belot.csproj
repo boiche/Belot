@@ -35,13 +35,16 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\app\BelotEngine\GameScore.ts" />
+    <None Remove="ClientApp\src\app\BelotEngine\GameTableConfiguration.ts" />
     <None Remove="ClientApp\src\app\BelotEngine\TurnManager.ts" />
     <None Remove="ClientApp\src\app\BelotEngine\utils.ts" />
     <None Remove="ClientApp\src\app\GameObjects\BasePopUp.ts" />
-    <None Remove="ClientApp\src\app\proxies\baseProxy.ts" />
-    <None Remove="ClientApp\src\app\proxies\belotProxy.ts" />
-    <None Remove="ClientApp\src\app\proxies\interfaces\ISignalRProxy.ts" />
-    <None Remove="ClientApp\src\app\proxies\signalRProxy.ts" />
+    <None Remove="ClientApp\src\app\GameObjects\handAnnouncementsRectangle.ts" />
+    <None Remove="ClientApp\src\app\GameObjects\OptionsPopUp.ts" />
+    <None Remove="ClientApp\src\app\server-api\proxies\baseProxy.ts" />
+    <None Remove="ClientApp\src\app\server-api\proxies\belotProxy.ts" />
+    <None Remove="ClientApp\src\app\server-api\proxies\interfaces\ISignalRProxy.ts" />
+    <None Remove="ClientApp\src\app\server-api\proxies\signalRProxy.ts" />
     <None Remove="ClientApp\src\app\scenes\loading-scene.ts" />
     <None Remove="ClientApp\src\app\server-api\requests\base-request.ts" />
     <None Remove="ClientApp\src\app\server-api\requests\get-available-games-request.ts" />
@@ -60,13 +63,16 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\GameScore.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\GameTableConfiguration.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\TurnManager.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\GameObjects\BasePopUp.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\proxies\baseProxy.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\handAnnouncementsRectangle.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\OptionsPopUp.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\baseProxy.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\scenes\loading-scene.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\proxies\belotProxy.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\proxies\interfaces\ISignalRProxy.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\proxies\signalRProxy.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\belotProxy.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\interfaces\ISignalRProxy.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\signalRProxy.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\base-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\get-available-games-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\join-game-request.ts" />

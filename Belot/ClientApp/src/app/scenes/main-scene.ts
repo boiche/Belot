@@ -3,8 +3,8 @@ import { Scene } from 'phaser'
 import BootGameScene from './boot-game-scene';
 import GameTableScene from './game-table-scene';
 import LoadingScene from './loading-scene';
-import ISignalRProxy from '../proxies/interfaces/ISignalRProxy';
-import SignalRProxy from '../proxies/signalRProxy';
+import ISignalRProxy from '../server-api/proxies/interfaces/ISignalRProxy';
+import SignalRProxy from '../server-api/proxies/signalRProxy';
 
 @Component({
   selector: 'thisIsNotComponent',

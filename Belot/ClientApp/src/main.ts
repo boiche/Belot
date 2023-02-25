@@ -28,7 +28,23 @@ export const gameOptions = {
   cardWidth: 223,
   cardHeight: 323,
   tweens: 200,
-  arrangeByStrength: true  
+  arrangeByStrength: true,
+  hoverColor: 0xD3DCE5,
+  inGame: {
+    cardOrder: 0 //0: ASC, 1: DESC
+  },
+  sceneLayout: {
+    paddings: {
+      leftPadding: 30,
+      rightPadding: 30,
+      topPadding: 30,
+      bottomPadding: 30,
+    },
+    rectangles: {
+      width: 280,
+      height: 280
+    }
+  }
 };
 
 export const constants = {
@@ -47,7 +63,8 @@ export const constants = {
   gameScoreItem: 'gameScoreItem',
   gameScoreTotalItem: 'gameScoreTotalItem',
   cardBack: 'cardBack',
-  cardsSpritesheet: 'belotCards'
+  cardsSpritesheet: 'belotCards',
+  optionsButton: 'optionsButton'
 }
 
 const providers = [
