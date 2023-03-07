@@ -7,6 +7,7 @@ import { Card, Rank, Suit } from "./Card";
 export default class HandAnnounementsRectangle {
   private _scene: GameTableScene;   
   private _handAnnouncements: HandAnnouncement[];
+  private _rectangle!: Geom.Rectangle;
 
   public enabled: boolean;
 
@@ -21,16 +22,16 @@ export default class HandAnnounementsRectangle {
 
     var rectangleX = initialPoint.x + gameOptions.sceneLayout.paddings.leftPadding;
     var rectangleY = window.innerHeight - (gameOptions.sceneLayout.rectangles.height + gameOptions.sceneLayout.paddings.bottomPadding);
-    var rectangle = new Phaser.Geom.Rectangle(rectangleX, rectangleY, gameOptions.sceneLayout.rectangles.width, gameOptions.sceneLayout.rectangles.height);
+    this._rectangle = new Phaser.Geom.Rectangle(rectangleX, rectangleY, gameOptions.sceneLayout.rectangles.width, gameOptions.sceneLayout.rectangles.height);
 
     graphics.fillStyle(0xFFFFFF);
-    graphics.fillRectShape(rectangle);
+    graphics.fillRectShape(this._rectangle);
 
     graphics.lineStyle(5, 0x00000, 1);
-    graphics.strokeLineShape(rectangle.getLineA());
-    graphics.strokeLineShape(rectangle.getLineB());
-    graphics.strokeLineShape(rectangle.getLineC());
-    graphics.strokeLineShape(rectangle.getLineD());
+    graphics.strokeLineShape(this._rectangle.getLineA());
+    graphics.strokeLineShape(this._rectangle.getLineB());
+    graphics.strokeLineShape(this._rectangle.getLineC());
+    graphics.strokeLineShape(this._rectangle.getLineD());
   }
 
   showHandAnnouncements() {
@@ -113,6 +114,12 @@ export default class HandAnnounementsRectangle {
   }
 
   private show(): void {
-
+    var height = this._rectangle.height / this._handAnnouncements.length;
+    for (var i = 0; i < this._handAnnouncements.length; i++) {
+      let sprites = this._handAnnouncements[i].details.sprites;
+      for (var j = 0; j < sprites.length; j++) {
+        this._scene.add.sprite(this._rectangle.x + 20 * (j + 1), this._rectangle.y + 10, sprites[j].texture.key, sprites[j].frame.sourceIndex);
+      }
+    }
   }
 }

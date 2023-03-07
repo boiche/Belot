@@ -1,8 +1,10 @@
+import { GameObjects } from "phaser";
+
 class Card {
-  constructor(suit: number, rank: number, sprite: Phaser.GameObjects.Sprite) {
+  constructor(suit: number, rank: number, sprite: Phaser.GameObjects.Sprite | null = null) {
     this.suit = suit;
     this.rank = rank;
-    this.sprite = sprite;
+    this.sprite = sprite ?? GameObjects.Sprite.prototype;
     this.dealt = false;
     this.frameIndex = -1;
   }

@@ -55,13 +55,17 @@ class GameTableScene extends Scene {
       this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo);
       this.deal(TypeDeal.SecondDeal);
     });
-    this.signalR.Connection.on('OnTurn', (turnInfo: Turn) => {      
-      var turnManager = new TurnManager(this.dealer, this.gameAnnouncements);
+    this.signalR.Connection.on('OnTurn', (turnInfo: Turn) => {
+      try {
+        var turnManager = new TurnManager(this.dealer, this.gameAnnouncements);
 
-      switch (turnInfo.turnCode) {
-        case TurnCodes.Announcement: turnManager.announce(); break;
-        case TurnCodes.ThrowCard: turnManager.beforeThrow(); break;
-      }
+        switch (turnInfo.turnCode) {
+          case TurnCodes.Announcement: turnManager.announce(); break;
+          case TurnCodes.ThrowCard: turnManager.beforeThrow(); break;
+        }
+      } catch (e) {
+        console.error(e);
+      }      
     });
     this.signalR.Connection.on('ShowOpponentCard', (cardInfo: any) => {
       this.dealer.throwCard(cardInfo.card, cardInfo.opponentRelativeIndex);
@@ -223,12 +227,6 @@ class GameTableScene extends Scene {
 
     weScoreLabel.text = weScore;
     youScoreLabel.text = youScore;
-  }
-
-  update() {
-    if (this.currentPlayer?.playingHand?.length === 8 && !this.handAnnouncements.enabled) {
-      this.handAnnouncements.showHandAnnouncements();
-    }
   }
 }
 
