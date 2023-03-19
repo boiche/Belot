@@ -242,8 +242,7 @@ class Dealer {
         if (currentPlayerIndex > 3) {
           currentPlayerIndex = 0;
         }
-      }
-      this._scene.handAnnouncements.showHandAnnouncements();
+      }      
     }
 
     timelineWholeDeal.play();    
@@ -405,7 +404,7 @@ class Dealer {
           sprite.y = options.leftPlayerConfiguration.middlePoint.y + yOffset; 
         } break;
         default:
-      }    
+      }
 
       if (forPlayer === 0) {
         sprite
@@ -463,7 +462,7 @@ class Dealer {
     }
     if (backs.length === 8 && forPlayer === dealerIndex) {
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
-        dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);        
+        dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);
       } 
     } 
   }

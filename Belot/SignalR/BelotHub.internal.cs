@@ -1,5 +1,7 @@
-﻿using Belot.Models.Belot;
+﻿using Belot.Data;
+using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
+using Belot.Services.Application.Events;
 using System.Diagnostics;
 
 namespace Belot.SignalR
@@ -8,7 +10,7 @@ namespace Belot.SignalR
     {
         private void DealNewInternal(Guid gameId)
         {
-            judgeManager.Judges[gameId].DealNew();
+            judgeManager.GetJudge(gameId).DealNew();
         }
 
         private Task StartGameInternal(Guid gameId)
@@ -16,7 +18,7 @@ namespace Belot.SignalR
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            judgeManager.Judges[gameId].StartGame();
+            judgeManager.GetJudge(gameId).StartGame();
 
             while (stopwatch.ElapsedMilliseconds < 2000)
             {
@@ -38,7 +40,7 @@ namespace Belot.SignalR
         /// <returns></returns>
         private int GetRelativeDealerIndex(Guid gameId)
         {
-            return judgeManager.Judges[gameId].GetRelativePlayerIndex(judgeManager.Judges[gameId].DealerPlayer.ConnectionId, Context.ConnectionId);
+            return judgeManager.GetJudge(gameId).GetRelativePlayerIndex(judgeManager.GetJudge(gameId).DealerPlayer.ConnectionId, Context.ConnectionId);
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace Belot.SignalR
         /// <param name="request"></param>
         private void RemoveCardInternal(ThrowCardRequest request)
         {
-            var playingHand = judgeManager.Judges[request.GameId].GetPlayer(Context.ConnectionId).PlayingHand;
+            var playingHand = judgeManager.GetJudge(request.GameId).GetPlayer(Context.ConnectionId).PlayingHand;
             Card cardToRemove = playingHand.First(x => x.Rank == request.Card.Rank && x.Suit == request.Card.Suit);
             request.Card.FrameIndex = cardToRemove.FrameIndex;
             playingHand.Remove(cardToRemove);
@@ -59,7 +61,13 @@ namespace Belot.SignalR
         /// <param name="request"></param>
         private void UpdateTurnInternal(ThrowCardRequest request)
         {
-            judgeManager.Judges[request.GameId].UpdateGameHand(request);
+            judgeManager.GetJudge(request.GameId).UpdateGameHand(request);
+        }
+
+        private void DeleteGameEvent(object sender, JudgeNotFoundArgs args)
+        {
+            var gameToRemove = context.Games.First(x => x.Id == args.GameId);
+            context.Games.Remove(gameToRemove);
         }
     }
 }

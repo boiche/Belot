@@ -56,5 +56,10 @@ namespace Belot.SignalR
         {
             return Task.Run(() => response);
         }
+
+        public Task ShowHandAnnouncements()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -54,5 +54,11 @@ namespace Belot.SignalR
         /// <returns></returns>
         Task CollectCards(CollectCardsResponse response);
         Task ShowScore(ShowScoreResponse response);
+
+        /// <summary>
+        /// Indicates clients to show the hand announcements
+        /// </summary>
+        /// <returns></returns>
+        Task ShowHandAnnouncements();
     }
 }

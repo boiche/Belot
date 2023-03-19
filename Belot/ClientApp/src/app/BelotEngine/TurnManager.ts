@@ -12,7 +12,7 @@ class TurnManager {
 
   beforeThrow = (): void => {
     this.dealer._scene.currentPlayer.isOnTurn = true;
-    this.dealer.enableCards();
+    this.dealer.enableCards();    
   }
 
   announce = (): void => {

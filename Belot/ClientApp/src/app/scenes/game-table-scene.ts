@@ -53,7 +53,7 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
       this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo);
-      this.deal(TypeDeal.SecondDeal);
+      this.deal(TypeDeal.SecondDeal);      
     });
     this.signalR.Connection.on('OnTurn', (turnInfo: Turn) => {
       try {
@@ -79,6 +79,7 @@ class GameTableScene extends Scene {
 
       this.updateTotalScore(score);
     });
+    this.signalR.Connection.on('ShowHandAnnouncements', () => this.dealer._scene.handAnnouncements.showHandAnnouncements());
 
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)

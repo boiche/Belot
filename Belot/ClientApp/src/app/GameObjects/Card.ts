@@ -9,7 +9,7 @@ class Card {
     this.frameIndex = -1;
   }
 
-  suit: Suit = Suit.DIAMOND;
+  suit: Suit = Suit.CLUB;
   rank: Rank = Rank.SEVEN;
   dealt: boolean;
   sprite: Phaser.GameObjects.Sprite;
@@ -47,9 +47,9 @@ class Card {
 }
 
 enum Suit {
+  CLUB,
   DIAMOND,
   HEART,
-  CLUB,
   SPADE
 }
 

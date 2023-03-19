@@ -10,5 +10,10 @@
         /// Contains all judges to all created active games
         /// </summary>
         Dictionary<Guid, T> Judges { get; }
+
+        /// <summary>
+        /// Obtains the judge by its key of game
+        /// </summary>
+        T GetJudge(Guid id);
     }
 }
