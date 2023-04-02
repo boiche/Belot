@@ -65,6 +65,7 @@ class GameScorePopUp extends BasePopUp {
     this.sprites = this.scene.children.getChildren().filter(x => x.name.startsWith(constants.gameScoreItem));
 
     setTimeout(() => this.hide(), 10000);
+
     setTimeout(() => this.scene.dealNew(), 15000);
   }
 }

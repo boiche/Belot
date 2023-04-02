@@ -2,6 +2,7 @@ import { GameObjects, Geom } from "phaser";
 import { constants, gameOptions, getScales } from "../../main";;
 import { GameAnnouncementType, HandAnnouncement, HandAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
+import HandAnnouncementRequest from "../server-api/requests/signalR/hand-announcement-request";
 import { Card, Rank, Suit } from "./Card";
 
 export default class HandAnnounementsRectangle {
@@ -25,18 +26,32 @@ export default class HandAnnounementsRectangle {
 
     this._rectangle
       .setOrigin(0, 0)
-      .setDepth(1000)
-      .setInteractive({ cursor: 'pointer' })
+      .setDepth(1000)      
       .on('pointerover', () => {
-        this._rectangle.fillColor = gameOptions.hoverColor;
-        console.log('over rectangle');
+        if (this.enabled) {
+          this._rectangle.fillColor = gameOptions.hoverColor;
+        }        
       })
       .on('pointerout', () => {
         this._rectangle.fillColor = 0xFFFFFF;
-        console.log('out of rectangle');
       })
-      .on('pointerdown', () => {        
-        console.log('hand announcements clicked');
+      .on('pointerdown', () => {
+        if (this.enabled) {
+          var request = new HandAnnouncementRequest();
+          request.announcement = this._handAnnouncements[0].type;
+          request.gameId = this._scene.gameId;
+          request.highestRank = this._handAnnouncements[0].details.highestRank;
+
+          this._scene.signalR.Connection.invoke("HandAnnounce", request);
+
+          this._rectangle.disableInteractive();
+          this._scene.children
+            .getAll()
+            .filter(x => x.name === constants.handAnnouncementObjectName)
+            .forEach(x => x.destroy(true));
+
+          this.enabled = false;
+        }
       });
   }
 
@@ -45,7 +60,6 @@ export default class HandAnnounementsRectangle {
       return;
     }
 
-    this.enabled = true;
     var _playingHand = this._scene.currentPlayer.playingHand;
 
     for (var suit = 0; suit <= Suit.SPADE; suit++) {
@@ -139,13 +153,20 @@ export default class HandAnnounementsRectangle {
         var sprite = this._scene.add.sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
           .setScale(this._scales.X, this._scales.Y)
           .setDepth(this._rectangle.depth + 1)
+          .setName(constants.handAnnouncementObjectName)
           .setOrigin(0, 0);
 
         if (j + 1 === sprites.length) {
-          var announcementLabel = this._scene.add.text(sprite.x, sprite.y + 20, this._handAnnouncements[i].text)
+          this._scene.add.text(sprite.x, sprite.y + 20, this._handAnnouncements[i].text)
             .setDepth(this._rectangle.depth + 1);
           }
       }      
+    }
+
+    if (this._handAnnouncements.length > 0) {
+      this.enabled = true;
+      this._rectangle
+        .setInteractive({ cursor: 'pointer' });
     }
   }
 }

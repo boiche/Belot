@@ -12,11 +12,16 @@ class TurnManager {
 
   beforeThrow = (): void => {
     this.dealer._scene.currentPlayer.isOnTurn = true;
-    this.dealer.enableCards();    
+    this.dealer.enableCards();
   }
 
   announce = (): void => {
-    this.announcementsPopUp.show();
+    if (this.dealer.firstDealReady) {
+      this.announcementsPopUp.show();
+    }
+    else {
+      this.dealer._announcementsReady = true;
+    }
   }
 }
 

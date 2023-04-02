@@ -5,6 +5,7 @@ import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
 import { GameAnnouncementType } from "./Announcement";
+import { TurnManager } from "./TurnManager";
 
 enum TypeDeal {
   FirstDeal,
@@ -121,7 +122,8 @@ class Dealer {
   secondDealReady = false;
   currentDeal!: 0 | 1;
   absoluteDealerIndex!: PlayerNumber;
-  scales = getScales();  
+  scales = getScales();
+  _announcementsReady = false;
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
@@ -455,6 +457,10 @@ class Dealer {
 
     if (backs.length === 5 && forPlayer === dealerIndex) {      
       dealer.firstDealReady = true;
+
+      if (dealer._announcementsReady) {
+        dealer._scene.gameAnnouncements.show(); //TODO: this is ineffective implementation. Is it possible to show it via TurnManager?
+      }
 
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
         dealer._signalR.Connection.invoke('FirstDealCompleted', dealer._scene.gameId);

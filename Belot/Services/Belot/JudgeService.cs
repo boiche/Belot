@@ -104,7 +104,7 @@ namespace Belot.Services.Belot
             _gameInfo.UpdateHand(request);
         }
 
-        internal Player GetPlayer(string connectionId)
+        public Player GetPlayer(string connectionId)
         {
             return this._gameInfo.Players.First(x => x.ConnectionId == connectionId);
         }
@@ -224,5 +224,10 @@ namespace Belot.Services.Belot
         }
 
         internal Score GetScore() => _gameInfo.GameScore.Score;
+
+        internal void HandAnnounce(string connectionId, Models.Belot.HandAnnouncement announcement, int? highestRank)
+        {
+            _gameInfo.AddHandAnnouncement(connectionId, announcement, highestRank);
+        }
     }
 }

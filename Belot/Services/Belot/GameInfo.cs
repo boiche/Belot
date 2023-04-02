@@ -1,6 +1,5 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
-using Belot.Services;
 using System.Text;
 
 namespace Belot.Services.Belot
@@ -9,6 +8,7 @@ namespace Belot.Services.Belot
     {
         private readonly Guid _gameId;
         private readonly List<GameHandInfo> _hands = new();
+        private readonly List<HandAnnouncement> _handAnnouncements = new();
         private readonly GameScore _score;
         private GameAnnouncement _currentAnnouncement;
         private List<Player> _players = new();
@@ -38,6 +38,7 @@ namespace Belot.Services.Belot
         internal List<GameHandInfo> Hands { get => _hands; }
         internal GameScore GameScore { get => _score; }
         internal List<Player> Players { get => _players; }
+        internal List<HandAnnouncement> HandAnnouncements { get => this._handAnnouncements; }
 
         private void CreateNewHand()
         {
@@ -50,6 +51,15 @@ namespace Belot.Services.Belot
         {
             CreateNewHand();
             _hands.Last().UpdateHand(request);
+        }
+        internal void AddHandAnnouncement(string connectionId, Models.Belot.HandAnnouncement announcment, int? highestRank = null)
+        {
+            this._handAnnouncements.Add(new HandAnnouncement()
+            {
+                Points = (int)announcment,
+                HighestRank = highestRank,
+                Announcer = connectionId
+            });
         }
     }
 
@@ -121,6 +131,14 @@ namespace Belot.Services.Belot
         }
     }
 
+    internal class HandAnnouncement
+    {
+        public int Points { get; set; }
+        public int? HighestRank { get; set; }
+        public string Announcer { get; set; }
+        public int Team { get; set; }
+    }
+
     public class GameScore
     {
         private readonly Dictionary<Rank, int> _noSuitPoints = new()
@@ -166,6 +184,7 @@ namespace Belot.Services.Belot
             Score.IsVutreTeamB = default;
             Score.IsCapo = default;
 
+            #region BaseCount
             List<string> playerIds = _gameInfo.Players.Select(x => x.ConnectionId).ToList();
             Player announcer = _gameInfo.Players.MaxBy(x => x.Announcement);
             foreach (var hand in _gameInfo.Hands)
@@ -188,12 +207,66 @@ namespace Belot.Services.Belot
                     }
                 }
             }
+            #endregion
 
+            #region HandAnnouncements
+            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = playerIds.IndexOf(announcer.ConnectionId) % 2);    
+            var announcements = this._gameInfo.HandAnnouncements.GroupBy(x => x.Points).OrderByDescending(x => x.Key).ToList();
+            int dominatingTeam = -1;
+
+            foreach (IGrouping<int, HandAnnouncement> group in announcements)
+            {
+                if (dominatingTeam < 0)
+                {
+                    if (group.Count() > 1 && group.All(x => x.HighestRank.HasValue)) //this group is the highest point announcements (excl. FOAK and Belot)
+                    {
+                        var highestRanks = group.OrderByDescending(x => x.HighestRank).DistinctBy(x => x.Team);
+                        if (highestRanks.Count() > 1) //both teams have the best hand announce
+                            break;
+                        else
+                        {
+                            var announcement = highestRanks.First();
+                            dominatingTeam = announcement.Team;
+                            if (dominatingTeam == 0)
+                                Score.LastGameTeamA += announcement.Points;
+                            else
+                                Score.LastGameTeamB += announcement.Points;
+                        }                        
+                    }
+                    else //only one of the dominating kind announcement has been announced
+                    {
+                        var dominatingAnnouncement = group.First();
+                        dominatingTeam = dominatingAnnouncement.Team;
+
+                        if (dominatingTeam == 0)
+                            Score.LastGameTeamA += dominatingAnnouncement.Points;
+                        else
+                            Score.LastGameTeamB += dominatingAnnouncement.Points;
+                    }
+                }
+                else
+                {
+                    var eligableAnnouncements = group.Where(x => x.Team == dominatingTeam).ToList();
+                    foreach (var item in eligableAnnouncements)
+                    {
+                        if (dominatingTeam == 0)
+                            Score.LastGameTeamA += item.Points;
+                        else
+                            Score.LastGameTeamB += item.Points;
+                    }
+                }
+            }
+
+            #endregion
+
+            #region LastTen
             if (playerIds.IndexOf(_gameInfo.Hands[^1].WonBy) % 2 == 0) //is last hand won by TeamA
                 Score.LastGameTeamA += 10;
             else
                 Score.LastGameTeamB += 10;
+            #endregion
 
+            #region Vutre
             if (playerIds.IndexOf(announcer.ConnectionId) % 2 == 0) //is announcer of TeamA
             {
                 if (Score.LastGameTeamA < Score.LastGameTeamB)
@@ -225,6 +298,7 @@ namespace Belot.Services.Belot
                     Score.TeamB += Round(Score.LastGameTeamB, announcer.Announcement);
                 }
             }
+            #endregion            
 
             Score.LastGameTeamA = Round(Score.LastGameTeamA, announcer.Announcement);
             Score.LastGameTeamB = Round(Score.LastGameTeamB, announcer.Announcement);

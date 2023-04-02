@@ -152,6 +152,13 @@ namespace Belot.SignalR
             }
         }
 
+        public async Task HandAnnounce(HandAnnouncementRequest request)
+        {
+            judgeManager.GetJudge(request.GameId).HandAnnounce(Context.ConnectionId, request.Announcement, request.HighestRank);
+
+            //TODO: await a call to the clients that current player has announced
+        }
+
         public Player GetPlayerInfo(string gameId)
         {
             Guid.TryParse(gameId, out Guid id);
@@ -214,6 +221,8 @@ namespace Belot.SignalR
                     Score = judgeManager.GetJudge(request.GameId).GetScore()
                 };
                 Clients.Group(request.GameId.ToString()).ShowScore(showScoreResponse);
+
+                DealNewInternal(request.GameId);
             }
             else
             {

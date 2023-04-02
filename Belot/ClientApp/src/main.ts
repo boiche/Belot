@@ -64,7 +64,8 @@ export const constants = {
   gameScoreTotalItem: 'gameScoreTotalItem',
   cardBack: 'cardBack',
   cardsSpritesheet: 'belotCards',
-  optionsButton: 'optionsButton'
+  optionsButton: 'optionsButton',
+  handAnnouncementObjectName: 'belotObject handAnnouncementObjectName'
 }
 
 const providers = [
