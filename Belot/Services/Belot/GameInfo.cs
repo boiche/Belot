@@ -56,7 +56,7 @@ namespace Belot.Services.Belot
         {
             this._handAnnouncements.Add(new HandAnnouncement()
             {
-                Points = (int)announcment,
+                Points = announcment == Models.Belot.HandAnnouncement.BELOT ? 20 : (int)announcment,
                 HighestRank = highestRank,
                 Announcer = connectionId
             });

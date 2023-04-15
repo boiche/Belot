@@ -66,7 +66,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\GameTableConfiguration.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\BelotEngine\TurnManager.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\GameObjects\BasePopUp.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\handAnnouncementsRectangle.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\GameObjects\HandAnnouncementsRectangle.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\GameObjects\OptionsPopUp.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\baseProxy.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\scenes\loading-scene.ts" />

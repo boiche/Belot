@@ -1,14 +1,15 @@
 import { GameObjects, Geom, Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
-import { GameAnnouncement, GameAnnouncementType } from "../BelotEngine/Announcement";
+import { GameAnnouncement, GameAnnouncementType, HandAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
 import GameScore from "../BelotEngine/GameScore";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
+import AnnounceChatBubble from "../GameObjects/AnnounceChatBubble";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 import GameScorePopUp from "../GameObjects/GameScorePopUp";
-import HandAnnounementsRectangle from "../GameObjects/handAnnouncementsRectangle";
+import HandAnnounementsRectangle from "../GameObjects/HandAnnouncementsRectangle";
 import OptionsPopUp from "../GameObjects/OptionsPopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
@@ -49,7 +50,10 @@ class GameTableScene extends Scene {
     this.dealer._signalR = this.signalR;
 
     this.signalR.Connection.on('DealNew', () => this.dealNew());
-    this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType) => this.gameAnnouncements.disableAnnouncements(newAnnouncement));
+    this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType, relativeIndex: PlayerNumber) => {
+      this.gameAnnouncements.disableAnnouncements(newAnnouncement);
+      new AnnounceChatBubble(this, GameAnnouncementType[newAnnouncement]).showBubble(relativeIndex);
+    });
     this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
       this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo);
@@ -80,6 +84,7 @@ class GameTableScene extends Scene {
       this.updateTotalScore(score);
     });
     this.signalR.Connection.on('ShowHandAnnouncements', () => this.dealer._scene.handAnnouncements.showHandAnnouncements());
+    this.signalR.Connection.on('AnnounceHandAnnouncement', (handAnnouncement: HandAnnouncementType, relativeIndex: PlayerNumber) => new AnnounceChatBubble(this, HandAnnouncementType[handAnnouncement]).showBubble(relativeIndex));
 
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)

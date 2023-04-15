@@ -4,6 +4,7 @@ import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import GameAnnouncementRequest from "../server-api/requests/signalR/game-announcement-request";
+import AnnounceChatBubble from "./AnnounceChatBubble";
 import { BasePopUp } from "./BasePopUp";
 
 class GameAnnouncementsPopUp extends BasePopUp {
@@ -72,7 +73,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
 
             scene.signalR.Connection.invoke("Announce", request);
 
-            scene.gameAnnouncements.hide();
+            scene.gameAnnouncements.hide();            
           });
       }
     }

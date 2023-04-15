@@ -65,7 +65,8 @@ export const constants = {
   cardBack: 'cardBack',
   cardsSpritesheet: 'belotCards',
   optionsButton: 'optionsButton',
-  handAnnouncementObjectName: 'belotObject handAnnouncementObjectName'
+  handAnnouncementObjectName: 'belotObject handAnnouncementObjectName',
+  inFieldAnnouncement: 'inFieldAnnouncement'
 }
 
 const providers = [

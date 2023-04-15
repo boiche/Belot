@@ -54,7 +54,7 @@ enum HandAnnouncementType {
   QUARTA = 50,
   QUINTA = 100,
   FOAK = 100,
-  BELOT = 20
+  BELOT = 21
 }
 
 export { Announcement, HandAnnouncement, GameAnnouncement, GameAnnouncementType, HandAnnouncementType }

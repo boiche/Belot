@@ -146,7 +146,11 @@ namespace Belot.SignalR
                 }
                 else
                 {
-                    Clients.Group(request.GameId.ToString()).UpdateClientAnnouncements(request.Announcement);
+                    foreach (var player in judgeManager.GetJudge(request.GameId).GetPlayers())
+                    {
+                        Clients.Client(player.ConnectionId).UpdateClientAnnouncements(request.Announcement, judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+                    }
+                    
                     Clients.Client(judgeManager.GetJudge(request.GameId).PlayerToPlay.ConnectionId).OnTurn(turn);
                 }                
             }
@@ -154,9 +158,13 @@ namespace Belot.SignalR
 
         public async Task HandAnnounce(HandAnnouncementRequest request)
         {
-            judgeManager.GetJudge(request.GameId).HandAnnounce(Context.ConnectionId, request.Announcement, request.HighestRank);
+            var judge = judgeManager.GetJudge(request.GameId);
+            judge.HandAnnounce(Context.ConnectionId, request.Announcement, request.HighestRank);
 
-            //TODO: await a call to the clients that current player has announced
+            foreach (var player in judge.GetPlayers())
+            {
+                await Clients.Client(player.ConnectionId).AnnounceHandAnnouncement(request.Announcement, judge.GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+            }
         }
 
         public Player GetPlayerInfo(string gameId)

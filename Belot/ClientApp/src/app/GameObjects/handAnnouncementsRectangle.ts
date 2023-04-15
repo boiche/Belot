@@ -68,29 +68,22 @@ export default class HandAnnounementsRectangle {
         continue;
       }
 
-      for (var i = 0, j = 2; j < currentSuit.length; i++, j++) {
-        var tempJ = j;
-        var hasAnnouncement: boolean = false;
-        while (Math.abs(currentSuit[i].rank - currentSuit[tempJ].rank) === tempJ - i) {
-          tempJ++;
-          hasAnnouncement = true;
-          if (tempJ >= currentSuit.length) {
-            tempJ--;
-            break;            
-          }
+      let sequenceLength = 1;
+
+      for (var index = 1; index < currentSuit.length; index++) {
+        if (currentSuit[index].rank === currentSuit[index - 1].rank + 1) {
+          sequenceLength++;
         }
-
-        if (!hasAnnouncement)
-          continue;
-
-        //NB: tempJ - i >= 2
-        switch (tempJ - i) {
-          case 2: this.addHandAnnouncement(HandAnnouncementType.TERCA, currentSuit); break;
-          case 3: this.addHandAnnouncement(HandAnnouncementType.QUARTA, currentSuit); break;
-          default: this.addHandAnnouncement(HandAnnouncementType.QUINTA, currentSuit); break;
+        else {
+          sequenceLength = 1;
         }
+      }
 
-        j = tempJ;
+      switch (sequenceLength) {
+        case 3: this.addHandAnnouncement(HandAnnouncementType.TERCA, currentSuit); break;
+        case 4: this.addHandAnnouncement(HandAnnouncementType.QUARTA, currentSuit); break;
+        case 5: this.addHandAnnouncement(HandAnnouncementType.QUINTA, currentSuit); break;
+        default: continue;
       }
     }
 

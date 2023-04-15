@@ -31,7 +31,7 @@ namespace Belot.SignalR
         Task Announce(GameAnnouncementRequest request);
         Task RefreshPlayer();
         Task DealNew();
-        Task UpdateClientAnnouncements(GameAnnouncement announcement);
+        Task UpdateClientAnnouncements(GameAnnouncement announcement, int playerIndex);
         Task SecondDeal(GameAnnouncement announcement);
         /// <summary>
         /// Indicates client that he is on turn.
@@ -60,5 +60,12 @@ namespace Belot.SignalR
         /// </summary>
         /// <returns></returns>
         Task ShowHandAnnouncements();
+
+        /// <summary>
+        /// Indicates clients that a hand announcement has been announced
+        /// </summary>
+        /// <param name="relativeIndex">The relative index of the player based on the player who has announced</param>
+        /// <returns></returns>
+        Task AnnounceHandAnnouncement(HandAnnouncement handAnnouncement, int relativeIndex);
     }
 }

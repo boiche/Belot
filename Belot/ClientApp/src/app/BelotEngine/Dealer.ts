@@ -5,7 +5,6 @@ import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
 import { GameAnnouncementType } from "./Announcement";
-import { TurnManager } from "./TurnManager";
 
 enum TypeDeal {
   FirstDeal,
@@ -24,7 +23,6 @@ class CurrentPlayerHand {
 }
 
 class HandPositionOptions  {
-  middlePoint: Phaser.Geom.Point = new Phaser.Geom.Point();
   cardsOffset: number = 0;
   stepTiltAngle: number = 0;
   readonly sceneMiddlePoint = new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight / 2);
@@ -91,10 +89,6 @@ class HandPositionOptions  {
   readonly fiveAllignFunc = (i: number, playerIndex: number): number => { var sign = playerIndex < 2 ? 1 : -1; return (3.75 * Math.pow(i, 2) - 15 * i + 15) * sign; };
   readonly eightAllignFunc = (i: number, playerIndex: number): number => { var sign = playerIndex < 2 ? 1 : -1; return (2.8125 * Math.pow(i, 2) - 19.6875 * i + 33.75) * sign; };
 
-  setMiddlePoint(x: number, y: number) {
-    this.middlePoint = new Phaser.Geom.Point(x, y);
-  }
-
   setCardsOffset(offset: number) {
     this.cardsOffset = offset;
   }
@@ -102,7 +96,6 @@ class HandPositionOptions  {
   copy(this: HandPositionOptions): HandPositionOptions {
     var result = new HandPositionOptions();
 
-    result.middlePoint = this.middlePoint;
     result.cardsOffset = this.cardsOffset;
     result.player = this.player;
     result.stepTiltAngle = this.stepTiltAngle;
@@ -575,4 +568,4 @@ class Dealer {
   }
 }
 
-export { Dealer, TypeDeal }
+export { Dealer, TypeDeal, HandPositionOptions }

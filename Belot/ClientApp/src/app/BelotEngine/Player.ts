@@ -12,7 +12,7 @@ export default class Player {
   playerIndex: number;
   username: string;
   isOnTurn: boolean = false;
-  /** This field contains the cards sorted */
+  /** This field contains the cards sorted by strength */
   playingHand: Card[];
   team: Teams;
 

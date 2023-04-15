@@ -32,9 +32,9 @@ namespace Belot.SignalR
             return Task.CompletedTask;
         }
 
-        public Task UpdateClientAnnouncements(GameAnnouncement announcement)
+        public Task UpdateClientAnnouncements(GameAnnouncement newAnnouncement, int playerIndex)
         {
-            return Task.Run(() => announcement);
+            return Task.Run(() => new { newAnnouncement, playerIndex });
         }
 
         public Task OnTurn(Turn turn)
@@ -60,6 +60,11 @@ namespace Belot.SignalR
         public Task ShowHandAnnouncements()
         {
             return Task.CompletedTask;
+        }
+
+        public Task AnnounceHandAnnouncement(HandAnnouncement handAnnouncement, int relativeIndex)
+        {
+            return Task.Run(() => new { handAnnouncement, relativeIndex });
         }
     }
 }
