@@ -199,34 +199,35 @@ namespace Belot.SignalR
         {
             RemoveCardInternal(request);
             UpdateTurnInternal(request);
+            BelotJudgeService belotJudge = judgeManager.GetJudge(request.GameId);
 
-            foreach (var player in judgeManager.GetJudge(request.GameId).GetPlayers())
+            foreach (var player in belotJudge.GetPlayers())
             {
                 var response = new ShowOpponentCardResponse()
                 {
                     Card = request.Card,
-                    OpponentRelativeIndex = judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
+                    OpponentRelativeIndex = belotJudge.GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
                 };
 
                 Clients.Client(player.ConnectionId).ShowOpponentCard(response);
 
-                if (judgeManager.GetJudge(request.GameId).LastHandFinished())
+                if (belotJudge.LastHandFinished())
                 {
                     var collectCardsResponse = new CollectCardsResponse()
                     {
-                        OpponentRelativeIndex = judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, judgeManager.GetJudge(request.GameId).LastHand.WonBy)
+                        OpponentRelativeIndex = belotJudge.GetRelativePlayerIndex(player.ConnectionId, belotJudge.LastHand.WonBy)
                     };
                     Clients.Client(player.ConnectionId).CollectCards(collectCardsResponse);
                 }
             }
 
-            if (judgeManager.GetJudge(request.GameId).GameFinished())
+            if (belotJudge.GameFinished())
             {
-                judgeManager.GetJudge(request.GameId).FinishGame();
+                belotJudge.FinishGame();
 
                 var showScoreResponse = new ShowScoreResponse()
                 {
-                    Score = judgeManager.GetJudge(request.GameId).GetScore()
+                    Score = belotJudge.GetScore()
                 };
                 Clients.Group(request.GameId.ToString()).ShowScore(showScoreResponse);
 
@@ -234,8 +235,8 @@ namespace Belot.SignalR
             }
             else
             {
-                judgeManager.GetJudge(request.GameId).NextToPlay();
-                Clients.Client(judgeManager.GetJudge(request.GameId).PlayerToPlay.ConnectionId).OnTurn(new Turn()
+                belotJudge.NextToPlay();
+                Clients.Client(belotJudge.PlayerToPlay.ConnectionId).OnTurn(new Turn()
                 {
                     TurnCode = TurnCodes.ThrowCard
                 });

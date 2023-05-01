@@ -7,7 +7,7 @@ namespace Belot.Services
         /// <summary>
         /// x is the main card
         /// </summary>
-        private static readonly Comparison<Card> _noSuitsComparison = (x, y) =>
+        public static readonly Comparison<Card> _noSuitsComparison = (x, y) =>
         {
             if (x.Suit == y.Suit)
             {
@@ -39,7 +39,7 @@ namespace Belot.Services
             }
         };
 
-        private static readonly Comparison<Card> _allSuitsComparison = (x, y) =>
+        public static readonly Comparison<Card> _allSuitsComparison = (x, y) =>
         {
             if (x.Suit == y.Suit)
             {
@@ -60,7 +60,7 @@ namespace Belot.Services
                 return 1;
             }
         };
-        internal static KeyValuePair<string, Card> GetWinnerNoSuit(this Dictionary<string, Card> playedCards)
+        public static KeyValuePair<string, Card> GetWinnerNoSuit(this Dictionary<string, Card> playedCards)
         {
             string winnerId = playedCards.First().Key;
             Card winnerCard = playedCards.First().Value;
@@ -86,7 +86,7 @@ namespace Belot.Services
             return new KeyValuePair<string, Card>(winnerId, winnerCard);
         }
 
-        internal static KeyValuePair<string, Card> GetWinnerAllSuits(this Dictionary<string, Card> playedCards)
+        public static KeyValuePair<string, Card> GetWinnerAllSuits(this Dictionary<string, Card> playedCards)
         {
             string winnerId = playedCards.First().Key;
             Card winnerCard = playedCards.First().Value;
@@ -112,7 +112,7 @@ namespace Belot.Services
             return new KeyValuePair<string, Card>(winnerId, winnerCard);
         }
 
-        internal static KeyValuePair<string, Card> GetWinnerSingleSuit(this Dictionary<string, Card> playedCards, Suit suit)
+        public static KeyValuePair<string, Card> GetWinnerSingleSuit(this Dictionary<string, Card> playedCards, Suit announcedSuit)
         {
             string winnerId = playedCards.First().Key;
             Card winnerCard = playedCards.First().Value;
@@ -120,44 +120,48 @@ namespace Belot.Services
             var mainSuit = winnerCard.Suit;
 
             var ids = playedCards.Where(x => x.Value.Suit == mainSuit).Select(x => x.Key).ToArray();
-            var cards = playedCards.Values.Where(x => x.Suit == suit).ToArray();
 
-            if (cards.Length == 0)
+            var cardsMajorSuit = playedCards.Values.Where(x => x.Suit == announcedSuit).ToArray();
+            var majorIds = playedCards.Where(x => x.Value.Suit == announcedSuit).Select(x => x.Key).ToArray();
+
+            if (cardsMajorSuit.Length == 0)
             {
-                cards = playedCards.Values.Where(x => x.Suit == mainSuit).ToArray();
-                for (int i = 0; i < cards.Length; i++)
+                cardsMajorSuit = playedCards.Values.Where(x => x.Suit == mainSuit).ToArray();
+                for (int i = 0; i < cardsMajorSuit.Length; i++)
                 {
                     if (i == 0)
                         continue;
 
-                    if (_noSuitsComparison(cards[winnerIndex], cards[i]) < 0)
+                    if (_noSuitsComparison(cardsMajorSuit[winnerIndex], cardsMajorSuit[i]) < 0)
                     {
                         winnerId = ids[i];
-                        winnerCard = cards[i];
+                        winnerCard = cardsMajorSuit[i];
                         winnerIndex = i;
                     }
                 }
             }
             else
             {
-                if (cards.Length == 1)
+                if (cardsMajorSuit.Length == 1)
                 {
-                    winnerId = playedCards.First(x => x.Value.Equals(cards[0])).Key;
-                    winnerCard = cards[0];
+                    winnerId = playedCards.First(x => x.Value.Equals(cardsMajorSuit[0])).Key;
+                    winnerCard = cardsMajorSuit[0];
                 }
                 else
-                    for (int i = 0; i < cards.Length; i++)
                 {
-                    if (i == 0)
-                        continue;
-
-                    if (_allSuitsComparison(cards[winnerIndex], cards[i]) < 0)
+                    for (int i = 0; i < cardsMajorSuit.Length; i++)
                     {
-                        winnerId = ids[i];
-                        winnerCard = cards[i];
-                        winnerIndex = i;
+                        if (i == 0)
+                            continue;
+
+                        if (_allSuitsComparison(cardsMajorSuit[winnerIndex], cardsMajorSuit[i]) < 0)
+                        {
+                            winnerId = majorIds[i];
+                            winnerCard = cardsMajorSuit[i];
+                            winnerIndex = i;
+                        }
                     }
-                }   
+                }
             }
 
             return new KeyValuePair<string, Card>(winnerId, winnerCard);
