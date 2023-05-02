@@ -67,6 +67,7 @@ namespace Belot.SignalR
         private void DeleteGameEvent(object sender, JudgeNotFoundArgs args)
         {
             var gameToRemove = context.Games.First(x => x.Id == args.GameId);
+            //TODO: establish separate db connection ('context' is null on event raise)
             context.Games.Remove(gameToRemove);
         }
     }

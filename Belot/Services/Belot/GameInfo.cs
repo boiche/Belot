@@ -210,7 +210,7 @@ namespace Belot.Services.Belot
             #endregion
 
             #region HandAnnouncements
-            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = playerIds.IndexOf(announcer.ConnectionId) % 2);    
+            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = announcer.Team);    
             var announcements = this._gameInfo.HandAnnouncements.GroupBy(x => x.Points).OrderByDescending(x => x.Key).ToList();
             int dominatingTeam = -1;
 
@@ -267,7 +267,7 @@ namespace Belot.Services.Belot
             #endregion
 
             #region Vutre
-            if (playerIds.IndexOf(announcer.ConnectionId) % 2 == 0) //is announcer of TeamA
+            if (announcer.Team == 0) //is announcer of TeamA
             {
                 if (Score.LastGameTeamA < Score.LastGameTeamB)
                 {

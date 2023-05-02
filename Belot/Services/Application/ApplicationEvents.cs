@@ -2,6 +2,9 @@
 
 namespace Belot.Services.Application
 {
+    /// <summary>
+    /// Provides handlers for global application events
+    /// </summary>
     internal static class ApplicationEvents
     {
         //NB: in future resolve wether these event will be applicable for all games, or each requires different behaviour (to be static or not)

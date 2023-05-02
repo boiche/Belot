@@ -44,8 +44,7 @@ namespace Belot.SignalR
             judgeManager.GetJudge(gameId).AddPlayer(new Player()
             {
                 Username = "some username",
-                ConnectionId = Context.ConnectionId,
-                Team = gameEntry.ConnectedPlayers % 2 == 1 ? 0 : 1
+                ConnectionId = Context.ConnectionId                
             });
 
             if (gameEntry.ConnectedPlayers == 4)

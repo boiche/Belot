@@ -148,7 +148,7 @@ class Dealer {
     var announcement = this?._scene?._belotGame?.currentAnnouncement?.type;
     var playerInfo = await this._signalR.Connection.getPlayer();    
 
-    //TODO: currentPlayer comes as Object, not as Player -> sortPlayingHand is undefined
+    //currentPlayer comes as Object, not as Player -> sortPlayingHand is undefined
     var playerHandInfo = new CurrentPlayerHand(this._scene.currentPlayer.sortPlayingHand(playerInfo.playingHand, announcement ?? GameAnnouncementType.PASS), playerInfo.playingHand);
     
 
