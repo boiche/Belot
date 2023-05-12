@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   games: BelotGame[] = [];
   scene: Phaser.Scene | undefined = undefined;
 
-  constructor(private _router: Router, private _signalR: SignalRProxy, private belotProxy: BelotProxy) {
+  constructor(private _signalR: SignalRProxy, private belotProxy: BelotProxy) {
    
   }
 
@@ -44,20 +44,6 @@ export class HomeComponent implements OnInit {
 
     this._signalR.on('StartGame', (gameId) => {
       console.log('game started');
-      this.scene?.game.scene.start('PlayBelot', gameId);
-    })
-  }
-
-  createGameTable() {
-    document.body.innerHTML = "";
-    var connection = this._signalR.createConnection("");
-    this.scene = new MainScene(connection as SignalRProxy);
-    connection.startConnection().then(() => {
-      this._signalR.invoke("CreateGame")
-    });
-
-    this._signalR.on('StartGame', (gameId) => {
-      this._signalR._gameId = gameId;
       this.scene?.game.scene.start('PlayBelot', gameId);
     })
   }

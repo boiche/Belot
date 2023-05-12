@@ -1,0 +1,28 @@
+<div id="form-container">
+  <div id="form-background">
+    <h1 id="form-main-header">
+      JACK OF SPADES
+    </h1>
+    <h2 id="form-secondary-header">
+      Play belot and earn assets
+    </h2>
+    <form (ngSubmit)="onSubmit()">
+      <div id="username">
+        <label for="username">Username</label>
+        <input type="text" [(ngModel)]="user.Username" required>
+      </div>
+      <br>
+      <div id="email">
+        <label for="email">Email</label>
+        <input type="email" [(ngModel)]="user.Email" name="email" required>
+      </div>
+      <br>
+      <div id="password">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="user.Password" name="password" required>
+      </div>
+      <br>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</div>
