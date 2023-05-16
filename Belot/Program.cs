@@ -1,17 +1,17 @@
 using Belot.Data;
 using Belot.Models.DataEntries;
 using Belot.Services;
+using Belot.Services.Application.Auth;
+using Belot.Services.Application.Auth.Interfaces;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Belot.SignalR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
 {
@@ -34,10 +34,12 @@ builder.Services.AddIdentityServer()
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
+builder.Services.AddScoped<IUserService<ApplicationUser>, UserService>();
+//builder.Services.AddScoped<SignInManager<ApplicationUser>>();
+//builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -60,10 +62,7 @@ app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-app.MapRazorPages();
+app.MapControllers();
 
 app.MapFallbackToFile("index.html"); 
 app.MapHub<BelotHub>("/belotGame");

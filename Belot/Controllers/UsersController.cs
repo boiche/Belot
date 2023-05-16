@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Belot.Controllers
 {
-    [Route("Security/[controller]")]
-    [ApiController]
+    [ApiController] 
+    
     public class UsersController : ControllerBase
     {
         private readonly IUserService<ApplicationUser> userService;
 
         public UsersController(
             ApplicationDbContext context, 
-            IUserService<ApplicationUser> userService, 
+            IUserService<ApplicationUser> userService,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager)
         {
@@ -26,15 +26,18 @@ namespace Belot.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterRequest request)
+        [Route("/Users/Register")]
+        public IActionResult Register([FromBody]RegisterRequest request)
         {
-            if (userService.Register(request))
+            var response = userService.Register(request);
+            if (!response.Errors.Any())
                 return Ok();
             else
-                return BadRequest();
+                return BadRequest(response.Errors);
         }
 
         [HttpPost]
+        [Route("/Users/Login")]
         public async Task<IActionResult> Login(LoginRequest request) 
         {
             if (!request.Checked)
@@ -58,6 +61,7 @@ namespace Belot.Controllers
         }
 
         [HttpGet]
+        [Route("/Users/GetUser")]
         public IActionResult GetUser(GetUserRequest request)
         {
            return new JsonResult(new 
@@ -67,6 +71,7 @@ namespace Belot.Controllers
         }
 
         [HttpGet]
+        [Route("/Users/GetUsers")]
         public IActionResult GetUsers()
         {
             return new JsonResult(new

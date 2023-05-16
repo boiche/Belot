@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { Guid } from 'guid-typescript';
 import { MainScene } from 'src/app/scenes/main-scene';
 import BelotGame from '../BelotEngine/BelotGame';
 import BelotProxy from '../server-api/proxies/belotProxy';

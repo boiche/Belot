@@ -1,9 +1,15 @@
-﻿namespace Belot.Models.Http.Requests
+﻿using System.Runtime.Serialization;
+
+namespace Belot.Models.Http.Requests
 {
+    [DataContract]
     public class RegisterRequest : BaseRequest
     {
-        public string Username { get; internal set; }
-        public string Password { get; internal set; }
-        public string Email { get; internal set; }
+        [DataMember]
+        public string Username { get; set; }
+        [DataMember]
+        public string Password { get; set; }
+        [DataMember]
+        public string Email { get; set; }
     }
 }

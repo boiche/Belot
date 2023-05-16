@@ -1,21 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import BelotProxy from '../../../server-api/proxies/belotProxy';
+import RegisterRequest from '../../../server-api/requests/register-request';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']  
 })
-export class RegisterComponent implements OnInit {
-  public user!: User;
-  
-  constructor() {
+export class RegisterComponent {
+  public Email: string = "";
+  public Password: string = "";
+  public Username: string = "";
+  constructor(private belotProxy: BelotProxy) {
 
   }
 
-  ngOnInit(): void {
-  }
-
-  onSubmit(): void {
-
+  register(): void {
+    var request = new RegisterRequest();
+    request.email = this.Email;
+    request.password = this.Password;
+    request.username = this.Username;
+    request.requestUrl = 'Users/Register';
+    this.belotProxy.register(request).subscribe((res) => {
+      console.log(res);
+    });
   }
 }

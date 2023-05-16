@@ -20,7 +20,7 @@ namespace Belot.Controllers
         }
 
         [HttpGet]
-        [Route("/BelotGame/GetAvailableGames")]
+        [Route("BelotGame/GetAvailableGames")]
         public GetAvailableGamesResponse GetAvailableGames()
         {
             var result = this._context.Games.Where(x => x.ConnectedPlayers < 4).ToList();

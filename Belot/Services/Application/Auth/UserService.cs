@@ -49,17 +49,14 @@ namespace Belot.Services.Application.Auth
             }
         }
 
-        public bool Register(RegisterRequest request)
+        public IdentityResult Register(RegisterRequest request)
         {
             ApplicationUser user = new()
             {
                 Email = request.Email,
                 UserName = request.Username                
             };
-            var registrationResult = UserManager.CreateAsync(user, request.Password);
-
-            //TODO: confirm email (low priority)
-            return registrationResult.IsCompletedSuccessfully;            
+            return UserManager.CreateAsync(user, request.Password).Result;
         }
 
         private string GenerateJwtToken(ApplicationUser user)

@@ -1,2 +1,21 @@
-<p>login works!</p>
-<app-forgot-password></app-forgot-password>
+<div id="form-container">
+  <div id="form-background">
+    <h1 id="form-main-header">
+      JACK OF SPADES
+    </h1>
+    <form (ngSubmit)="login()">
+      <div id="username">
+        <label for="username">Username</label>
+        <input type="text" [(ngModel)]="Username" name="username" required>
+      </div>      
+      <br>
+      <div id="password">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="Password" name="password" required>
+      </div>
+      <br>
+      <app-forgot-password></app-forgot-password>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</div>
