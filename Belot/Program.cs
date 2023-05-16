@@ -6,6 +6,7 @@ using Belot.Services.Application.Auth.Interfaces;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Belot.SignalR;
+using Belot.Utils;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
+
 builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
 {
     builder
@@ -37,9 +40,13 @@ builder.Services.AddAuthentication()
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
 builder.Services.AddScoped<IUserService<ApplicationUser>, UserService>();
-//builder.Services.AddScoped<SignInManager<ApplicationUser>>();
-//builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddControllers();
+builder.Services.Configure<IdentityOptions>(config =>
+{
+    config.SignIn.RequireConfirmedPhoneNumber = false;
+    config.SignIn.RequireConfirmedEmail = false;
+    config.SignIn.RequireConfirmedAccount = false;
+});
 
 var app = builder.Build();
 
@@ -61,6 +68,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
+
+app.UseMiddleware<JWTMiddleware>();
 
 app.MapControllers();
 

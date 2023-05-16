@@ -5,6 +5,7 @@ import BaseRequest from "../requests/base-request";
 import BaseResponse from "../responses/base-response";
 import { defer, Observable, throwError } from "rxjs";
 import { Serialize } from "cerialize";
+import CookieManager from "../../shared/cookie-manager";
 
 @Injectable()
 export default abstract class BaseProxy {
@@ -18,19 +19,24 @@ export default abstract class BaseProxy {
   }
 
   constructor() {
-    
+    this._axios = axios.default.create();
+    this._axios.defaults.headers.common["Content-type"] = "application/json";
   }
 
-  post<TRequest extends BaseRequest, TResponse extends BaseResponse>(request: TRequest): Observable<axios.AxiosResponse<TResponse>> {
-    return defer(() => this.axios.post(belotServerAPI.mainAPI + request.requestUrl, JSON.stringify(Serialize(request)), {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }));
+  post<TRequest extends BaseRequest, TResponse extends BaseResponse>(request: TRequest, headers: axios.RawAxiosRequestHeaders | undefined = undefined): Observable<axios.AxiosResponse<TResponse>> {
+    var response = this.axios.post(belotServerAPI.mainAPI + request.requestUrl, JSON.stringify(Serialize(request)), {
+      headers: headers
+    });
+    response.catch((error) => this.handleError(error));
+
+    return defer(() => response);
   }
 
   get<TRequest extends BaseRequest, TResponse extends BaseResponse>(request: TRequest): Observable<axios.AxiosResponse<TResponse>> {
-    return defer(() => this.axios.get(belotServerAPI.mainAPI + request.requestUrl));
+    var response = this.axios.get(belotServerAPI.mainAPI + request.requestUrl);
+    response.catch((error) => this.handleError(error));
+
+    return defer(() => response);
   }
 
   put<TRequest extends BaseRequest, TResponse extends BaseResponse>(request: TRequest): TResponse | void {
@@ -38,8 +44,6 @@ export default abstract class BaseProxy {
   }
 
   handleError(error: any) {
-    console.error(error);
-
-    return throwError(error);
+    console.error(error.response.data);
   }
 }

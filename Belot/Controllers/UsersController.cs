@@ -29,35 +29,35 @@ namespace Belot.Controllers
         [Route("/Users/Register")]
         public IActionResult Register([FromBody]RegisterRequest request)
         {
-            var response = userService.Register(request);
-            if (!response.Errors.Any())
-                return Ok();
+            var response = userService.Register(request).Result;
+            if (string.IsNullOrEmpty(response.Error))
+                return Ok(response.AuthToken);
             else
-                return BadRequest(response.Errors);
+                return BadRequest(response.Error);
         }
 
         [HttpPost]
         [Route("/Users/Login")]
         public async Task<IActionResult> Login(LoginRequest request) 
         {
-            if (!request.Checked)
-            {
-                return Unauthorized("Please check I'm not a robot");
-            }
+            //if (!request.Checked)
+            //{
+            //    return Unauthorized("Please check I'm not a robot");
+            //}
 
             var response = await this.userService.Login(request);
 
             if (response.WrongCredentials)
-            {
                 return Unauthorized($"Invalid email or password");
-            }
-            if (!string.IsNullOrEmpty(response.Id))            
+
+            else if (!string.IsNullOrEmpty(response.Id))            
                 return Ok(response);
             
             else if (response.BanDate.HasValue)
                 return Unauthorized($"You're banned until: {response.BanDate}");
 
-            return Unauthorized($"Invalid email or password");
+            else
+                return Unauthorized($"Invalid email or password");
         }
 
         [HttpGet]

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import BelotProxy from '../../../server-api/proxies/belotProxy';
 import RegisterRequest from '../../../server-api/requests/register-request';
+import CookieManager from '../../cookie-manager';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +24,7 @@ export class RegisterComponent {
     request.username = this.Username;
     request.requestUrl = 'Users/Register';
     this.belotProxy.register(request).subscribe((res) => {
-      console.log(res);
+      CookieManager.setCookie('authToken', res.data);
     });
   }
 }

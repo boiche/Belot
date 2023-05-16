@@ -10,7 +10,7 @@ namespace Belot.Services.Application.Auth.Interfaces
         Task<LoginResponse> Login(LoginRequest model);
         IEnumerable<ApplicationUser> GetAll();
         ApplicationUser GetById(string id);
-        IdentityResult Register(RegisterRequest newUser);
+        Task<RegisterResponse> Register(RegisterRequest newUser);
         public bool Ban(BanRequest banRequest);
         public SignInManager<T> SignInManager { get; set; }
         public UserManager<T> UserManager { get; set; }
