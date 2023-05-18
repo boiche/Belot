@@ -24,6 +24,7 @@ namespace Belot.Models.Http.Responses
         {
             Id = user.Id;
             Username = user.UserName;
+            AuthToken = token;
         }
 
         public bool WrongCredentials { get; internal set; }
@@ -32,5 +33,6 @@ namespace Belot.Models.Http.Responses
         public string Id { get; internal set; }
         public string Username { get; internal set; }
         public DateTimeOffset LockoutDateEnd { get; set; }
+        public string AuthToken { get; set; }
     }
 }

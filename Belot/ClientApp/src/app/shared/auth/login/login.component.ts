@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import BelotProxy from '../../../server-api/proxies/belotProxy';
 import LoginRequest from '../../../server-api/requests/login-request';
+import CookieManager from '../../cookie-manager';
+import LocalStorageManager from '../../local-storage-manager';
+import { User } from '../../types/user';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +21,12 @@ export default class LoginComponent {
     request.username = this.Username;
     request.requestUrl = 'Users/Login';
     this.belotProxy.login(request).subscribe((res) => {
-      console.log(res);
+      CookieManager.setCookie('authToken', res.data.authToken);
+
+      let user: User = new User(res.data.username);      
+      LocalStorageManager.setData('currentUser', user);
+      
+      location.href = '';
     });
   }
 }

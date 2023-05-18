@@ -3,5 +3,20 @@ import BaseResponse from "./base-response";
 
 export default class LoginResponse extends BaseResponse {
   @autoserializeAs(Boolean)
-  status!: string;
+  wrongCredentials!: boolean;
+
+  @autoserializeAs(Date)
+  banDate!: Date;
+
+  @autoserializeAs(String)
+  banReason!: string;
+
+  @autoserializeAs(String)
+  id!: string;
+
+  @autoserializeAs(String)
+  username!: string;
+
+  @autoserializeAs(String)
+  authToken!: string;
 }

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MainScene } from '../../scenes/main-scene';
 import BelotProxy from '../../server-api/proxies/belotProxy';
 import SignalRProxy from '../../server-api/proxies/signalRProxy';
+import UserService from '../services/user-service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -11,8 +12,11 @@ import SignalRProxy from '../../server-api/proxies/signalRProxy';
 })
 export class NavMenuComponent {
   scene: Phaser.Scene | undefined = undefined;
+  public isLoggedIn: boolean;
 
-  constructor(private _router: Router, private _signalR: SignalRProxy, private belotProxy: BelotProxy) { }
+  constructor(private _router: Router, private _signalR: SignalRProxy, private belotProxy: BelotProxy, private userService: UserService) {
+    this.isLoggedIn = userService.IsLoggedIn;
+  }
 
   showRegister() {
     this._router.navigateByUrl('register');

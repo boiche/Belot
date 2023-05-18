@@ -28,10 +28,11 @@ namespace Belot.Controllers
         [HttpPost]
         [Route("/Users/Register")]
         public IActionResult Register([FromBody]RegisterRequest request)
-        {
+        {            
+            //TODO: ensure that whole response is deserialized properly on the client side
             var response = userService.Register(request).Result;
             if (string.IsNullOrEmpty(response.Error))
-                return Ok(response.AuthToken);
+                return Ok(response);
             else
                 return BadRequest(response.Error);
         }
@@ -40,11 +41,6 @@ namespace Belot.Controllers
         [Route("/Users/Login")]
         public async Task<IActionResult> Login(LoginRequest request) 
         {
-            //if (!request.Checked)
-            //{
-            //    return Unauthorized("Please check I'm not a robot");
-            //}
-
             var response = await this.userService.Login(request);
 
             if (response.WrongCredentials)
@@ -58,6 +54,18 @@ namespace Belot.Controllers
 
             else
                 return Unauthorized($"Invalid email or password");
+        }
+
+        [HttpPost]
+        [Route("/Users/Logout")]
+        public async Task<IActionResult> Logout(LogoutRequest request)
+        {
+            var response = await this.userService.Logout(request);
+            if (response.Status)
+                return Ok(response);
+
+            else
+                return NoContent();
         }
 
         [HttpGet]

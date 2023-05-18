@@ -87,7 +87,7 @@
   <ItemGroup>
     <Folder Include="ClientApp\src\app\server-api\responses\signalR\" />
     <Folder Include="ClientApp\src\app\shared\auth\" />
-    <Folder Include="ClientApp\src\app\shared\types\" />
+    <Folder Include="ClientApp\src\app\shared\services\" />
     <Folder Include="ClientApp\src\assets\sprites\gameScore\" />
   </ItemGroup>
 

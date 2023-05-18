@@ -8,7 +8,8 @@ import RegisterRequest from "../requests/register-request";
 import RegisterResponse from "../responses/register-response";
 import LoginRequest from "../requests/login-request";
 import LoginResponse from "../responses/login-response";
-import CookieManager from "../../shared/cookie-manager";
+import LogoutRequest from "../requests/logout-request";
+import LogoutResponse from '../responses/logout-response';
 
 Injectable({
   providedIn: 'root'
@@ -23,9 +24,11 @@ class BelotProxy extends BaseProxy {
   }
 
   login(request: LoginRequest): Observable<axios.AxiosResponse<LoginResponse>> {
-    return this.post<LoginRequest, LoginResponse>(request, {
-      Authorization: CookieManager.getCookie('authToken')
-    });
+    return this.post<LoginRequest, LoginResponse>(request);
+  }
+
+  logout(request: LogoutRequest): Observable<axios.AxiosResponse<LogoutResponse>> {
+    return this.post<LogoutRequest, LogoutResponse>(request);
   }
 }
 

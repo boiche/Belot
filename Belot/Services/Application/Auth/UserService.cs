@@ -64,6 +64,16 @@ namespace Belot.Services.Application.Auth
             }
         }
 
+        public async Task<LogoutResponse> Logout(LogoutRequest request)
+        {
+            await SignInManager.SignOutAsync();
+            bool isOut = SignInManager.IsSignedIn(ClaimsPrincipal.Current);
+            return new LogoutResponse()
+            {
+                Status = isOut
+            };
+        }
+
         public async Task<RegisterResponse> Register(RegisterRequest request)
         {
             ApplicationUser user = new()
@@ -76,7 +86,7 @@ namespace Belot.Services.Application.Auth
             {
                 var token = GenerateJwtToken(user);
                 await UserManager.SetAuthenticationTokenAsync(user, "Bearer", "authToken", token.RawData);
-                return new RegisterResponse(token);
+                return new RegisterResponse(token, user);
             }
             else
             {
