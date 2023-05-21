@@ -11,7 +11,7 @@ namespace Belot.Services.Belot
         private readonly List<HandAnnouncement> _handAnnouncements = new();
         private readonly GameScore _score;
         private GameAnnouncement _currentAnnouncement;
-        private List<Player> _players = new();
+        private readonly List<Player> _players = new();
 
         public GameInfo()
         {

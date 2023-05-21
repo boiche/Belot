@@ -29,11 +29,6 @@ namespace Belot.SignalR
             return Task.CompletedTask;
         }
 
-        private void SecondDealInternal(Guid gameId)
-        {
-
-        }
-
         /// <summary>
         /// Gets the dealer seat based on current player's seat
         /// </summary>

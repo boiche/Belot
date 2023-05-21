@@ -26,7 +26,7 @@ namespace Belot.SignalR
         /// Creates new instance of a game
         /// </summary>
         /// <returns></returns>
-        Task CreateGame();
+        Task CreateGame(CreateGameRequest request);
         Task DealCards(DealCardsRequest request);
         Task Announce(GameAnnouncementRequest request);
         Task RefreshPlayer();

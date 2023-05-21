@@ -44,7 +44,7 @@ namespace Belot.Services.Application.Auth
             var user = context.Users.SingleOrDefault(x => x.UserName == request.Username);
 
             if (user == null)
-                return new LoginResponse(default, true);
+                return new LoginResponse(string.Empty, true);
 
             var result = await SignInManager.PasswordSignInAsync(user, request.Password, true, false);
             if (result.Succeeded)
@@ -60,7 +60,7 @@ namespace Belot.Services.Application.Auth
             }
             else
             {
-                return new LoginResponse(default, true);
+                return new LoginResponse(string.Empty, true);
             }
         }
 

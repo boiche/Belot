@@ -15,6 +15,7 @@ export class MyProfileComponent extends BaseComponent {
   public user: User = new User('');
   constructor(private _router: Router, private _userService: UserService) {
     super();
-    this.user = this._userService.currentUser as User;    
+    this.user = this._userService.currentUser;
+    this.shouldRedirect(_userService, _router); 
   }   
 }

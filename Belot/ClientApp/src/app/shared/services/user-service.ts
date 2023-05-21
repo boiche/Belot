@@ -4,15 +4,20 @@ import LocalStorageManager from "../local-storage-manager";
 import { User } from "../types/user";
 
 export default class UserService {
-  public get currentUser(): User | null {
-    if (CookieManager.getCookie(appConstants.authToken))
-      return LocalStorageManager.getData<User>(appConstants.currentUser);
-    else
-      return null;
+  public get currentUser(): User {
+    try {
+      if (CookieManager.getCookie(appConstants.authToken))
+        return LocalStorageManager.getData<User>(appConstants.currentUser);
+      else
+        return User.default;
+    } catch (e) {
+      console.log(e);
+      return User.default;
+    }
   }
 
   public get IsLoggedIn(): boolean {
-    return this.currentUser !== null && CookieManager.getCookie(appConstants.authToken);
+    return !(new User(this.currentUser.Username).isEmpty()) && CookieManager.getCookie(appConstants.authToken);
   }
 
   public removeCurrentUser() {

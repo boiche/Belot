@@ -10,12 +10,10 @@ namespace Belot.Controllers
     [ApiController]
     public class BelotGameController : ControllerBase
     {
-        private readonly IHubContext<BelotHub, IBelotHub> _hub;
         private readonly ApplicationDbContext _context;
 
-        public BelotGameController(IHubContext<BelotHub, IBelotHub> hub, ApplicationDbContext context)
+        public BelotGameController(ApplicationDbContext context)
         {
-            this._hub = hub;
             this._context = context;
         }
 

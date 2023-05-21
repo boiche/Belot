@@ -37,13 +37,13 @@ namespace Belot.SignalR
 
             gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
-                await CreateGame();
+                await CreateGame(new CreateGameRequest() { Username = request.Username });
             
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
             gameEntry.ConnectedPlayers++;
             judgeManager.GetJudge(gameId).AddPlayer(new Player()
             {
-                Username = "some username",
+                Username = request.Username,
                 ConnectionId = Context.ConnectionId                
             });
 
@@ -52,9 +52,6 @@ namespace Belot.SignalR
                 StartGameInternal(gameId);
                 gameEntry.HasStarted = true;
             }
-
-            //StartGameInternal(gameId);
-            //gameEntry.HasStarted = true;
 
             context.SaveChanges();
         }        
@@ -71,7 +68,7 @@ namespace Belot.SignalR
             };
         }
 
-        public async Task CreateGame()
+        public async Task CreateGame(CreateGameRequest request)
         {            
             Guid gameId = Guid.NewGuid();
             judgeManager.Judges.Add(gameId, new BelotJudgeService());
@@ -84,7 +81,7 @@ namespace Belot.SignalR
 
             context.Games.Add(gameEntry);
             context.SaveChanges();
-            await JoinGame(new JoinGameRequest() { GameId = gameId });              
+            await JoinGame(new JoinGameRequest() { GameId = gameId, Username = request.Username });              
         }
 
         public async Task LeaveGame(LeaveGameRequest request)
@@ -96,7 +93,7 @@ namespace Belot.SignalR
             gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
             {
-                await CreateGame();
+                await CreateGame(new CreateGameRequest() { Username = request.Username });
             }
 
 
@@ -168,13 +165,17 @@ namespace Belot.SignalR
 
         public Player GetPlayerInfo(string gameId)
         {
-            Guid.TryParse(gameId, out Guid id);
+            if (!Guid.TryParse(gameId, out Guid id))
+                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+
             return judgeManager.GetJudge(id).GetPlayer(Context.ConnectionId);
         }
 
         public async Task FirstDealCompleted(string gameId)
         {
-            Guid.TryParse(gameId, out Guid GameId);
+            if (!Guid.TryParse(gameId, out Guid GameId))
+                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+
             DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
             await Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {
@@ -184,7 +185,9 @@ namespace Belot.SignalR
 
         public async Task SecondDealCompleted(string gameId)
         {
-            Guid.TryParse(gameId, out Guid GameId);
+            if (!Guid.TryParse(gameId, out Guid GameId))
+                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+
             DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
             Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {

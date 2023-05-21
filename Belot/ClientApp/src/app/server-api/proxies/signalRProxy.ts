@@ -1,8 +1,6 @@
 import { Injectable } from "@angular/core";
 import * as signalR from '@microsoft/signalr';
 import { belotServerAPI } from '../../../main';
-import Player from "../../BelotEngine/Player";
-import BaseRequest from "../requests/base-request";
 import BaseSignalRRequest from "../requests/signalR/base-signalr-request";
 import ISignalRProxy from "./interfaces/ISignalRProxy";
 
@@ -37,7 +35,7 @@ class SignalRProxy implements ISignalRProxy {
     return this.connection.start();
   }
 
-  invoke(method: string, request: BaseRequest | null = null): Promise<any> {
+  invoke(method: string, request: BaseSignalRRequest | null = null): Promise<any> {
     if (request === null)
       return this.connection.invoke(method);
     else 

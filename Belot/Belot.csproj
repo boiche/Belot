@@ -75,7 +75,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\server-api\proxies\signalRProxy.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\base-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\get-available-games-request.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\join-game-request.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\join-game-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\base-signalr-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\game-announcement-request.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\server-api\requests\signalR\show-opponent-card-request.ts" />

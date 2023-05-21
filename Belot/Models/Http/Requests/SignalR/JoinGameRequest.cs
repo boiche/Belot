@@ -2,5 +2,6 @@
 {
     public class JoinGameRequest : BaseSignalRRequest
     {
+        public string Username { get; set; }
     }
 }

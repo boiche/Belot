@@ -4,6 +4,7 @@ import { MainScene } from '../../scenes/main-scene';
 import BelotProxy from '../../server-api/proxies/belotProxy';
 import SignalRProxy from '../../server-api/proxies/signalRProxy';
 import LogoutRequest from '../../server-api/requests/logout-request';
+import CreateGameRequest from '../../server-api/requests/signalR/create-game-request';
 import { appConstants } from '../contstants';
 import CookieManager from '../cookie-manager';
 import UserService from '../services/user-service';
@@ -45,7 +46,7 @@ export class NavMenuComponent implements DoCheck {
 
   logout(): void {
     let request = new LogoutRequest();
-    request.username = this._userService.currentUser?.Username ?? '';
+    request.username = this._userService.currentUser.Username;
     request.requestUrl = 'Users/Logout';
     this._userService.removeCurrentUser();
     CookieManager.deleteCookie(appConstants.authToken);
@@ -59,7 +60,9 @@ export class NavMenuComponent implements DoCheck {
     var connection = this._signalR.createConnection("");
     this.scene = new MainScene(connection as SignalRProxy);
     connection.startConnection().then(() => {
-      this._signalR.invoke("CreateGame")
+      let request = new CreateGameRequest();
+      request.username = this._userService.currentUser.Username;      
+      this._signalR.invoke("CreateGame", request)
     });
 
     this._signalR.on('StartGame', (gameId) => {

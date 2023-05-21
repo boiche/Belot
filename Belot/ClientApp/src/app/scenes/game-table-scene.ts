@@ -101,7 +101,9 @@ class GameTableScene extends Scene {
       duration: 1000
     });
 
-    this.drawSidebars();    
+    this.drawSidebars();
+
+    this.drawPlayerInfos();
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
@@ -189,6 +191,10 @@ class GameTableScene extends Scene {
       });
 
     this.handAnnouncements.draw(rightSidebarPoint);
+  }
+  
+  drawPlayerInfos() {
+    //TODO: draw simple shapes that will contain names of players, as well as space for announcement image (to show who has announced)
   }
 
   deal(deal: TypeDeal) {
