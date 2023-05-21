@@ -5,7 +5,7 @@ export default class CookieManager {
     let expires = `expires=${expireDate}`;
     let cpath = path ? ` path=${path}` : '';
 
-    document.cookie += `${name}=${value} ${expires}${cpath}; `;
+    document.cookie = `${name}=${value} ${expires}${cpath}; SameSite=None; Secure`;
   }
 
   static getCookie(name: string): any {

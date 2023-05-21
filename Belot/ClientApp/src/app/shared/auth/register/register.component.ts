@@ -13,9 +13,7 @@ export class RegisterComponent {
   public Email: string = "";
   public Password: string = "";
   public Username: string = "";
-  constructor(private belotProxy: BelotProxy) {
-
-  }
+  constructor(private belotProxy: BelotProxy) { }
 
   register(): void {
     var request = new RegisterRequest();
@@ -26,8 +24,9 @@ export class RegisterComponent {
     this.belotProxy.register(request).subscribe((res) => {
       console.log(res);
       CookieManager.setCookie('authToken', res.data.token);
-      //LocalStorageManager.setData('currentUser', res.data.user);
+      LocalStorageManager.setData('currentUser', res.data.user);
       CookieManager.setCookie('currentUser', res.data.user);
+      location.href = '';
     });
   }
 }

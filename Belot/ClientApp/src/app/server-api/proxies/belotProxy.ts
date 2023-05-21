@@ -11,7 +11,7 @@ import LoginResponse from "../responses/login-response";
 import LogoutRequest from "../requests/logout-request";
 import LogoutResponse from '../responses/logout-response';
 
-Injectable({
+@Injectable({
   providedIn: 'root'
 })
 class BelotProxy extends BaseProxy {

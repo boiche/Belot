@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import LoginComponent from './shared/auth/login/login.component';
+import { MyProfileComponent } from './shared/auth/my-profile/my-profile.component';
 import { RegisterComponent } from './shared/auth/register/register.component';
 
 export const routes: Routes = [
@@ -19,6 +20,10 @@ export const routes: Routes = [
     data: {
       title: 'Log in'
     }
+  },
+  {
+    path: 'my-profile',
+    component: MyProfileComponent
   },
 ];
 

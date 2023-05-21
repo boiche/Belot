@@ -16,10 +16,9 @@ export class HomeComponent implements OnInit {
   scene: Phaser.Scene | undefined = undefined;
 
   constructor(private _signalR: SignalRProxy, private belotProxy: BelotProxy) {
-   
   }
 
-  ngOnInit() {
+  ngOnInit() {    
     this.obtainGames();
   }
 

@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, DoCheck } from '@angular/core';
 import { Router } from '@angular/router';
 import { MainScene } from '../../scenes/main-scene';
 import BelotProxy from '../../server-api/proxies/belotProxy';
 import SignalRProxy from '../../server-api/proxies/signalRProxy';
+import LogoutRequest from '../../server-api/requests/logout-request';
+import { appConstants } from '../contstants';
+import CookieManager from '../cookie-manager';
 import UserService from '../services/user-service';
 
 @Component({
@@ -10,12 +13,18 @@ import UserService from '../services/user-service';
   templateUrl: './nav-menu.component.html',
   styleUrls: ['./nav-menu.component.css']
 })
-export class NavMenuComponent {
+export class NavMenuComponent implements DoCheck {
   scene: Phaser.Scene | undefined = undefined;
-  public isLoggedIn: boolean;
+  public isLoggedIn!: boolean;
 
-  constructor(private _router: Router, private _signalR: SignalRProxy, private belotProxy: BelotProxy, private userService: UserService) {
-    this.isLoggedIn = userService.IsLoggedIn;
+  constructor(
+    private _router: Router,
+    private _signalR: SignalRProxy,
+    private _userService: UserService,
+    private _belotProxy: BelotProxy) { }
+
+  ngDoCheck() {
+    this.isLoggedIn = this._userService.IsLoggedIn;
   }
 
   showRegister() {
@@ -28,6 +37,21 @@ export class NavMenuComponent {
 
   showHome() {
     this._router.navigateByUrl('');
+  }
+
+  showMyProfile() {
+    this._router.navigateByUrl('my-profile');
+  }
+
+  logout(): void {
+    let request = new LogoutRequest();
+    request.username = this._userService.currentUser?.Username ?? '';
+    request.requestUrl = 'Users/Logout';
+    this._userService.removeCurrentUser();
+    CookieManager.deleteCookie(appConstants.authToken);
+    this._belotProxy.logout(request).subscribe(() => {
+      this._router.navigateByUrl('');
+    });
   }
 
   createGameTable() {

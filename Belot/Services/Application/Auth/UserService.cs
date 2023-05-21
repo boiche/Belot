@@ -67,10 +67,9 @@ namespace Belot.Services.Application.Auth
         public async Task<LogoutResponse> Logout(LogoutRequest request)
         {
             await SignInManager.SignOutAsync();
-            bool isOut = SignInManager.IsSignedIn(ClaimsPrincipal.Current);
             return new LogoutResponse()
             {
-                Status = isOut
+                Status = true
             };
         }
 
