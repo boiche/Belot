@@ -23,6 +23,7 @@ class BootGameScene extends Scene {
     this.load.image("background", "assets/sprites/Background.png");
     this.load.spritesheet("cardBack", "assets/sprites/back.png", frameConfig);
     this.load.image("tableCloth", "assets/sprites/table_cloth.png");
+    //TODO: is it better to make all these images into spritesheet?
     this.load.image(constants.clubGameAnnouncement, "assets/sprites/gameAnnouncements/suit_button_clubs.png");
     this.load.image(constants.diamondsGameAnnouncement, "assets/sprites/gameAnnouncements/suit_button_diamonds.png");
     this.load.image(constants.heartsGameAnnouncement, "assets/sprites/gameAnnouncements/suit_button_hearts.png");
@@ -35,6 +36,13 @@ class BootGameScene extends Scene {
     this.load.image(constants.gameAnnouncementsBackground, "assets/sprites/gameAnnouncements/background.png");
     this.load.image(constants.gameScoreBackground, "assets/sprites/gameScore/background.png");
     this.load.image(constants.optionsButton, "assets/sprites/options_button.png");
+
+    this.load.image(constants.clubsGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/clubs-removebg-preview.png");
+    this.load.image(constants.diamondsGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/diamonds-removebg-preview.png");
+    this.load.image(constants.heartsGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/hearts-removebg-preview.png");
+    this.load.image(constants.spadesGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/spades-removebg-preview.png");
+    this.load.image(constants.noSuitGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/no_suit-removebg-preview.png");
+    this.load.image(constants.allSuitsGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/all_suits-removebg-preview.png");
   }
 
   create() {    

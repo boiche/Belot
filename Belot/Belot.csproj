@@ -88,6 +88,7 @@
     <Folder Include="ClientApp\src\app\server-api\responses\signalR\" />
     <Folder Include="ClientApp\src\app\shared\auth\" />
     <Folder Include="ClientApp\src\app\shared\services\" />
+    <Folder Include="ClientApp\src\assets\sprites\gameAnnouncements\announcementElements\" />
     <Folder Include="ClientApp\src\assets\sprites\gameScore\" />
   </ItemGroup>
 

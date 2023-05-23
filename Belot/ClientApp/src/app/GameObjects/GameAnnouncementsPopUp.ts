@@ -90,7 +90,6 @@ class GameAnnouncementsPopUp extends BasePopUp {
       y: background.y - background.height / 2 + first.height / 2 + first.height * 2.2
     });
 
-
     var double = this.scene.add.sprite(0, 0, constants.doubleGameAnnouncement);
     var redouble = this.scene.add.sprite(0, 0, constants.redoubleGameAnnouncement);
     var counters = [double, redouble];

@@ -7,6 +7,7 @@ import GameScore from "../BelotEngine/GameScore";
 import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
 import AnnounceChatBubble from "../GameObjects/AnnounceChatBubble";
+import AnnouncedElement from "../GameObjects/AnnouncedElement";
 import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
 import GameScorePopUp from "../GameObjects/GameScorePopUp";
 import HandAnnounementsRectangle from "../GameObjects/HandAnnouncementsRectangle";
@@ -53,6 +54,7 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType, relativeIndex: PlayerNumber) => {
       this.gameAnnouncements.disableAnnouncements(newAnnouncement);
       new AnnounceChatBubble(this, GameAnnouncementType[newAnnouncement]).showBubble(relativeIndex);
+      new AnnouncedElement(this, newAnnouncement).showElement(relativeIndex);
     });
     this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
@@ -102,8 +104,6 @@ class GameTableScene extends Scene {
     });
 
     this.drawSidebars();
-
-    this.drawPlayerInfos();
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
@@ -191,10 +191,6 @@ class GameTableScene extends Scene {
       });
 
     this.handAnnouncements.draw(rightSidebarPoint);
-  }
-  
-  drawPlayerInfos() {
-    //TODO: draw simple shapes that will contain names of players, as well as space for announcement image (to show who has announced)
   }
 
   deal(deal: TypeDeal) {
