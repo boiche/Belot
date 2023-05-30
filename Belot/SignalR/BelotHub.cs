@@ -25,7 +25,7 @@ namespace Belot.SignalR
 
             ApplicationEvents.JudgeNotFound += DeleteGameEvent;
         }
-        
+
         public override Task OnConnectedAsync()
         {
             return base.OnConnectedAsync();
@@ -34,6 +34,12 @@ namespace Belot.SignalR
         public async Task JoinGame(JoinGameRequest request)
         {
             Guid gameId = request.GameId;
+            var judge = judgeManager.GetJudge(gameId);
+            if (judge == null)
+            {
+                Clients.Client(Context.ConnectionId).Error("Judge not found");
+                return;
+            }
 
             gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
@@ -41,7 +47,7 @@ namespace Belot.SignalR
             
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
             gameEntry.ConnectedPlayers++;
-            judgeManager.GetJudge(gameId).AddPlayer(new Player()
+            judge.AddPlayer(new Player()
             {
                 Username = request.Username,
                 ConnectionId = Context.ConnectionId                
@@ -76,7 +82,7 @@ namespace Belot.SignalR
             {
                 Id = gameId,
                 HasStarted = false,
-                ConnectedPlayers = 0,
+                ConnectedPlayers = 0,                
             };
 
             context.Games.Add(gameEntry);
@@ -225,15 +231,19 @@ namespace Belot.SignalR
 
             if (belotJudge.GameFinished())
             {
-                belotJudge.FinishGame();
+                bool gameOver = belotJudge.FinishGame();
 
                 var showScoreResponse = new ShowScoreResponse()
                 {
-                    Score = belotJudge.GetScore()
+                    Score = belotJudge.GetScore(),
+                    IsGameOver = gameOver
                 };
                 Clients.Group(request.GameId.ToString()).ShowScore(showScoreResponse);
 
-                DealNewInternal(request.GameId);
+                if (!gameOver)
+                {
+                    DealNewInternal(request.GameId);
+                }                
             }
             else
             {
@@ -243,6 +253,33 @@ namespace Belot.SignalR
                     TurnCode = TurnCodes.ThrowCard
                 });
             }                        
+
+            return Task.CompletedTask;
+        }
+
+        public Task GameOver(string gameId)
+        {
+            BelotJudgeService belotJudge = judgeManager.GetJudge(Guid.Parse(gameId));
+
+            var winnerRespone = new ShowWinnerResponse()
+            {
+                Score = belotJudge.GetScore()
+            };
+            var winners = belotJudge.GetWinners();
+            foreach (var winner in winners)
+            {
+                Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
+            }
+
+            var loserResponse = new ShowLoserResponse()
+            {
+                Score = belotJudge.GetScore()
+            };
+            var losers = belotJudge.GetLosers();
+            foreach (var loser in losers)
+            {
+                Clients.Client(loser.ConnectionId).ShowLosing(loserResponse);
+            }
 
             return Task.CompletedTask;
         }

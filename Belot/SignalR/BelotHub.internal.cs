@@ -2,6 +2,7 @@
 using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Services.Application.Events;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 
 namespace Belot.SignalR
@@ -61,9 +62,15 @@ namespace Belot.SignalR
 
         private void DeleteGameEvent(object sender, JudgeNotFoundArgs args)
         {
-            var gameToRemove = context.Games.First(x => x.Id == args.GameId);
-            //TODO: establish separate db connection ('context' is null on event raise)
-            context.Games.Remove(gameToRemove);
+            //TODO: find better way to obtain the string
+            string connectionString = "Server=localhost\\SQLEXPRESS;Database=Belot_App;Trusted_Connection=True;MultipleActiveResultSets=true";
+            using SqlConnection connection = new(connectionString);
+            connection.Open();
+            SqlCommand command = connection.CreateCommand();
+            command.CommandText = $"DELETE FROM dbo.Games WHERE Id = N'{args.GameId}'";
+            int result = command.ExecuteNonQuery();
+            DebugHelper.WriteLine(() => $"Tried to delete non existing game with Id {args.GameId}. Affected rows of dbo.Games is: {result}");
+            connection.Close();
         }
     }
 }

@@ -8,7 +8,7 @@
         public int PlayerIndex { get; set; }
         public bool IsOnTurn { get; set; }
         public GameAnnouncement Announcement { get; set; }
-        public int Team { get => PlayerIndex % 2; }
+        public Team Team { get => (Team)(PlayerIndex % 2); }
 
         public Player()
         {

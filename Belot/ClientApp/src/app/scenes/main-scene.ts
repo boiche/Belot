@@ -67,7 +67,7 @@ class SignalRPlugin extends Phaser.Plugins.BasePlugin {
 
   constructor(pluginManager: Phaser.Plugins.PluginManager) {
     super(pluginManager);
-    this.connection = SignalRProxy.prototype;
+    this.connection = SignalRProxy.prototype;    
   }
 
   init(connection: ISignalRProxy) {

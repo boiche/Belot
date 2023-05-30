@@ -8,12 +8,14 @@ import Player from "../BelotEngine/Player";
 import { TurnManager, TurnCodes } from "../BelotEngine/TurnManager";
 import AnnounceChatBubble from "../GameObjects/AnnounceChatBubble";
 import AnnouncedElement from "../GameObjects/AnnouncedElement";
-import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp";
-import GameScorePopUp from "../GameObjects/GameScorePopUp";
+import GameAnnouncementsPopUp from "../GameObjects/PopUps/GameAnnouncementsPopUp";
+import GameScorePopUp from "../GameObjects/PopUps/GameScorePopUp";
 import HandAnnounementsRectangle from "../GameObjects/HandAnnouncementsRectangle";
-import OptionsPopUp from "../GameObjects/OptionsPopUp";
+import OptionsPopUp from "../GameObjects/PopUps/OptionsPopUp";
+import FinalScorePopUp from "../GameObjects/PopUps/FinalScorePopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
+import ShowScoreResponse from "../server-api/responses/show-score-response";
 
 class GameTableScene extends Scene {
   windowWidth = window.innerWidth;
@@ -79,14 +81,37 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('CollectCards', (collectCardsInfo: any) => {
       this.dealer.collectCards(collectCardsInfo.opponentRelativeIndex);
     });
-    this.signalR.Connection.on('ShowScore', (score: GameScore) => {
-      var popup = new GameScorePopUp(this, score, 10);
+    this.signalR.Connection.on('ShowScore', (response: ShowScoreResponse) => {     
+      var popup = new GameScorePopUp(this, response.score, 10);
       popup.show();
 
-      this.updateTotalScore(score);
+      this.updateTotalScore(response.score);
+
+      if (!response.isGameOver) {
+        setTimeout(() => this.dealNew(), 15000);
+      }
+      else {        
+        setTimeout(() => {
+          this.clearScene();
+          this.signalR.Connection.invoke("GameOver", this.gameId);
+        }, popup.visibleDuration);
+      }
     });
     this.signalR.Connection.on('ShowHandAnnouncements', () => this.dealer._scene.handAnnouncements.showHandAnnouncements());
     this.signalR.Connection.on('AnnounceHandAnnouncement', (handAnnouncement: HandAnnouncementType, relativeIndex: PlayerNumber) => new AnnounceChatBubble(this, HandAnnouncementType[handAnnouncement]).showBubble(relativeIndex));
+    this.signalR.Connection.on('ShowWinning', (score: GameScore) => {
+      var popup = new FinalScorePopUp(this, score, 10, true);
+      popup.show();
+
+      setTimeout(() => location.reload(), 5000);
+    });
+    this.signalR.Connection.on('ShowLosing', (score: GameScore) => {
+      var popup = new FinalScorePopUp(this, score, 10, false);
+      popup.show();
+
+      setTimeout(() => location.reload(), 5000);
+    })
+
 
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)
@@ -226,12 +251,12 @@ class GameTableScene extends Scene {
     }
   }
 
-  updateTotalScore(score: any) {
+  updateTotalScore(score: GameScore) {
     var weScoreLabel = this.children.getByName(constants.gameScoreTotalItem + ' weScoreLabel') as GameObjects.Text;
     var youScoreLabel = this.children.getByName(constants.gameScoreTotalItem + ' youScoreLabel') as GameObjects.Text;
 
-    var weScore = this.currentPlayer.team == 0 ? score.score.teamA.toString() : score.score.teamB.toString();
-    var youScore = this.currentPlayer.team == 0 ? score.score.teamB.toString() : score.score.teamA.toString();
+    var weScore = this.currentPlayer.team == 0 ? score.teamA.toString() : score.teamB.toString();
+    var youScore = this.currentPlayer.team == 0 ? score.teamB.toString() : score.teamA.toString();
 
     weScoreLabel.text = weScore;
     youScoreLabel.text = youScore;

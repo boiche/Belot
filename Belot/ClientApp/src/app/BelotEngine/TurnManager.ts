@@ -1,4 +1,4 @@
-import GameAnnouncementsPopUp from "../GameObjects/GameAnnouncementsPopUp"
+import GameAnnouncementsPopUp from "../GameObjects/PopUps/GameAnnouncementsPopUp"
 import { Dealer } from "./Dealer";
 
 class TurnManager {

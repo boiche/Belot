@@ -1,16 +1,18 @@
-import { constants } from "../../main";
-import GameScore from "../BelotEngine/GameScore";
-import GameTableScene from "../scenes/game-table-scene";
+import { constants } from "../../../main";
+import GameScore from "../../BelotEngine/GameScore";
+import GameTableScene from "../../scenes/game-table-scene";
 import { BasePopUp } from "./BasePopUp";
 
 class GameScorePopUp extends BasePopUp {
   private _depth: number;
-  private gameScore: any;
+  private gameScore: GameScore;
+  visibleDuration: number;
 
-  constructor(scene: GameTableScene, score: any, depth: number) {
+  constructor(scene: GameTableScene, score: GameScore, depth: number, visibleDuration: number = 10000) {
     super(scene);
     this._depth = depth;
     this.gameScore = score;
+    this.visibleDuration = visibleDuration;
   }
 
   override show() {
@@ -25,8 +27,8 @@ class GameScorePopUp extends BasePopUp {
       fontSize: '52'
     };
 
-    var weScore = this.scene.currentPlayer.team == 0 ? this.gameScore.score.lastGameTeamA.toString() : this.gameScore.score.lastGameTeamB.toString();
-    var youScore = this.scene.currentPlayer.team == 0 ? this.gameScore.score.lastGameTeamB.toString() : this.gameScore.score.lastGameTeamA.toString();
+    var weScore = this.scene.currentPlayer.team == 0 ? this.gameScore.lastGameTeamA.toString() : this.gameScore.lastGameTeamB.toString();
+    var youScore = this.scene.currentPlayer.team == 0 ? this.gameScore.lastGameTeamB.toString() : this.gameScore.lastGameTeamA.toString();
 
     var weScoreLabel = this.scene.add.text(point.x - 100, point.y, weScore, config)
       .setName(constants.gameScoreItem + ' weScoreLabel')
@@ -48,13 +50,13 @@ class GameScorePopUp extends BasePopUp {
       .setFontSize(52)
       .setDepth(this._depth + 1);
 
-    if (this.gameScore.score.isCapo) {
+    if (this.gameScore.isCapo) {
       this.scene.add.text(weLabel.x + weLabel.width, weLabel.y - weLabel.height - 15, 'CAPO', config)
         .setName(constants.gameScoreItem + ' capo')
         .setFontSize(52)
         .setDepth(this._depth + 1);
     }
-    else if (this.gameScore.score.isVutreTeamA || this.gameScore.score.isVutreTeamB) {
+    else if (this.gameScore.isVutreTeamA || this.gameScore.isVutreTeamB) {
       this.scene.add.text(weLabel.x + weLabel.width, weLabel.y - weLabel.height - 15, 'VUTRE', config)
         .setName(constants.gameScoreItem + ' vutre')
         .setFontSize(52)
@@ -64,9 +66,7 @@ class GameScorePopUp extends BasePopUp {
     this.shown = true;
     this.sprites = this.scene.children.getChildren().filter(x => x.name.startsWith(constants.gameScoreItem));
 
-    setTimeout(() => this.hide(), 10000);
-
-    setTimeout(() => this.scene.dealNew(), 15000);
+    setTimeout(() => this.hide(), this.visibleDuration);    
   }
 }
 

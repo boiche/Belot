@@ -54,6 +54,8 @@ namespace Belot.SignalR
         /// <returns></returns>
         Task CollectCards(CollectCardsResponse response);
         Task ShowScore(ShowScoreResponse response);
+        Task ShowWinning(ShowWinnerResponse response);
+        Task ShowLosing(ShowLoserResponse response);
 
         /// <summary>
         /// Indicates clients to show the hand announcements
@@ -67,5 +69,6 @@ namespace Belot.SignalR
         /// <param name="relativeIndex">The relative index of the player based on the player who has announced</param>
         /// <returns></returns>
         Task AnnounceHandAnnouncement(HandAnnouncement handAnnouncement, int relativeIndex);
+        Task Error(string message);
     }
 }

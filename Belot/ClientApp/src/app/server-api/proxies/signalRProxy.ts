@@ -19,11 +19,16 @@ class SignalRProxy implements ISignalRProxy {
 
   createConnection(gameId: string): ISignalRProxy {
     this.connection = new signalR.HubConnectionBuilder()
-      .configureLogging(signalR.LogLevel.Debug)
+      .configureLogging(signalR.LogLevel.None)
       .withUrl(belotServerAPI.signalR)      
       .build();
 
     this.connection.serverTimeoutInMilliseconds = 999999;    
+
+    this.connection.on("Error", (response: any) => {      
+      console.error(response);
+      //TODO: show error component with 'Go back' button
+    })
 
     this._gameId = gameId;
 

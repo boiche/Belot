@@ -24,7 +24,7 @@ export default class AnnouncedElement {
         image = this._scene.add.image(this._options.sceneMiddlePoint.x, this._options.sceneMiddlePoint.y, constants.clubsGameAnnouncementElement);
       } break;
       case GameAnnouncementType.DIAMONDS: {
-        this._scene.add.image(this._options.sceneMiddlePoint.x, this._options.sceneMiddlePoint.y, constants.diamondsGameAnnouncementElement);          
+        image = this._scene.add.image(this._options.sceneMiddlePoint.x, this._options.sceneMiddlePoint.y, constants.diamondsGameAnnouncementElement);          
       } break;
       case GameAnnouncementType.HEARTS: {
         image = this._scene.add.image(this._options.sceneMiddlePoint.x, this._options.sceneMiddlePoint.y, constants.heartsGameAnnouncementElement);         

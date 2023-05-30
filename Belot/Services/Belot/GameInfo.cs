@@ -210,7 +210,7 @@ namespace Belot.Services.Belot
             #endregion
 
             #region HandAnnouncements
-            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = announcer.Team);    
+            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = (int)announcer.Team);    
             var announcements = this._gameInfo.HandAnnouncements.GroupBy(x => x.Points).OrderByDescending(x => x.Key).ToList();
             int dominatingTeam = -1;
 

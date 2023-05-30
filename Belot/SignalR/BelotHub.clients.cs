@@ -57,6 +57,16 @@ namespace Belot.SignalR
             return Task.Run(() => response);
         }
 
+        public Task ShowWinning(ShowWinnerResponse response)
+        {
+            return Task.Run(() => response);
+        }
+
+        public Task ShowLosing(ShowLoserResponse response)
+        {
+            return Task.Run(() => response);
+        }
+
         public Task ShowHandAnnouncements()
         {
             return Task.CompletedTask;
@@ -65,6 +75,11 @@ namespace Belot.SignalR
         public Task AnnounceHandAnnouncement(HandAnnouncement handAnnouncement, int relativeIndex)
         {
             return Task.Run(() => new { handAnnouncement, relativeIndex });
+        }
+
+        public Task Error(string message)
+        {
+            return Task.Run(() => message);
         }
     }
 }

@@ -29,7 +29,6 @@ namespace Belot.Controllers
         [Route("/Users/Register")]
         public IActionResult Register([FromBody]RegisterRequest request)
         {            
-            //TODO: ensure that whole response is deserialized properly on the client side
             var response = userService.Register(request).Result;
             if (string.IsNullOrEmpty(response.Error))
                 return Ok(response);

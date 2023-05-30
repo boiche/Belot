@@ -2,9 +2,8 @@
 
 namespace Belot.Models.Http.Responses.SignalR
 {
-    public class ShowScoreResponse
+    public class ShowWinnerResponse : BaseResponse
     {
         public Score Score { get; set; }
-        public bool IsGameOver { get; set; }
     }
 }

@@ -212,15 +212,25 @@ namespace Belot.Services.Belot
 
         internal IEnumerable<Player> GetPlayers() => _gameInfo.Players;
 
+        /// <summary>
+        /// Indicates that a single play has finished
+        /// </summary>
+        /// <returns></returns>
         internal bool GameFinished() => _gameInfo.Hands.Count == 8 && _gameInfo.Hands.Last().WonBy != default;
 
-        internal void FinishGame()
+        /// <summary>
+        /// Internal actions when single play has finished
+        /// </summary>
+        /// <returns>Whether the whole game has finished</returns>
+        internal bool FinishGame()
         {
             _gameInfo.GameScore.CalculateScore();
 
             _cards.CollectCards(_gameInfo.Hands);            
 
             _gameInfo.Hands.Clear();
+
+            return _gameInfo.IsGameOver;
         }
 
         internal Score GetScore() => _gameInfo.GameScore.Score;
@@ -228,6 +238,21 @@ namespace Belot.Services.Belot
         internal void HandAnnounce(string connectionId, Models.Belot.HandAnnouncement announcement, int? highestRank)
         {
             _gameInfo.AddHandAnnouncement(connectionId, announcement, highestRank);
+        }
+
+        internal List<Player> GetWinners()
+        {
+            List<Player> result = new();
+            var players = GetPlayers().ToList();
+            var isTeamBWinner = _gameInfo.GameScore.Score.TeamB > _gameInfo.GameScore.Score.TeamA; //always one of the scores is >= 151 here
+            return isTeamBWinner ? 
+                players.Where(x => x.Team == Team.TeamB).ToList() : 
+                players.Where(x => x.Team == Team.TeamA).ToList();
+        }
+
+        internal List<Player> GetLosers()
+        {
+            return GetPlayers().Except(GetWinners()).ToList();
         }
     }
 }

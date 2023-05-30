@@ -1,5 +1,5 @@
 import { GameObjects } from 'phaser'
-import GameTableScene from '../scenes/game-table-scene';
+import GameTableScene from '../../scenes/game-table-scene';
 
 export abstract class BasePopUp {
   protected shown: boolean;
