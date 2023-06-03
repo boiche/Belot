@@ -16,12 +16,14 @@ namespace Belot.SignalR
     {
         readonly ApplicationDbContext context;
         readonly IJudgeManager<BelotJudgeService> judgeManager;
+        readonly IUserBalanceService userBalanceService;
         Game gameEntry;
 
-        public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager)
+        public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService)
         {
             this.context = context;
             this.judgeManager = judgeManager;
+            this.userBalanceService = userBalanceService;
 
             ApplicationEvents.JudgeNotFound += DeleteGameEvent;
         }
@@ -34,6 +36,9 @@ namespace Belot.SignalR
         public async Task JoinGame(JoinGameRequest request)
         {
             Guid gameId = request.GameId;
+            var currentPlayer = context.Users.First(x => x.UserName == request.Username);
+            var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
+
             var judge = judgeManager.GetJudge(gameId);
             if (judge == null)
             {
@@ -47,10 +52,13 @@ namespace Belot.SignalR
             
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
             gameEntry.ConnectedPlayers++;
+            userBalanceService.Withdraw(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
+
             judge.AddPlayer(new Player()
             {
-                Username = request.Username,
-                ConnectionId = Context.ConnectionId                
+                Username = currentPlayer.UserName ?? string.Empty,
+                ConnectionId = Context.ConnectionId,
+                Id = currentPlayer.Id,
             });
 
             if (gameEntry.ConnectedPlayers == 4)

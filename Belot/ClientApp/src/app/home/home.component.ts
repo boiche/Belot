@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit {
     connection.startConnection().then(() => {      
       var request = new JoinGameRequest();
       request.gameId = gameId;
-      request.username = this._userService.currentUser.Username;
+      request.username = this._userService.currentUser.userName;
       this._signalR.invoke("JoinGame", request)
     });
 

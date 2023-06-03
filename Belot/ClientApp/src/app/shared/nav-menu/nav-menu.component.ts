@@ -46,7 +46,7 @@ export class NavMenuComponent implements DoCheck {
 
   logout(): void {
     let request = new LogoutRequest();
-    request.username = this._userService.currentUser.Username;
+    request.username = this._userService.currentUser.userName;
     request.requestUrl = 'Users/Logout';
     this._userService.removeCurrentUser();
     CookieManager.deleteCookie(appConstants.authToken);
@@ -61,7 +61,7 @@ export class NavMenuComponent implements DoCheck {
     this.scene = new MainScene(connection as SignalRProxy);
     connection.startConnection().then(() => {
       let request = new CreateGameRequest();
-      request.username = this._userService.currentUser.Username;      
+      request.username = this._userService.currentUser.userName;      
       this._signalR.invoke("CreateGame", request)
     });
 

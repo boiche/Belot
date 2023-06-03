@@ -1,4 +1,5 @@
-﻿using Belot.Models.DataEntries;
+﻿using Belot.Data;
+using Belot.Models.DataEntries;
 using Belot.Models.Http.Requests;
 using Belot.Models.Http.Responses;
 using Belot.Services.Application.Auth.Interfaces;
@@ -78,13 +79,15 @@ namespace Belot.Services.Application.Auth
             ApplicationUser user = new()
             {
                 Email = request.Email,
-                UserName = request.Username                
+                UserName = request.Username, 
+                UserBalanceId = Guid.NewGuid()
             };
             var result = await UserManager.CreateAsync(user, request.Password);
             if (result.Succeeded) 
             {
                 var token = GenerateJwtToken(user);
                 await UserManager.SetAuthenticationTokenAsync(user, "Bearer", "authToken", token.RawData);
+
                 return new RegisterResponse(token, user);
             }
             else

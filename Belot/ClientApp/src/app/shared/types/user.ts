@@ -1,15 +1,15 @@
 export class User {
   constructor(username: string) {
-    this.Username = username;
+    this.userName = username;
   }
 
-  Username: string;
+  userName: string;
 
   public static get default(): User {
     return new User('');
   }
 
   isEmpty() {
-    return this.Username === User.default.Username;
+    return this.userName === User.default.userName;
   }
 }

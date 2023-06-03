@@ -7,6 +7,7 @@ using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Belot.SignalR;
 using Belot.Utils;
+using Laraue.EfCoreTriggers.SqlServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
         .WithOrigins("https://localhost:44441");
 }));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString).UseSqlServerTriggers());
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -40,6 +41,7 @@ builder.Services.AddAuthentication()
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
 builder.Services.AddScoped<IUserService<ApplicationUser>, UserService>();
+builder.Services.AddScoped<IUserBalanceService, UserBalanceService>();
 builder.Services.AddControllers();
 builder.Services.Configure<IdentityOptions>(config =>
 {

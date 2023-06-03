@@ -9,6 +9,8 @@ namespace Belot.Data.Configurations
         public void Configure(EntityTypeBuilder<Game> builder)
         {
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.CreatedBy).IsRequired(false);
+            builder.Property(x => x.ModifiedBy).IsRequired(false);
         }
     }
 }

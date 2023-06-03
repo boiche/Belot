@@ -17,7 +17,7 @@ export default class UserService {
   }
 
   public get IsLoggedIn(): boolean {
-    return !(new User(this.currentUser.Username).isEmpty()) && CookieManager.getCookie(appConstants.authToken);
+    return !(new User(this.currentUser.userName).isEmpty()) && CookieManager.getCookie(appConstants.authToken);
   }
 
   public removeCurrentUser() {

@@ -1,4 +1,5 @@
 ﻿using Belot.Models.DataEntries;
+using System.ComponentModel.DataAnnotations;
 
 namespace Belot.Models
 {
@@ -9,13 +10,13 @@ namespace Belot.Models
     {
         public DataEntity()
         {
-            CreateOn = DateTime.Now;
+            CreatedOn = DateTime.Now;
             ModifiedOn = DateTime.Now;
         }
-        public DateTime CreateOn { get; set; }
+        public DateTime CreatedOn { get; set; }
         public DateTime ModifiedOn { get; set; }
 
-        public ApplicationUser CreatedBy { get; set; }
-        public ApplicationUser ModifiedBy { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
     }
 }
