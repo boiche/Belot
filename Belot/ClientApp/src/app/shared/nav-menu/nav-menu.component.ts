@@ -56,13 +56,20 @@ export class NavMenuComponent implements DoCheck {
   }
 
   createGameTable() {
-    document.body.innerHTML = "";
-    var connection = this._signalR.createConnection("");
-    this.scene = new MainScene(connection as SignalRProxy);
+    
+    var connection = this._signalR.createConnection("");    
     connection.startConnection().then(() => {
       let request = new CreateGameRequest();
-      request.username = this._userService.currentUser.userName;      
-      this._signalR.invoke("CreateGame", request)
+      request.username = this._userService.currentUser.userName;
+      this._signalR.invoke("CreateGame", request).then(() => {
+        if (!this._signalR.RecentError) {
+          document.body.innerHTML = "";
+          this.scene = new MainScene(connection as SignalRProxy);
+        }
+      }).catch((x) => {
+        alert(x);
+        location.reload();
+      });
     });
 
     this._signalR.on('StartGame', (gameId) => {

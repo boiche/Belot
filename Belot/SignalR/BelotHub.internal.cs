@@ -63,7 +63,7 @@ namespace Belot.SignalR
         private void DeleteGameEvent(object sender, JudgeNotFoundArgs args)
         {
             //TODO: find better way to obtain the string
-            string connectionString = "Server=localhost\\SQLEXPRESS;Database=Belot_App;Trusted_Connection=True;MultipleActiveResultSets=true";
+            string connectionString = "Server=localhost\\SQLEXPRESS;Database=Belot_App;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False";
             using SqlConnection connection = new(connectionString);
             connection.Open();
             SqlCommand command = connection.CreateCommand();

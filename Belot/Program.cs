@@ -26,7 +26,7 @@ builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
         .WithOrigins("https://localhost:44441");
 }));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString).UseSqlServerTriggers());
+    options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)

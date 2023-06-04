@@ -34,15 +34,21 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  openGameTable(gameId: string) {
-    document.body.innerHTML = "";
+  openGameTable(gameId: string) {    
     var connection = this._signalR.createConnection(gameId);
-    this.scene = new MainScene(connection as SignalRProxy);
-    connection.startConnection().then(() => {      
+    connection.startConnection().then(() => {
       var request = new JoinGameRequest();
       request.gameId = gameId;
       request.username = this._userService.currentUser.userName;
-      this._signalR.invoke("JoinGame", request)
+      this._signalR.invoke("JoinGame", request).then(() => {
+        if (!this._signalR.RecentError) {
+          document.body.innerHTML = "";
+          this.scene = new MainScene(connection as SignalRProxy);
+        }
+        else {
+          this.obtainGames();
+        }
+      })
     });
 
     this._signalR.on('StartGame', (gameId) => {

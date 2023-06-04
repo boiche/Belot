@@ -9,6 +9,10 @@ import ISignalRProxy from "./interfaces/ISignalRProxy";
 })
 class SignalRProxy implements ISignalRProxy {
   connection!: signalR.HubConnection;
+  private recentError!: any;
+  public get RecentError() {
+    return this.clearError();
+  }
   _gameId!: string;
 
   public async getPlayer(): Promise<any> {
@@ -25,8 +29,9 @@ class SignalRProxy implements ISignalRProxy {
 
     this.connection.serverTimeoutInMilliseconds = 999999;    
 
-    this.connection.on("Error", (response: any) => {      
-      console.error(response);
+    this.connection.on("Error", (response: any) => {
+      alert(response);
+      this.recentError = response;      
       //TODO: show error component with 'Go back' button
     })
 
@@ -59,6 +64,12 @@ class SignalRProxy implements ISignalRProxy {
 
   getConnectionId(): string | null {
     return this.connection.connectionId;
+  }
+
+  clearError() {
+    let temp = this.recentError;
+    this.recentError = null;
+    return temp;
   }
 }
 

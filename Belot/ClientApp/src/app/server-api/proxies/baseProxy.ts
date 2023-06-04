@@ -44,6 +44,6 @@ export default abstract class BaseProxy {
   }
 
   handleError(error: any) {
-    console.error(error);
+    alert(error.response.data);
   }
 }

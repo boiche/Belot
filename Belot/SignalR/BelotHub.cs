@@ -16,7 +16,7 @@ namespace Belot.SignalR
     {
         readonly ApplicationDbContext context;
         readonly IJudgeManager<BelotJudgeService> judgeManager;
-        readonly IUserBalanceService userBalanceService;
+        readonly IUserBalanceService userBalanceService;        
         Game gameEntry;
 
         public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService)
@@ -35,39 +35,47 @@ namespace Belot.SignalR
 
         public async Task JoinGame(JoinGameRequest request)
         {
-            Guid gameId = request.GameId;
-            var currentPlayer = context.Users.First(x => x.UserName == request.Username);
-            var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
-
-            var judge = judgeManager.GetJudge(gameId);
-            if (judge == null)
+            try
             {
-                Clients.Client(Context.ConnectionId).Error("Judge not found");
-                return;
+                Guid gameId = request.GameId;
+                var currentPlayer = context.Users.First(x => x.UserName == request.Username);
+                var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
+
+                var judge = judgeManager.GetJudge(gameId);
+                if (judge == null)
+                {
+                    Clients.Caller.Error("Game doesn't exist");
+                    return;
+                }
+
+                gameEntry = context.Games.First(x => x.Id == gameId);
+                if (gameEntry is null)
+                    await CreateGame(new CreateGameRequest() { Username = request.Username });
+
+                await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
+                gameEntry.ConnectedPlayers++;
+                userBalanceService.Withdraw(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
+
+                judge.AddPlayer(new Player()
+                {
+                    Username = currentPlayer.UserName ?? string.Empty,
+                    ConnectionId = Context.ConnectionId,
+                    Id = currentPlayer.Id,
+                });
+
+                if (gameEntry.ConnectedPlayers == 4)
+                {
+                    StartGameInternal(gameId);
+                    gameEntry.HasStarted = true;
+                }
+
+                context.SaveChanges();
             }
-
-            gameEntry = context.Games.First(x => x.Id == gameId);
-            if (gameEntry is null)
-                await CreateGame(new CreateGameRequest() { Username = request.Username });
-            
-            await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
-            gameEntry.ConnectedPlayers++;
-            userBalanceService.Withdraw(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
-
-            judge.AddPlayer(new Player()
+            catch (Exception e)
             {
-                Username = currentPlayer.UserName ?? string.Empty,
-                ConnectionId = Context.ConnectionId,
-                Id = currentPlayer.Id,
-            });
-
-            if (gameEntry.ConnectedPlayers == 4)
-            {
-                StartGameInternal(gameId);
-                gameEntry.HasStarted = true;
-            }
-
-            context.SaveChanges();
+                Clients.Caller.Error(e.Message);
+                throw;
+            }            
         }        
 
         public GetGameInfoResponse GetGameInfo(string gameId)
@@ -85,17 +93,26 @@ namespace Belot.SignalR
         public async Task CreateGame(CreateGameRequest request)
         {            
             Guid gameId = Guid.NewGuid();
-            judgeManager.Judges.Add(gameId, new BelotJudgeService());
-            gameEntry = new Game()
+            var user = context.Users.First(x => x.UserName == request.Username);
+            var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, 50);
+            if (canCreateGame.Item1)
             {
-                Id = gameId,
-                HasStarted = false,
-                ConnectedPlayers = 0,                
-            };
+                judgeManager.Judges.Add(gameId, new BelotJudgeService());
+                gameEntry = new Game()
+                {
+                    Id = gameId,
+                    HasStarted = false,
+                    ConnectedPlayers = 0,
+                };
 
-            context.Games.Add(gameEntry);
-            context.SaveChanges();
-            await JoinGame(new JoinGameRequest() { GameId = gameId, Username = request.Username });              
+                context.Games.Add(gameEntry);
+                context.SaveChanges();
+                await JoinGame(new JoinGameRequest() { GameId = gameId, Username = request.Username });
+            }
+            else
+            {
+                Clients.Caller.Error(canCreateGame.Item2.Message);
+            }            
         }
 
         public async Task LeaveGame(LeaveGameRequest request)
