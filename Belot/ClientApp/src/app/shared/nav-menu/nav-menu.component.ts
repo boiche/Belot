@@ -55,12 +55,12 @@ export class NavMenuComponent implements DoCheck {
     });
   }
 
-  createGameTable() {
-    
+  createGameTable() {    
     var connection = this._signalR.createConnection("");    
     connection.startConnection().then(() => {
       let request = new CreateGameRequest();
       request.username = this._userService.currentUser.userName;
+      request.prizePool = 200.00;
       this._signalR.invoke("CreateGame", request).then(() => {
         if (!this._signalR.RecentError) {
           document.body.innerHTML = "";

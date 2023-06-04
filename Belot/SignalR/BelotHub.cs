@@ -42,15 +42,12 @@ namespace Belot.SignalR
                 var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
 
                 var judge = judgeManager.GetJudge(gameId);
-                if (judge == null)
+                gameEntry = context.Games.First(x => x.Id == gameId);
+                if (gameEntry is null || judge == null)
                 {
                     Clients.Caller.Error("Game doesn't exist");
                     return;
                 }
-
-                gameEntry = context.Games.First(x => x.Id == gameId);
-                if (gameEntry is null)
-                    await CreateGame(new CreateGameRequest() { Username = request.Username });
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
                 gameEntry.ConnectedPlayers++;
@@ -94,7 +91,7 @@ namespace Belot.SignalR
         {            
             Guid gameId = Guid.NewGuid();
             var user = context.Users.First(x => x.UserName == request.Username);
-            var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, 50);
+            var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, request.PrizePool / 4);
             if (canCreateGame.Item1)
             {
                 judgeManager.Judges.Add(gameId, new BelotJudgeService());
@@ -103,6 +100,7 @@ namespace Belot.SignalR
                     Id = gameId,
                     HasStarted = false,
                     ConnectedPlayers = 0,
+                    PrizePool = request.PrizePool
                 };
 
                 context.Games.Add(gameEntry);
@@ -124,7 +122,8 @@ namespace Belot.SignalR
             gameEntry = context.Games.First(x => x.Id == gameId);
             if (gameEntry is null)
             {
-                await CreateGame(new CreateGameRequest() { Username = request.Username });
+                Clients.Caller.Error("Game doesn't exist");
+                return;
             }
 
 
@@ -285,6 +284,7 @@ namespace Belot.SignalR
         public Task GameOver(string gameId)
         {
             BelotJudgeService belotJudge = judgeManager.GetJudge(Guid.Parse(gameId));
+            Game game = context.Games.First(x => x.Id == Guid.Parse(gameId));
 
             var winnerRespone = new ShowWinnerResponse()
             {
@@ -292,8 +292,11 @@ namespace Belot.SignalR
             };
             var winners = belotJudge.GetWinners();
             foreach (var winner in winners)
-            {
+            {                
                 Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
+
+                var balanceId = context.Users.First(x => x.Id == winner.Id).UserBalanceId;
+                userBalanceService.Deposit(balanceId, game.PrizePool / 2);
             }
 
             var loserResponse = new ShowLoserResponse()

@@ -2,6 +2,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>GameId</th>
+        <th>Prize pool</th>
         <th>Connected Players</th>
         <th>
           <div class="btn btn-outline-info" (click)="obtainGames()">Refresh</div>
@@ -11,6 +12,7 @@
     <ng-template pTemplate="body" let-game>
       <tr>
         <td>{{game.id}}</td>
+        <td>{{game.prizePool}}</td>
         <td>{{game.connectedPlayers}}</td>
         <td>
           <div class="btn btn-success" (click)="openGameTable(game.id)">Join game</div>
