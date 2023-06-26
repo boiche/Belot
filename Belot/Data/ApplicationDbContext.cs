@@ -1,17 +1,14 @@
 ﻿using Belot.Data.Configurations;
 using Belot.Models.DataEntries;
-using Duende.IdentityServer.EntityFramework.Options;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Laraue.EfCoreTriggers.Common.Extensions;
 
 namespace Belot.Data
 {
-    public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
-            : base(options, operationalStoreOptions)
+        public ApplicationDbContext(DbContextOptions options)
+            : base(options)
         {
 
         }
