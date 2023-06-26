@@ -1,3 +1,11 @@
+<div *ngIf="isLoggedIn; then loggedInHome else annonymousHome"></div>
+
+<ng-template #annonymousHome>
+  <div id="home-header">
+    WELCOME to Jack of Spades
+  </div>
+</ng-template>
+<ng-template #loggedInHome>
   <p-table [value]="games">
     <ng-template pTemplate="header">
       <tr>
@@ -20,3 +28,4 @@
       </tr>
     </ng-template>
   </p-table>
+</ng-template>

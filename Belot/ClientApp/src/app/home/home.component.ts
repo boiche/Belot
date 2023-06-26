@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DoCheck, OnInit } from '@angular/core';
 import { MainScene } from 'src/app/scenes/main-scene';
 import BelotGame from '../BelotEngine/BelotGame';
 import BelotProxy from '../server-api/proxies/belotProxy';
@@ -12,14 +12,19 @@ import UserService from '../shared/services/user-service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, DoCheck {
   games: BelotGame[] = [];
   scene: Phaser.Scene | undefined = undefined;
+  public isLoggedIn!: boolean;
 
   constructor(
     private _signalR: SignalRProxy,
     private _belotProxy: BelotProxy,
     private _userService: UserService) {
+  }
+
+  ngDoCheck() {
+    this.isLoggedIn = this._userService.IsLoggedIn;
   }
 
   ngOnInit() {    
@@ -53,7 +58,7 @@ export class HomeComponent implements OnInit {
 
     this._signalR.on('StartGame', (gameId) => {
       console.log('game started');
-      this.scene?.game.scene.start('PlayBelot', gameId);
+      setTimeout(() => this.scene?.game.scene.start('PlayBelot', gameId), 5000);
     })
   }
 }

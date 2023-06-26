@@ -42,7 +42,7 @@ namespace Belot.SignalR
                 var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
 
                 var judge = judgeManager.GetJudge(gameId);
-                gameEntry = context.Games.First(x => x.Id == gameId);
+                gameEntry = context.Games.FirstOrDefault(x => x.Id == gameId);
                 if (gameEntry is null || judge == null)
                 {
                     Clients.Caller.Error("Game doesn't exist");

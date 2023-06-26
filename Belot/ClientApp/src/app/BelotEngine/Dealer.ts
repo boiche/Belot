@@ -159,7 +159,7 @@ class Dealer {
         .setOrigin(0)
         .setName("suit: " + current.suit + " rank: " + current.rank);
     }
-    this.initPlayers();
+    //this.initPlayers();
 
     this._scene.currentPlayer.playingHand = playerHandInfo.sorted.map(x => new Card(x.suit, x.rank, x.sprite));
     var timelineWholeDeal = this._scene.tweens.createTimeline();

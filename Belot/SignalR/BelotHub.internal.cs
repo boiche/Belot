@@ -21,11 +21,6 @@ namespace Belot.SignalR
 
             judgeManager.GetJudge(gameId).StartGame();
 
-            while (stopwatch.ElapsedMilliseconds < 2000)
-            {
-
-            }
-
             Clients.Group(gameId.ToString()).StartGame(gameId);
             return Task.CompletedTask;
         }

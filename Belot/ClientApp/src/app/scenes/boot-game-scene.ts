@@ -47,8 +47,6 @@ class BootGameScene extends Scene {
 
   create() {    
     this.scene.start("LoadingBelot");
-    var signalR = (this.plugins.get('signalR') as unknown as SignalRPlugin).Connection;
-    signalR.invoke("AwaitGame");
   }
 }
 
