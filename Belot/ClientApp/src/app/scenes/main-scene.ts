@@ -11,35 +11,37 @@ import SignalRProxy from '../server-api/proxies/signalRProxy';
   templateUrl: './empty.html',
 })
 class MainScene extends Scene {
+  joinedPlayers!: number;
+  private config: Phaser.Types.Core.GameConfig;
+  game: Phaser.Game;
   constructor(private connection: SignalRProxy) {
     super("belot");
     this.connection = connection;
-    this.resizeGame();
+    this.config = {
+      backgroundColor: 0x00000,
+      width: this.gameWidth,
+      height: this.gameHeight,
+      scene: [BootGameScene, LoadingScene, GameTableScene],      
+      plugins: {
+        global: [
+          {
+            key: 'signalR', plugin: SignalRPlugin, start: true, data: this.connection
+          }
+        ]
+      },
+      scale: {
+        mode: Phaser.Scale.ScaleModes.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }
+    };
+    this.game = new Phaser.Game(this.config);
 
-    //document.documentElement.requestFullscreen()
+    this.resizeGame();
   }
 
   gameWidth = 0; gameHeight = 0;  
-
-  config: Phaser.Types.Core.GameConfig = {
-    backgroundColor: 0x00000,
-    width: this.gameWidth,
-    height: this.gameHeight,    
-    scene: [BootGameScene, LoadingScene, GameTableScene],
-    plugins: {
-      global: [
-        { key: 'signalR', plugin: SignalRPlugin, start: true, data: this.connection }
-      ]
-    },
-    scale: {
-      mode: Phaser.Scale.ScaleModes.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: window.innerWidth,
-      height: window.innerHeight,
-    }    
-  };
-
-  game: Phaser.Game = new Phaser.Game(this.config);
 
   @HostListener("window:resize", ['$event'])
   resizeGame() {

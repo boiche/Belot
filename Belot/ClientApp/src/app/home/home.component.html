@@ -23,7 +23,7 @@
         <td>{{game.prizePool}}</td>
         <td>{{game.connectedPlayers}}</td>
         <td>
-          <div class="btn btn-success" (click)="openGameTable(game.id)">Join game</div>
+          <div class="btn btn-success" (click)="openGameTable(game.id, game.connectedPlayers)">Join game</div>
         </td>
       </tr>
     </ng-template>

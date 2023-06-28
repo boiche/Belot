@@ -13,10 +13,12 @@ class GameAnnouncementsPopUp extends BasePopUp {
   announcementsData: { enabled: boolean }[] = [];
   hoverColor = 0xD3DCE5;
   disabledColor = 0x878787;
+  mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   constructor(scene: GameTableScene, depth: number) {
     super(scene);
     this.depth = depth;
+    this.mainCamera = scene.cameras.main;
     this.initControls();
   }
 
@@ -37,7 +39,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
     var spades = this.scene.add.sprite(0, 0, constants.spadesGameAnnouncement);
     var noSuit = this.scene.add.sprite(0, 0, constants.noSuitGameAnnouncement);
     var allSuits = this.scene.add.sprite(0, 0, constants.allSuitsGameAnnouncement);
-    var background = this.scene.add.sprite(this.scene.windowWidth / 2, this.scene.windowHeight / 2.5, constants.gameAnnouncementsBackground)
+    var background = this.scene.add.sprite(this.mainCamera.width / 2, this.mainCamera.height / 2.5, constants.gameAnnouncementsBackground)
       .setName(constants.belotGameObjectName + constants.gameAnnouncementsBackground)
       .setDepth(this.depth - 1);
 

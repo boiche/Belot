@@ -15,6 +15,11 @@ namespace Belot.SignalR
             return Task.Run(() => gameId);
         }
 
+        public Task JoinedGame(int connectedPlayers)
+        {
+            return Task.Run(() => connectedPlayers);
+        }
+
         public Task AwaitGame()
         {
             DebugHelper.WriteLine(() => "Player with connection " + Context.ConnectionId + " has joined the game");

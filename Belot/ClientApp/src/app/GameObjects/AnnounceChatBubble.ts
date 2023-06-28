@@ -9,7 +9,7 @@ export default class AnnounceChatBubble {
 
   constructor(scene: GameTableScene, announcementText: string) {
     this._scene = scene;
-    this._options = new HandPositionOptions();
+    this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcementText = announcementText;
   }
 

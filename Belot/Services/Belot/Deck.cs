@@ -46,6 +46,7 @@ namespace Belot.Services.Belot
                     index = 0;
                 }
             }
+            DebugHelper.WriteLine(() => string.Join('\n', this.ToList()));
         }        
 
         private void Initialize()

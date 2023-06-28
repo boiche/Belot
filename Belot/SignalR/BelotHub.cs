@@ -60,6 +60,7 @@ namespace Belot.SignalR
                     Id = currentPlayer.Id,
                 });
 
+                Clients.Group(gameId.ToString()).JoinedGame(gameEntry.ConnectedPlayers);
                 if (gameEntry.ConnectedPlayers == 4)
                 {
                     StartGameInternal(gameId);

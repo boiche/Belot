@@ -48,6 +48,7 @@ export const gameOptions = {
 };
 
 export const constants = {
+  loadingText: 'loadingText',
   belotGameObjectName: 'belotObject',
   clubGameAnnouncement: 'clubsGameAnnouncement',
   diamondsGameAnnouncement: 'diamondsGameAnnouncement',

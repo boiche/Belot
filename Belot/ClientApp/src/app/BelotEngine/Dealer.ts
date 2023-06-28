@@ -25,64 +25,83 @@ class CurrentPlayerHand {
 class HandPositionOptions  {
   cardsOffset: number = 0;
   stepTiltAngle: number = 0;
-  readonly sceneMiddlePoint = new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight / 2);
+  mainCamera: Phaser.Cameras.Scene2D.Camera;
+
+  constructor(camera: Phaser.Cameras.Scene2D.Camera) {
+    this.mainCamera = camera;
+  }
+
+  get sceneMiddlePoint(): Phaser.Geom.Point {
+    return new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height / 2);
+  }
   get isMainPlayer(): boolean {
     return this.player === 0
   }
   player: 0 | 1 | 2 | 3 = 0;
   scales = getScales();
 
-  readonly mainPlayerConfiguration = {
-    allignFuncs: {
-      x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset },
-      y3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
-      y5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
-      y8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
-      rotate: (middleIndex: number, i: number) => 0 //- this.stepTiltAngle * (middleIndex - i)
-    },
-    initAngle: 0,    
-    middlePoint: new Phaser.Geom.Point(window.innerWidth / 2, window.innerHeight - gameOptions.cardHeight / 1.5),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight - gameOptions.cardHeight / 1.5),
-    collectPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, window.innerHeight)
+  get mainPlayerConfiguration(): OddPlayerConfugiration {
+    return {
+      allignFuncs: {
+        x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset },
+        y3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
+        y5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
+        y8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
+        rotate: (middleIndex: number, i: number) => 0 //- this.stepTiltAngle * (middleIndex - i)
+      },
+      initAngle: 0,
+      middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+      goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+      collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
+    }
   }
-  readonly leftPlayerConfiguration = {
-    allignFuncs: {
-      x3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
-      x5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
-      x8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
-      y: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset; },
-      rotate: (middleIndex: number, i: number) => 270 //- this.stepTiltAngle * (middleIndex - i)
-    },
-    initAngle: 270,
-    middlePoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, window.innerHeight / 2),
-    goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, window.innerHeight / 2 - gameOptions.cardWidth / 4),
-    collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, window.innerHeight / 2 - gameOptions.cardHeight / 4)
+
+  get leftPlayerConfiguration(): EvenPlayerConfiguration {
+    return {
+      allignFuncs: {
+        x3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
+        x5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
+        x8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
+        y: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset; },
+        rotate: (middleIndex: number, i: number) => 270 //- this.stepTiltAngle * (middleIndex - i)
+      },
+      initAngle: 270,
+      middlePoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2),
+      goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 - gameOptions.cardWidth / 4),
+      collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+    }
   }
-  readonly upPLayerConfiguration = {
-    allignFuncs: {
-      x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth / 12 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) + evenOffset; },
-      y3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
-      y5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
-      y8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
-      rotate: (middleIndex: number, i: number) => 180 //+ this.stepTiltAngle * (middleIndex - i)
-    },
-    initAngle: 180,
-    middlePoint: new Phaser.Geom.Point(window.innerWidth / 2, gameOptions.cardHeight / 1.5),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
-    collectPoint: new Phaser.Geom.Point(window.innerWidth / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
+
+  get upPLayerConfiguration(): OddPlayerConfugiration {
+    return {
+      allignFuncs: {
+        x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth / 12 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) + evenOffset; },
+        y3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
+        y5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
+        y8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
+        rotate: (middleIndex: number, i: number) => 180 //+ this.stepTiltAngle * (middleIndex - i)
+      },
+      initAngle: 180,
+      middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
+      goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
+      collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
+    }
   }
-  readonly rightPlayerConfiguration = {
-    allignFuncs: {
-      x3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
-      x5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
-      x8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
-      y: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return this.cardsOffset * (middleIndex - i) + evenOffset; },
-      rotate: (middleIndex: number, i: number) => 90 //- this.stepTiltAngle * (middleIndex - i)
-    },
-    initAngle: 90,
-    middlePoint: new Phaser.Geom.Point(window.innerWidth - gameOptions.cardWidth * 2.5, window.innerHeight / 2),
-    goalPoint: new Phaser.Geom.Point(window.innerWidth - gameOptions.cardWidth * 2.5, window.innerHeight / 2 + gameOptions.cardWidth / 4),
-    collectPoint: new Phaser.Geom.Point(window.innerWidth, window.innerHeight / 2 - gameOptions.cardHeight / 4)
+
+  get rightPlayerConfiguration(): EvenPlayerConfiguration {
+    return {
+      allignFuncs: {
+        x3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
+        x5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
+        x8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
+        y: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return this.cardsOffset * (middleIndex - i) + evenOffset; },
+        rotate: (middleIndex: number, i: number) => 90 //- this.stepTiltAngle * (middleIndex - i)
+      },
+      initAngle: 90,
+      middlePoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2),
+      goalPoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 + gameOptions.cardWidth / 4),
+      collectPoint: new Phaser.Geom.Point(this.mainCamera.width, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+    }
   }
 
   readonly threeAllignFunc = (i: number, playerIndex: number): number => { var sign = playerIndex < 2 ? 1 : -1; return (3.75 * Math.pow(i, 2) - 7.5 * i + 3.75) * sign; };
@@ -94,7 +113,7 @@ class HandPositionOptions  {
   }
 
   copy(this: HandPositionOptions): HandPositionOptions {
-    var result = new HandPositionOptions();
+    var result = new HandPositionOptions(this.mainCamera);
 
     result.cardsOffset = this.cardsOffset;
     result.player = this.player;
@@ -109,7 +128,7 @@ class Dealer {
   backsGroups: Phaser.GameObjects.Group[] = [];
   _scene!: GameTableScene;
   _signalR!: SignalRPlugin;
-  options: HandPositionOptions = new HandPositionOptions();
+  options!: HandPositionOptions;
   firstDealReady = false;
   _dealtCards: any;
   secondDealReady = false;
@@ -117,6 +136,12 @@ class Dealer {
   absoluteDealerIndex!: PlayerNumber;
   scales = getScales();
   _announcementsReady = false;
+
+  public Init(scene: GameTableScene) {
+    this._scene = scene;
+    this._signalR = scene.signalR;
+    this.options = new HandPositionOptions(this._scene.cameras.main);
+  }
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);

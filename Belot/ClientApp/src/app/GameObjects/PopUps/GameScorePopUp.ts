@@ -7,17 +7,19 @@ class GameScorePopUp extends BasePopUp {
   private _depth: number;
   private gameScore: GameScore;
   visibleDuration: number;
+  private mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   constructor(scene: GameTableScene, score: GameScore, depth: number, visibleDuration: number = 10000) {
     super(scene);
     this._depth = depth;
     this.gameScore = score;
     this.visibleDuration = visibleDuration;
+    this.mainCamera = scene.cameras.main;
   }
 
   override show() {
-    var point = new Phaser.Geom.Point(this.scene.windowWidth / 2, this.scene.windowHeight / 2);
-    var background = this.scene.add.sprite(this.scene.windowWidth / 2, this.scene.windowHeight / 2, constants.gameScoreBackground)
+    var point = new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height / 2);
+    var background = this.scene.add.sprite(this.mainCamera.width / 2, this.mainCamera.height / 2, constants.gameScoreBackground)
       .setName(constants.gameScoreItem + ' gameScoreBackground')
       .setDepth(this._depth - 1);
 

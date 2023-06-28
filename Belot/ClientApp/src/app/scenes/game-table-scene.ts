@@ -18,14 +18,12 @@ import { SignalRPlugin } from "./main-scene";
 import ShowScoreResponse from "../server-api/responses/show-score-response";
 
 class GameTableScene extends Scene {
-  windowWidth = window.innerWidth;
-  windowHeight = window.innerHeight;
   center: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0);
   _belotGame: BelotGame;
   dealer: Dealer;
-  gameAnnouncements: GameAnnouncementsPopUp;
+  gameAnnouncements!: GameAnnouncementsPopUp;
   optionsPopUp: OptionsPopUp;
-  handAnnouncements: HandAnnounementsRectangle;
+  handAnnouncements!: HandAnnounementsRectangle;
   signalR!: SignalRPlugin;
   gameId: string = "";
   currentPlayer!: Player;
@@ -34,13 +32,13 @@ class GameTableScene extends Scene {
   constructor() {
     super('PlayBelot');
     this.dealer = new Dealer();
-    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
-    this.handAnnouncements = new HandAnnounementsRectangle(this);
     this.optionsPopUp = new OptionsPopUp(this);
     this._belotGame = new BelotGame();
   }  
 
   create(gameId: any) {
+    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
+    this.handAnnouncements = new HandAnnounementsRectangle(this);
     var tempScore = new GameScore();
     tempScore.lastGameTeamA = 14;
     tempScore.lastGameTeamB = 12;
@@ -49,8 +47,7 @@ class GameTableScene extends Scene {
     this._belotGame.gameId = gameId;
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
     this.gameAnnouncements.signalR = this.signalR;
-    this.dealer._scene = this;
-    this.dealer._signalR = this.signalR;
+    this.dealer.Init(this);
 
     this.signalR.Connection.on('DealNew', () => this.dealNew());
     this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType, relativeIndex: PlayerNumber) => {
@@ -116,7 +113,7 @@ class GameTableScene extends Scene {
     var image = this.add.image(0, 0, "tableCloth")
       .setDepth(-1)
       .setOrigin(0)
-      .setDisplaySize(this.windowWidth, this.windowHeight)
+      .setDisplaySize(this.cameras.main.width, this.cameras.main.height)
       .setVisible(true)
       .setName('tableCloth');
 
@@ -152,16 +149,16 @@ class GameTableScene extends Scene {
     var secondaryColor = 0xb18380;
 
     sidebarGraphics.fillGradientStyle(mainColor, secondaryColor, mainColor, secondaryColor, 1);
-    sidebarGraphics.fillRect(0, 0, sidebarWidth, window.innerHeight);
+    sidebarGraphics.fillRect(0, 0, sidebarWidth, this.cameras.main.height);
 
     sidebarGraphics.lineStyle(10, 0x00000, 1);
-    sidebarGraphics.lineBetween(sidebarWidth, 0, sidebarWidth, window.innerHeight);
+    sidebarGraphics.lineBetween(sidebarWidth, 0, sidebarWidth, this.cameras.main.height);
 
     sidebarGraphics.fillGradientStyle(secondaryColor, mainColor, secondaryColor, mainColor, 1);
-    sidebarGraphics.fillRect(rightSidebarPoint.x, rightSidebarPoint.y, sidebarWidth, window.innerHeight);
+    sidebarGraphics.fillRect(rightSidebarPoint.x, rightSidebarPoint.y, sidebarWidth, this.cameras.main.height);
 
     sidebarGraphics.lineStyle(10, 0x00000, 1);
-    sidebarGraphics.lineBetween(rightSidebarPoint.x, rightSidebarPoint.y, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, window.innerHeight);
+    sidebarGraphics.lineBetween(rightSidebarPoint.x, rightSidebarPoint.y, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, this.cameras.main.height);
 
     // totalScore
     var config: Phaser.Types.GameObjects.Text.TextStyle = {

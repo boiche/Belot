@@ -18,6 +18,11 @@ namespace Belot.SignalR
         /// <returns></returns>
         Task StartGame(Guid gameId);
         /// <summary>
+        /// Indicates the clients that a player has joined the game.
+        /// </summary>
+        /// <returns></returns>
+        Task JoinedGame(int connectedPlayers);
+        /// <summary>
         /// Removes client from the group
         /// </summary>
         /// <returns></returns>

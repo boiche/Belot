@@ -14,7 +14,7 @@ import UserService from '../shared/services/user-service';
 })
 export class HomeComponent implements OnInit, DoCheck {
   games: BelotGame[] = [];
-  scene: Phaser.Scene | undefined = undefined;
+  scene: MainScene | undefined = undefined;
   public isLoggedIn!: boolean;
 
   constructor(
@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit, DoCheck {
     });
   }
 
-  openGameTable(gameId: string) {    
+  openGameTable(gameId: string, joinedPlayers: number) {    
     var connection = this._signalR.createConnection(gameId);
     connection.startConnection().then(() => {
       var request = new JoinGameRequest();
@@ -49,6 +49,7 @@ export class HomeComponent implements OnInit, DoCheck {
         if (!this._signalR.RecentError) {
           document.body.innerHTML = "";
           this.scene = new MainScene(connection as SignalRProxy);
+          this.scene.joinedPlayers = joinedPlayers;
         }
         else {
           this.obtainGames();

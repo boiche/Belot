@@ -9,7 +9,7 @@ export default class AnnouncedElement {
   private _announcement: GameAnnouncementType;
   constructor(scene: GameTableScene, announcement: GameAnnouncementType) {
     this._scene = scene;
-    this._options = new HandPositionOptions();
+    this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcement = announcement;
   }
 
