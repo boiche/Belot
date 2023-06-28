@@ -39,17 +39,16 @@ export class HomeComponent implements OnInit, DoCheck {
     });
   }
 
-  openGameTable(gameId: string, joinedPlayers: number) {    
-    var connection = this._signalR.createConnection(gameId);
+  openGameTable(game: BelotGame) {
+    var connection = this._signalR.createConnection(game.id.toString());
     connection.startConnection().then(() => {
       var request = new JoinGameRequest();
-      request.gameId = gameId;
+      request.gameId = game.id.toString();
       request.username = this._userService.currentUser.userName;
       this._signalR.invoke("JoinGame", request).then(() => {
         if (!this._signalR.RecentError) {
           document.body.innerHTML = "";
-          this.scene = new MainScene(connection as SignalRProxy);
-          this.scene.joinedPlayers = joinedPlayers;
+          this.scene = new MainScene(connection as SignalRProxy, game);
         }
         else {
           this.obtainGames();

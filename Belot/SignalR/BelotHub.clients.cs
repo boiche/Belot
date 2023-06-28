@@ -15,9 +15,9 @@ namespace Belot.SignalR
             return Task.Run(() => gameId);
         }
 
-        public Task JoinedGame(int connectedPlayers)
+        public Task JoinedGame()
         {
-            return Task.Run(() => connectedPlayers);
+            return Task.CompletedTask;
         }
 
         public Task AwaitGame()

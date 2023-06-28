@@ -5,16 +5,16 @@ import GameTableScene from './game-table-scene';
 import LoadingScene from './loading-scene';
 import ISignalRProxy from '../server-api/proxies/interfaces/ISignalRProxy';
 import SignalRProxy from '../server-api/proxies/signalRProxy';
+import BelotGame from '../BelotEngine/BelotGame';
 
 @Component({
   selector: 'thisIsNotComponent',
   templateUrl: './empty.html',
 })
 class MainScene extends Scene {
-  joinedPlayers!: number;
   private config: Phaser.Types.Core.GameConfig;
   game: Phaser.Game;
-  constructor(private connection: SignalRProxy) {
+  constructor(private connection: SignalRProxy, belotGame?: BelotGame) {
     super("belot");
     this.connection = connection;
     this.config = {
@@ -37,6 +37,7 @@ class MainScene extends Scene {
       }
     };
     this.game = new Phaser.Game(this.config);
+    this.game.scene.start('BootBelot', belotGame);
 
     this.resizeGame();
   }

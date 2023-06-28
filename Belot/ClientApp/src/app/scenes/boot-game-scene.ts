@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { constants, gameOptions } from "../../main";
-import { SignalRPlugin } from './main-scene';
+import BelotGame from "../BelotEngine/BelotGame";
 
 class BootGameScene extends Scene {
   constructor() {
@@ -45,8 +45,8 @@ class BootGameScene extends Scene {
     this.load.image(constants.allSuitsGameAnnouncementElement, "assets/sprites/gameAnnouncements/announcementElements/all_suits-removebg-preview.png");
   }
 
-  create() {    
-    this.scene.start("LoadingBelot");
+  create(belotGame: BelotGame) {
+    this.scene.start("LoadingBelot", belotGame);
   }
 }
 

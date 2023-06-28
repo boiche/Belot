@@ -10,6 +10,8 @@ import LoginRequest from "../requests/login-request";
 import LoginResponse from "../responses/login-response";
 import LogoutRequest from "../requests/logout-request";
 import LogoutResponse from '../responses/logout-response';
+import GetGameRequest from "../requests/get-game-request";
+import GetGameResponse from "../responses/get-game-response";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +19,10 @@ import LogoutResponse from '../responses/logout-response';
 class BelotProxy extends BaseProxy {
   getAvailableGames(request: GetAvailableGamesRequest): Observable<axios.AxiosResponse<GetAvailableGamesResponse>> {    
     return this.get<GetAvailableGamesRequest, GetAvailableGamesResponse>(request);
+  }
+
+  getGame(request: GetGameRequest): Observable<axios.AxiosResponse<GetGameResponse>> {
+    return this.get<GetGameRequest, GetGameResponse>(request);
   }
 
   register(request: RegisterRequest): Observable<axios.AxiosResponse<RegisterResponse>> {

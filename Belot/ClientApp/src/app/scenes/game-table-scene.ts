@@ -1,5 +1,5 @@
 import { GameObjects, Geom, Scene } from "phaser";
-import { constants, gameOptions } from "../../main";
+import { constants, gameOptions, getScales } from "../../main";
 import { GameAnnouncement, GameAnnouncementType, HandAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
@@ -44,7 +44,7 @@ class GameTableScene extends Scene {
     tempScore.lastGameTeamB = 12;
 
     this.gameId = gameId;
-    this._belotGame.gameId = gameId;
+    this._belotGame.id = gameId;
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
     this.gameAnnouncements.signalR = this.signalR;
     this.dealer.Init(this);

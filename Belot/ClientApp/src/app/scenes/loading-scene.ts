@@ -1,26 +1,48 @@
 import { GameObjects, Scene } from "phaser";
 import { constants } from "../../main";
+import BelotGame from "../BelotEngine/BelotGame";
+import BelotProxy from "../server-api/proxies/belotProxy";
+import GetGameRequest from "../server-api/requests/get-game-request";
 import { SignalRPlugin } from "./main-scene";
 
 class LoadingScene extends Scene {
   private get loadingText(): string {
     return `${this.joinedPlayers}/4 players have joined`
   };
-  private joinedPlayers: number = 1;
-  private signalR!: SignalRPlugin
+  private joinedPlayers: number = 0;
+  private signalR!: SignalRPlugin;
+  private _belotProxy: BelotProxy;
   constructor() {
     super("LoadingBelot");
+    this._belotProxy = new BelotProxy();
   }
 
-  create() {
+  create(belotGame: BelotGame) {
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
-    this.signalR.Connection.on("JoinedGame", (connectedPlayers: any) => {
-      console.log('Server says that there are: ' + connectedPlayers);
-      this.joinedPlayers = connectedPlayers;
-      this.showLoader();
+    this.signalR.Connection.on("JoinedGame", () => {
+      console.log('another player joined');
+      this.joinedPlayers++;
       this.updateText();
-      //TODO: obtain already connected players
     });
+    if (this.joinedPlayers < 1) {
+      if (belotGame.id === undefined) {
+        this.joinedPlayers = 1;
+        this.showLoader();
+      }
+      else {
+        var request = new GetGameRequest();
+        request.id = belotGame.id.toString();
+        request.requestUrl = 'BelotGame/GetGame?id=' + belotGame.id;
+        this._belotProxy.getGame(request).subscribe((res) => {
+          console.log(res);
+          this.joinedPlayers = res.data.game.connectedPlayers;
+          this.showLoader();
+          this.updateText();
+        });
+      }
+    }
+
+    
   }
 
   showLoader() {
@@ -34,9 +56,9 @@ class LoadingScene extends Scene {
   updateText() {
     let textObject = this.children.getByName(constants.belotGameObjectName + constants.loadingText) as GameObjects.Text;
     if (this.joinedPlayers < 4)
-      textObject.text = this.loadingText;
+      textObject.setText(this.loadingText);
     else
-      textObject.text = 'Loading game...';
+      textObject.setText('Loading game...');
   }
 }
 
