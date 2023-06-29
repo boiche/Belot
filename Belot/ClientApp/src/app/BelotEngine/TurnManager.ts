@@ -18,6 +18,7 @@ class TurnManager {
   announce = (): void => {
     if (this.dealer.firstDealReady) {
       this.announcementsPopUp.show();
+      this.dealer._announcementsReady = false;
     }
     else {
       this.dealer._announcementsReady = true;

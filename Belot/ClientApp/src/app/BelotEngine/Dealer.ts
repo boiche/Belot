@@ -476,7 +476,7 @@ class Dealer {
     if (backs.length === 5 && forPlayer === dealerIndex) {      
       dealer.firstDealReady = true;
 
-      if (dealer._announcementsReady) {
+      if (dealer._announcementsReady && !dealer._scene.gameAnnouncements.shown) {
         dealer._scene.gameAnnouncements.show(); //TODO: this is ineffective implementation. Is it possible to show it via TurnManager?
       }
 
