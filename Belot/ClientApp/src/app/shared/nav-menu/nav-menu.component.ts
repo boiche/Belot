@@ -74,7 +74,7 @@ export class NavMenuComponent implements DoCheck {
 
     this._signalR.on('StartGame', (gameId) => {
       this._signalR._gameId = gameId;
-      this.scene?.game.scene.start('PlayBelot', gameId);
+      setTimeout(() => this.scene?.game.scene.start('PlayBelot', gameId), 5000);
     })
   }
 }

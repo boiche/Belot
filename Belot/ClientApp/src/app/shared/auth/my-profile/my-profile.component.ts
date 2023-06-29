@@ -17,5 +17,9 @@ export class MyProfileComponent extends BaseComponent {
     super();
     this.user = this._userService.currentUser;
     this.shouldRedirect(_userService, _router); 
-  }   
+  }
+
+  exchange() {
+    window.location.href = 'https://playsafe-dapp.vercel.app/api/hello';
+  }
 }

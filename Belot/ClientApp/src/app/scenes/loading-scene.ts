@@ -12,15 +12,15 @@ class LoadingScene extends Scene {
   private joinedPlayers: number = 0;
   private signalR!: SignalRPlugin;
   private _belotProxy: BelotProxy;
+  private _belotGame!: BelotGame;
   constructor() {
     super("LoadingBelot");
     this._belotProxy = new BelotProxy();
   }
 
-  create(belotGame: BelotGame) {
+  create(belotGame: BelotGame) {  
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
     this.signalR.Connection.on("JoinedGame", () => {
-      console.log('another player joined');
       this.joinedPlayers++;
       this.updateText();
     });
@@ -41,8 +41,6 @@ class LoadingScene extends Scene {
         });
       }
     }
-
-    
   }
 
   showLoader() {
@@ -57,8 +55,8 @@ class LoadingScene extends Scene {
     let textObject = this.children.getByName(constants.belotGameObjectName + constants.loadingText) as GameObjects.Text;
     if (this.joinedPlayers < 4)
       textObject.setText(this.loadingText);
-    else
-      textObject.setText('Loading game...');
+    else 
+      textObject.setText('Loading game...');    
   }
 }
 
