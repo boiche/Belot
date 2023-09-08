@@ -1,5 +1,6 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
+using System.Reflection;
 using System.Text;
 
 namespace Belot.Services.Belot
@@ -108,25 +109,30 @@ namespace Belot.Services.Belot
             if (PlayedCards.Count == 4)
             {
                 bool isSuit = gameAnnouncement <= GameAnnouncement.SPADES;
+                KeyValuePair<string, Card> winner;
 
                 if (isSuit)
                 {
-                    var winner = PlayedCards.GetWinnerSingleSuit((Suit)((int)gameAnnouncement - 1));
+                    winner = PlayedCards.GetWinnerSingleSuit((Suit)((int)gameAnnouncement - 1));
                     WonBy = winner.Key;
                 }
                 else
                 {
                     if (gameAnnouncement == GameAnnouncement.NOSUIT)
                     {
-                        var winner = PlayedCards.GetWinnerNoSuit();
+                        winner = PlayedCards.GetWinnerNoSuit();
                         WonBy = winner.Key;
                     }
                     else
                     {
-                        var winner = PlayedCards.GetWinnerAllSuits();
+                        winner = PlayedCards.GetWinnerAllSuits();
                         WonBy = winner.Key;
                     }
                 }
+
+                DebugHelper.WriteLine(() => $"SUIT: {gameAnnouncement}\n\r" +
+                $"WINNING CARD: {winner.Value}\n\r" +
+                $"ALL CARDS: {string.Join("\n\r", PlayedCards.Values.AsEnumerable())}");
             }
         }
     }

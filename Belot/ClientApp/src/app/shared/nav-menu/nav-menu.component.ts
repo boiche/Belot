@@ -64,6 +64,11 @@ export class NavMenuComponent implements DoCheck {
       this._signalR.invoke("CreateGame", request).then(() => {
         if (!this._signalR.RecentError) {
           document.body.innerHTML = "";
+
+          let parent = document.createElement('div');
+          parent.id = 'game-container';          
+          document.body.appendChild(parent);
+
           this.scene = new MainScene(connection as SignalRProxy, undefined);
         }
       }).catch((x) => {

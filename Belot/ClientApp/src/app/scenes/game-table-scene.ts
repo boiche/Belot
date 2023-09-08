@@ -1,5 +1,5 @@
 import { GameObjects, Geom, Scene } from "phaser";
-import { constants, gameOptions, getScales } from "../../main";
+import { constants, gameOptions } from "../../main";
 import { GameAnnouncement, GameAnnouncementType, HandAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
@@ -16,18 +16,26 @@ import FinalScorePopUp from "../GameObjects/PopUps/FinalScorePopUp";
 import Turn from "../GameObjects/Turn";
 import { SignalRPlugin } from "./main-scene";
 import ShowScoreResponse from "../server-api/responses/show-score-response";
+import TotalScore from "../GameObjects/TotalScore";
+import Sidebar from "../GameObjects/Sidebar";
+import OptionsButton from "../GameObjects/Buttons/OptionsButton";
+import BelotGameObject from "../GameObjects/BelotGameObject";
 
 class GameTableScene extends Scene {
   center: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0);
   _belotGame: BelotGame;
   dealer: Dealer;
-  gameAnnouncements!: GameAnnouncementsPopUp;
-  optionsPopUp: OptionsPopUp;
-  handAnnouncements!: HandAnnounementsRectangle;
   signalR!: SignalRPlugin;
   gameId: string = "";
   currentPlayer!: Player;
-  totalGameScoreOriginPoint!: Phaser.Geom.Point;
+  
+  //Belot objects
+  optionsButton!: OptionsButton;
+  totalScore!: TotalScore;
+  gameAnnouncements!: GameAnnouncementsPopUp;
+  optionsPopUp: OptionsPopUp;
+  handAnnouncements!: HandAnnounementsRectangle;
+  sidebars: Sidebar[] = [];
 
   constructor() {
     super('PlayBelot');
@@ -52,8 +60,8 @@ class GameTableScene extends Scene {
     this.signalR.Connection.on('DealNew', () => this.dealNew());
     this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType, relativeIndex: PlayerNumber) => {
       this.gameAnnouncements.disableAnnouncements(newAnnouncement);
-      new AnnounceChatBubble(this, GameAnnouncementType[newAnnouncement]).showBubble(relativeIndex);
-      new AnnouncedElement(this, newAnnouncement).showElement(relativeIndex);
+      new AnnounceChatBubble(this, GameAnnouncementType[newAnnouncement]).show(relativeIndex);
+      new AnnouncedElement(this, newAnnouncement).show(relativeIndex);
     });
     this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
@@ -95,7 +103,7 @@ class GameTableScene extends Scene {
       }
     });
     this.signalR.Connection.on('ShowHandAnnouncements', () => this.dealer._scene.handAnnouncements.showHandAnnouncements());
-    this.signalR.Connection.on('AnnounceHandAnnouncement', (handAnnouncement: HandAnnouncementType, relativeIndex: PlayerNumber) => new AnnounceChatBubble(this, HandAnnouncementType[handAnnouncement]).showBubble(relativeIndex));
+    this.signalR.Connection.on('AnnounceHandAnnouncement', (handAnnouncement: HandAnnouncementType, relativeIndex: PlayerNumber) => new AnnounceChatBubble(this, HandAnnouncementType[handAnnouncement]).show(relativeIndex));
     this.signalR.Connection.on('ShowWinning', (score: GameScore) => {
       var popup = new FinalScorePopUp(this, score, 10, true);
       popup.show();
@@ -140,79 +148,51 @@ class GameTableScene extends Scene {
     this.cameras.main.fadeIn(1500);
   }
 
-  drawSidebars() {
-    var sidebarGraphics = this.add.graphics();
-    var sidebarWidth = this.dealer.options.leftPlayerConfiguration.middlePoint.x - gameOptions.cardHeight / 2 - 65;
-    var rightSidebarPoint: Geom.Point = new Geom.Point(this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, 0);
+  drawSidebars() {    
+    this.sidebars.push(new Sidebar(this, {
+      name: 'leftSidebar',
+      width: this.cameras.main.width * 0.15,
+      mainColor: 0x630801,
+      secondaryColor: 0xb18380,
+      point: new Geom.Point(0, 0),
+      orientation: 'left'
+    }));
+    this.sidebars.push(new Sidebar(this, {
+      name: 'rightSidebar',
+      width: this.cameras.main.width * 0.15,
+      mainColor: 0x630801,
+      secondaryColor: 0xb18380,
+      point: new Geom.Point(this.cameras.main.width * 0.85, 0),
+      orientation: 'right'
+    }));
 
-    var mainColor = 0x630801;
-    var secondaryColor = 0xb18380;
-
-    sidebarGraphics.fillGradientStyle(mainColor, secondaryColor, mainColor, secondaryColor, 1);
-    sidebarGraphics.fillRect(0, 0, sidebarWidth, this.cameras.main.height);
-
-    sidebarGraphics.lineStyle(10, 0x00000, 1);
-    sidebarGraphics.lineBetween(sidebarWidth, 0, sidebarWidth, this.cameras.main.height);
-
-    sidebarGraphics.fillGradientStyle(secondaryColor, mainColor, secondaryColor, mainColor, 1);
-    sidebarGraphics.fillRect(rightSidebarPoint.x, rightSidebarPoint.y, sidebarWidth, this.cameras.main.height);
-
-    sidebarGraphics.lineStyle(10, 0x00000, 1);
-    sidebarGraphics.lineBetween(rightSidebarPoint.x, rightSidebarPoint.y, this.dealer.options.rightPlayerConfiguration.middlePoint.x + gameOptions.cardHeight / 2 + 65, this.cameras.main.height);
+    this.sidebars.forEach(x => x.show());
 
     // totalScore
-    var config: Phaser.Types.GameObjects.Text.TextStyle = {
+    var textStyleConfig: Phaser.Types.GameObjects.Text.TextStyle = {
       color: '#000000',
       fontStyle: 'bold',
       fontSize: '52'
     };
+    this.totalScore = new TotalScore(this, {
+      name: 'totalScore',
+      fontStyle: textStyleConfig,
+      width: this.sidebars[0].width * 0.8,
+      originPoint: new Geom.Point(10, 10),      
+    })
 
-    sidebarGraphics.fillStyle(0xd2b14c, 1);
-    var rectangle = new Phaser.Geom.Rectangle(30, 30, sidebarWidth - 60, 200);
-    sidebarGraphics.fillRectShape(rectangle);
-
-    sidebarGraphics.lineStyle(5, 0x00000, 1);
-    sidebarGraphics.strokeLineShape(rectangle.getLineA());
-    sidebarGraphics.strokeLineShape(rectangle.getLineB());
-    sidebarGraphics.strokeLineShape(rectangle.getLineC());
-    sidebarGraphics.strokeLineShape(rectangle.getLineD());
-
-    var weLabel = this.add.text(rectangle.x + 20, rectangle.y + 20, 'WE', config)
-      .setName(constants.gameScoreTotalItem + 'weLabel')
-      .setDepth(10)
-      .setFontSize(42);
-
-    var youLabel = this.add.text(weLabel.x + weLabel.width + 20, weLabel.y, 'YOU', config)
-      .setName(constants.gameScoreTotalItem + ' youLabel')
-      .setDepth(10)
-      .setFontSize(42);
-
-    this.add.text(weLabel.x, weLabel.y + weLabel.height + 15, '0', config)
-      .setName(constants.gameScoreTotalItem + ' weScoreLabel')
-      .setDepth(10)
-      .setFontSize(42);
-
-    this.add.text(youLabel.x, youLabel.y + youLabel.height + 15, '0', config)
-      .setName(constants.gameScoreTotalItem + ' youScoreLabel')
-      .setDepth(10)
-      .setFontSize(42);
-
-    this.totalGameScoreOriginPoint = new Phaser.Geom.Point(rectangle.x, rectangle.y);
+    this.totalScore.show();
 
     //option button
-    this.add.image(rightSidebarPoint.x + 30, rightSidebarPoint.y + 30, constants.optionsButton)
-      .setScale(0.5, 0.5)
-      .setOrigin(0, 0)
-      .setInteractive({ cursor: 'pointer' })
-      .on('pointerover', function (this: GameObjects.Sprite, event: any) { this.setTint(gameOptions.hoverColor); this.input.cursor = 'hand'; })
-      .on('pointerout', function (this: GameObjects.Sprite, event: any) { this.clearTint(); this.input.cursor = 'pointer'; })
-      .on('pointerdown', function (this: GameObjects.Sprite, event: any) {
-        var scene = (this.scene as GameTableScene);
+    let sidebar = BelotGameObject.getByName('rightSidebar') as Sidebar;
+    this.optionsButton = new OptionsButton(this, {
+      name: 'optionsButton',
+      originPoint: sidebar.originPoint,
+      width: 0
+    })
+    this.optionsButton.show();
 
-        scene.optionsPopUp.show();
-      });
-
-    this.handAnnouncements.draw(rightSidebarPoint);
+    this.handAnnouncements.show(this.sidebars[1].originPoint);
   }
 
   deal(deal: TypeDeal) {

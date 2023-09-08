@@ -2,18 +2,21 @@ import { constants } from "../../main";
 import { GameAnnouncementType } from "../BelotEngine/Announcement";
 import { HandPositionOptions } from "../BelotEngine/Dealer";
 import GameTableScene from "../scenes/game-table-scene";
+import BelotGameObject from "./BelotGameObject";
 
-export default class AnnouncedElement {
-  private _scene: GameTableScene;
+export default class AnnouncedElement extends BelotGameObject {
+  protected name: string;
+  private _scene!: GameTableScene;
   private _options: HandPositionOptions;
   private _announcement: GameAnnouncementType;
   constructor(scene: GameTableScene, announcement: GameAnnouncementType) {
-    this._scene = scene;
+    super(scene);
     this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcement = announcement;
+    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
-  showElement(relativeIndex: number) {
+  public override show(relativeIndex: number) {
     if (this._announcement === GameAnnouncementType.PASS)
       return;
 

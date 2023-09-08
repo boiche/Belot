@@ -48,6 +48,11 @@ export class HomeComponent implements OnInit, DoCheck {
       this._signalR.invoke("JoinGame", request).then(() => {
         if (!this._signalR.RecentError) {
           document.body.innerHTML = "";
+
+          let parent = document.createElement('div');
+          parent.id = 'game-container';
+          document.body.appendChild(parent);
+
           this.scene = new MainScene(connection as SignalRProxy, game);
         }
         else {

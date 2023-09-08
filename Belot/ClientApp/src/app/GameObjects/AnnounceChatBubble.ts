@@ -1,19 +1,22 @@
 import { constants } from "../../main";
 import { HandPositionOptions } from "../BelotEngine/Dealer";
 import GameTableScene from "../scenes/game-table-scene";
+import BelotGameObject from "./BelotGameObject";
 
-export default class AnnounceChatBubble {
-  private _scene: GameTableScene;
+export default class AnnounceChatBubble extends BelotGameObject {
+  protected name: string;
+  private _scene!: GameTableScene;
   private _options: HandPositionOptions;
   private _announcementText: string;
 
   constructor(scene: GameTableScene, announcementText: string) {
-    this._scene = scene;
+    super(scene);
     this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcementText = announcementText;
+    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
-  public showBubble(playerRelativeIndex: PlayerNumber) {
+  public override show(playerRelativeIndex: PlayerNumber) {
     var rectangle;
     var passHeight = 76, passWidth = 76;
 

@@ -7,6 +7,7 @@ import GameAnnouncementRequest from "../../server-api/requests/signalR/game-anno
 import { BasePopUp } from "./BasePopUp";
 
 class GameAnnouncementsPopUp extends BasePopUp {
+  protected name: string;
   depth: number;
   shown: boolean = false;
   signalR!: SignalRPlugin;
@@ -19,6 +20,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
     super(scene);
     this.depth = depth;
     this.mainCamera = scene.cameras.main;
+    this.name = "SHOULD GET THE NAME FROM CONFIG";
     this.initControls();
   }
 
@@ -40,7 +42,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
     var noSuit = this.scene.add.sprite(0, 0, constants.noSuitGameAnnouncement);
     var allSuits = this.scene.add.sprite(0, 0, constants.allSuitsGameAnnouncement);
     var background = this.scene.add.sprite(this.mainCamera.width / 2, this.mainCamera.height / 2.5, constants.gameAnnouncementsBackground)
-      .setName(constants.belotGameObjectName + constants.gameAnnouncementsBackground)
+      .setName(constants.belotGameObjectName + constants.gameAnnouncementsBackground)      
       .setDepth(this.depth - 1);
 
     var announcements = [clubs, diamonds, hearts, spades, noSuit, allSuits];

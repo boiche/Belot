@@ -1,14 +1,14 @@
 import { GameObjects } from 'phaser'
 import GameTableScene from '../../scenes/game-table-scene';
+import BelotGameObject from '../BelotGameObject';
 
-export abstract class BasePopUp {
+export abstract class BasePopUp extends BelotGameObject {
   protected shown: boolean;
-  protected sprites: GameObjects.GameObject[];
-  protected abstract show(): void;
-  protected scene: GameTableScene;
+  protected sprites: GameObjects.GameObject[];  
+  protected scene!: GameTableScene;
 
   constructor(scene: GameTableScene) {
-    this.scene = scene;
+    super(scene);
     this.sprites = [];
     this.shown = false;
   }

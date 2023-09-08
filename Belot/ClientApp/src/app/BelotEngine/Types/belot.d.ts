@@ -1,5 +1,7 @@
 type PlayerNumber = 0 | 1 | 2 | 3;
+
 type GameScoreType = 0 | 1 | 2;
+
 type OddPlayerConfugiration = {
   allignFuncs: {
     x: (middleIndex: number, i: number, count: number) => number;
@@ -13,6 +15,7 @@ type OddPlayerConfugiration = {
   goalPoint: Phaser.Geom.Point,
   collectPoint: Phaser.Geom.Point
 };
+
 type EvenPlayerConfiguration = {
   allignFuncs: {
     y: (middleIndex: number, i: number, count: number) => number;
@@ -25,4 +28,27 @@ type EvenPlayerConfiguration = {
   middlePoint: Phaser.Geom.Point,
   goalPoint: Phaser.Geom.Point,
   collectPoint: Phaser.Geom.Point
+};
+
+type SidebarConfiguration = {
+  name: string;
+  width: number;
+  mainColor: number;
+  secondaryColor: number;
+  point: Phaser.Geom.Point;
+  orientation: 'left' | 'right'
+};
+
+type TotalScoreConfiguration = {
+  name: string;
+  fontStyle: Phaser.Types.GameObjects.Text.TextStyle;
+  width: number;
+  originPoint: Phaser.Geom.Point;
+};
+
+type OptionsButtonConfiguration = {
+  name: string;
+  originPoint: Phaser.Geom.Point;
+  width: number;
+
 }

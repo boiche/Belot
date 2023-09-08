@@ -1,28 +1,29 @@
 import { GameObjects, Geom } from "phaser";
-import { constants, gameOptions, getScales } from "../../main";;
+import { constants, gameOptions } from "../../main";;
 import { GameAnnouncementType, HandAnnouncement, HandAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import HandAnnouncementRequest from "../server-api/requests/signalR/hand-announcement-request";
+import BelotGameObject from "./BelotGameObject";
 import { Card, Rank, Suit } from "./Card";
 
-export default class HandAnnounementsRectangle {
-  private _scene: GameTableScene;   
+export default class HandAnnounementsRectangle extends BelotGameObject {
+  protected name: string; 
   private _handAnnouncements: HandAnnouncement[];
   private _rectangle!: GameObjects.Rectangle;
-  private _scales = getScales();
 
   public enabled: boolean;
 
   constructor(scene: GameTableScene) {
-    this._scene = scene;
+    super(scene);
     this.enabled = false;
     this._handAnnouncements = [];
+    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
-  draw(initialPoint: Geom.Point) {
+  public override show(initialPoint: Geom.Point) {
     var rectangleX = initialPoint.x + gameOptions.sceneLayout.paddings.leftPadding;
     var rectangleY = window.innerHeight - (gameOptions.sceneLayout.rectangles.height + gameOptions.sceneLayout.paddings.bottomPadding);
-    this._rectangle = this._scene.add.rectangle(rectangleX, rectangleY, gameOptions.sceneLayout.rectangles.width, gameOptions.sceneLayout.rectangles.height, 0xFFFFFF);
+    this._rectangle = this.scene.add.rectangle(rectangleX, rectangleY, gameOptions.sceneLayout.rectangles.width, gameOptions.sceneLayout.rectangles.height, 0xFFFFFF);
 
     this._rectangle
       .setOrigin(0, 0)
@@ -39,13 +40,13 @@ export default class HandAnnounementsRectangle {
         if (this.enabled) {
           var request = new HandAnnouncementRequest();
           request.announcement = this._handAnnouncements[0].type;
-          request.gameId = this._scene.gameId;
+          request.gameId = this.scene.gameId;
           request.highestRank = this._handAnnouncements[0].details.highestRank;
 
-          this._scene.signalR.Connection.invoke("HandAnnounce", request);
+          this.scene.signalR.Connection.invoke("HandAnnounce", request);
 
           this._rectangle.disableInteractive();
-          this._scene.children
+          this.scene.children
             .getAll()
             .filter(x => x.name === constants.handAnnouncementObjectName)
             .forEach(x => x.destroy(true));
@@ -56,14 +57,14 @@ export default class HandAnnounementsRectangle {
   }
 
   showHandAnnouncements() {
-    if (this._scene._belotGame.currentAnnouncement.type === GameAnnouncementType.NOSUIT) {
+    if (this.scene._belotGame.currentAnnouncement.type === GameAnnouncementType.NOSUIT) {
       return;
     }
 
-    var _playingHand = this._scene.currentPlayer.playingHand;
+    var _playingHand = this.scene.currentPlayer.playingHand;
 
     for (var suit = 0; suit <= Suit.SPADE; suit++) {
-      var currentSuit = this._scene.currentPlayer.playingHand.filter(x => x.suit === suit).sort((x, y) => x.rank - y.rank);
+      var currentSuit = this.scene.currentPlayer.playingHand.filter(x => x.suit === suit).sort((x, y) => x.rank - y.rank);
       if (currentSuit.length < 3) {
         continue;
       }
@@ -110,7 +111,7 @@ export default class HandAnnounementsRectangle {
     console.log('current player can announce these HAND announcements: ');
     console.log(this._handAnnouncements);
 
-    this.show();
+    this.showCards();
   }
 
   private addHandAnnouncement(type: HandAnnouncementType, currentSuit: Card[]): void {
@@ -122,14 +123,14 @@ export default class HandAnnounementsRectangle {
     this._handAnnouncements.push(handAnnouncement);
   }
 
-  private show(): void {
+  private showCards(): void {
     var height = this._rectangle.height / this._handAnnouncements.length;
     for (var i = 0; i < this._handAnnouncements.length; i++) {
       let sprites = this._handAnnouncements[i].details.sprites;
       console.log('sprites for HAND ANNOUNCEMENT');
       console.log(sprites);
       for (var j = 0; j < sprites.length; j++) {
-        let sceneSprite = this._scene.children.getByName(sprites[j].name) as GameObjects.Sprite;
+        let sceneSprite = this.scene.children.getByName(sprites[j].name) as GameObjects.Sprite;
         let suit, rank;
         if (sceneSprite.getData('suit') === undefined) {
           let spriteName = sceneSprite.name.split(' ');
@@ -142,15 +143,14 @@ export default class HandAnnounementsRectangle {
         }
         let frameIndex = (rank - 7) * 4 + suit;
         let offset = 20;
-        let singleCardOffset = (this._rectangle.width - offset * 2 - gameOptions.cardWidth * this._scales.X) / sprites.length;
-        var sprite = this._scene.add.sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
-          .setScale(this._scales.X, this._scales.Y)
+        let singleCardOffset = (this._rectangle.width - offset * 2 - gameOptions.cardWidth) / sprites.length;
+        var sprite = this.scene.add.sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
           .setDepth(this._rectangle.depth + 1)
           .setName(constants.handAnnouncementObjectName)
           .setOrigin(0, 0);
 
         if (j + 1 === sprites.length) {
-          this._scene.add.text(sprite.x, sprite.y + 20, this._handAnnouncements[i].text)
+          this.scene.add.text(sprite.x, sprite.y + 20, this._handAnnouncements[i].text)
             .setDepth(this._rectangle.depth + 1);
           }
       }      

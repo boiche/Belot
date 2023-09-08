@@ -2,7 +2,7 @@ using Belot.Models.Belot;
 
 namespace Belot.Tests
 {
-    public class UnitTest1
+    public class Tests
     {
         [Fact]
         public void Test1()

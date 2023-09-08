@@ -1,5 +1,5 @@
 import { Component, HostListener } from '@angular/core';
-import { Scene } from 'phaser'
+import { ScaleModes, Scene } from 'phaser'
 import BootGameScene from './boot-game-scene';
 import GameTableScene from './game-table-scene';
 import LoadingScene from './loading-scene';
@@ -18,9 +18,8 @@ class MainScene extends Scene {
     super("belot");
     this.connection = connection;
     this.config = {
+      parent: "game-container",
       backgroundColor: 0x00000,
-      width: this.gameWidth,
-      height: this.gameHeight,
       scene: [BootGameScene, LoadingScene, GameTableScene],      
       plugins: {
         global: [
@@ -30,22 +29,19 @@ class MainScene extends Scene {
         ]
       },
       scale: {
-        mode: Phaser.Scale.ScaleModes.FIT,
+        mode: Phaser.Scale.ScaleModes.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: window.innerWidth,
-        height: window.innerHeight,
-      }
+        expandParent: true
+      }      
     };
-    this.game = new Phaser.Game(this.config);
+    this.game = new Phaser.Game(this.config);    
     this.game.scene.start('BootBelot', belotGame);
-
-    this.resizeGame();
   }
 
   gameWidth = 0; gameHeight = 0;  
 
   @HostListener("window:resize", ['$event'])
-  resizeGame() {
+  resizeGame() {    
     var canvas = document.querySelector("canvas") ?? new HTMLCanvasElement();
     var windowWidth = window.innerWidth;
     var windowHeight = window.innerHeight - 5;

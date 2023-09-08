@@ -1,5 +1,5 @@
 import { GameObjects } from "phaser";
-import { constants, gameOptions, getScales } from "../../main";
+import { constants, gameOptions } from "../../main";
 import { Card } from "../GameObjects/Card";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
@@ -38,7 +38,6 @@ class HandPositionOptions  {
     return this.player === 0
   }
   player: 0 | 1 | 2 | 3 = 0;
-  scales = getScales();
 
   get mainPlayerConfiguration(): OddPlayerConfugiration {
     return {
@@ -134,7 +133,6 @@ class Dealer {
   secondDealReady = false;
   currentDeal!: 0 | 1;
   absoluteDealerIndex!: PlayerNumber;
-  scales = getScales();
   _announcementsReady = false;
 
   public Init(scene: GameTableScene) {
@@ -287,12 +285,11 @@ class Dealer {
       }
 
       for (var i = 0; i < count; i++) {
-        var sprite = this._scene.add.sprite(0, 0, constants.cardBack, 0)
+        var sprite = this._scene.add
+          .sprite(0, 0, constants.cardBack, 0)
           .setVisible(false)
           .setName(constants.belotGameObjectName + constants.cardBack)
-          .setDepth(2 + initLength + i)
-          .setScale(this.scales.X, this.scales.Y)
-          .setOrigin(0)          
+          .setDepth(2 + initLength + i)        
           .setX(this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 4)
           .setY(this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4);
 
@@ -525,7 +522,7 @@ class Dealer {
             this.options.rightPlayerConfiguration.middlePoint.y,
             constants.cardsSpritesheet,
             cardInfo.frameIndex)
-          .setScale(this.scales.X, this.scales.Y);
+          ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 2: {
         sprite = this._scene.add.sprite(
@@ -533,7 +530,7 @@ class Dealer {
             this.options.upPLayerConfiguration.middlePoint.y,
             constants.cardsSpritesheet,
             cardInfo.frameIndex)
-          .setScale(this.scales.X, this.scales.Y);
+          ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 3: {
         sprite = this._scene.add.sprite(
@@ -541,7 +538,7 @@ class Dealer {
             this.options.leftPlayerConfiguration.middlePoint.y,
             constants.cardsSpritesheet,
             cardInfo.frameIndex)
-          .setScale(this.scales.X, this.scales.Y);
+          ////.setScale(this.scales.X, this.scales.Y);
       } break;
     }
 

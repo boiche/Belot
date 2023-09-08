@@ -13,20 +13,21 @@ export const belotServerAPI = {
   signalR: "https://localhost:7126/belotGame/"
 };
 
-export function getScales(): { X: number, Y: number} {  
+function getScales(): { X: number, Y: number} {  
   const ratioX = 17.219730941704036;
   const ratioY = 5.752321981424148;
 
-  var X = (window.innerWidth / ratioX) / gameOptions.cardWidth;
-  var Y = (window.innerHeight / ratioY) / gameOptions.cardHeight;
+  var X = (window.innerWidth / ratioX) / 223;
+  var Y = (window.innerHeight / ratioY) / 323;
 
+  //ТОDO: find a better way to scale cards. By far, many object relate on cards' size.
 
   return { X, Y };
 }
 
 export const gameOptions = {
-  cardWidth: 223,
-  cardHeight: 323,
+  cardWidth: 223 * getScales().X,
+  cardHeight: 323 * getScales().Y,
   tweens: 200,
   arrangeByStrength: true,
   hoverColor: 0xD3DCE5,
