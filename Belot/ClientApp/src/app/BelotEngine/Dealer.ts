@@ -28,9 +28,37 @@ class HandPositionOptions  {
   cardsOffset: number = 0;
   stepTiltAngle: number = 0;
   mainCamera: Phaser.Cameras.Scene2D.Camera;
+  specifics: {
+    mainPlayer: PlayerSpecifics,
+    rightPlayer: PlayerSpecifics,
+    upPlayer: PlayerSpecifics,
+    leftPlayer: PlayerSpecifics
+  }
 
   constructor(camera: Phaser.Cameras.Scene2D.Camera) {
     this.mainCamera = camera;
+    this.specifics = {
+      mainPlayer: {
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
+      },
+      upPlayer: {
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
+      },
+      leftPlayer: {
+        middlePoint: new Phaser.Geom.Point(),
+        goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 - gameOptions.cardWidth / 4),
+        collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      },
+      rightPlayer: {
+        middlePoint: new Phaser.Geom.Point(),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 + gameOptions.cardWidth / 4),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      }
+    }
   }
 
   get sceneMiddlePoint(): Phaser.Geom.Point {
@@ -51,11 +79,7 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 0 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 0,
-      specifics: {
-        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
-        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
-        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
-      }
+      specifics: this.specifics.mainPlayer
     }
   }
 
@@ -69,12 +93,7 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 270 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 270,
-      //TODO: find a way to access the sidebar object
-      specifics: {
-        middlePoint: new Phaser.Geom.Point(),
-        goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 - gameOptions.cardWidth / 4),
-        collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
-      }
+      specifics: this.specifics.leftPlayer
     }
   }
 
@@ -88,11 +107,7 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 180 //+ this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 180,
-      specifics: {
-        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
-        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
-        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
-      }
+      specifics: this.specifics.upPlayer
     }
   }
 
@@ -106,11 +121,7 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 90 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 90,
-      specifics: {
-        middlePoint: new Phaser.Geom.Point(),
-        goalPoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 + gameOptions.cardWidth / 4),
-        collectPoint: new Phaser.Geom.Point(this.mainCamera.width, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
-      }
+      specifics: this.specifics.rightPlayer
     }
   }
 
@@ -149,14 +160,14 @@ class Dealer {
   public Init(scene: GameTableScene) {
     this._scene = scene;
     this._signalR = scene.signalR;
-    this.options = new HandPositionOptions(this._scene.cameras.main);   
+    this.options = new HandPositionOptions(this._scene.cameras.main);
+    this.setSpecifics();
     this.initPlayers();
   }
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
-    this.backsGroups = [];
-    this.setSpecifics();    
+    this.backsGroups = [];    
 
     this.CreateBacks(5); 
 
@@ -612,8 +623,8 @@ class Dealer {
   setSpecifics() {
     let leftSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.leftSidebar)) as Sidebar;
     let rightSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
-    this.options.leftPlayerConfiguration.specifics.middlePoint = new Phaser.Geom.Point(leftSidebar.width, this._scene.cameras.main.height / 2);
-    this.options.rightPlayerConfiguration.specifics.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width, this._scene.cameras.main.height / 2);
+    this.options.specifics.leftPlayer.middlePoint = new Phaser.Geom.Point(leftSidebar.width, this._scene.cameras.main.height / 2);
+    this.options.specifics.rightPlayer.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width, this._scene.cameras.main.height / 2);
   }
 }
 

@@ -46,15 +46,11 @@ class GameTableScene extends Scene {
   create(gameId: any) {
     this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
     this.handAnnouncements = new HandAnnounementsRectangle(this);
-    var tempScore = new GameScore();
-    tempScore.lastGameTeamA = 14;
-    tempScore.lastGameTeamB = 12;
 
     this.gameId = gameId;
     this._belotGame.id = gameId;
     this.signalR = this.plugins.get('signalR') as SignalRPlugin;
-    this.gameAnnouncements.signalR = this.signalR;
-    this.dealer.Init(this);
+    this.gameAnnouncements.signalR = this.signalR;    
 
     this.signalR.Connection.on('DealNew', () => this.dealNew());
     this.signalR.Connection.on('UpdateClientAnnouncements', (newAnnouncement: GameAnnouncementType, relativeIndex: PlayerNumber) => {
@@ -133,6 +129,7 @@ class GameTableScene extends Scene {
     });
 
     this.drawSidebars();
+    this.dealer.Init(this);
 
     this.cameras.main.once('camerafadeincomplete', async function (camera: Phaser.Cameras.Scene2D.Camera) {
       var scene = (camera.scene as GameTableScene);
