@@ -1,5 +1,5 @@
 import { GameObjects, Geom, Scene } from "phaser";
-import { constants, gameOptions } from "../../main";
+import { constants, getBelotGameObject } from "../../main";
 import { GameAnnouncement, GameAnnouncementType, HandAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
@@ -22,7 +22,6 @@ import OptionsButton from "../GameObjects/Buttons/OptionsButton";
 import BelotGameObject from "../GameObjects/BelotGameObject";
 
 class GameTableScene extends Scene {
-  center: Phaser.Geom.Point = new Phaser.Geom.Point(0, 0);
   _belotGame: BelotGame;
   dealer: Dealer;
   signalR!: SignalRPlugin;
@@ -150,7 +149,7 @@ class GameTableScene extends Scene {
 
   drawSidebars() {    
     this.sidebars.push(new Sidebar(this, {
-      name: 'leftSidebar',
+      name: getBelotGameObject(constants.gameObjectNames.leftSidebar),
       width: this.cameras.main.width * 0.15,
       mainColor: 0x630801,
       secondaryColor: 0xb18380,
@@ -158,7 +157,7 @@ class GameTableScene extends Scene {
       orientation: 'left'
     }));
     this.sidebars.push(new Sidebar(this, {
-      name: 'rightSidebar',
+      name: getBelotGameObject(constants.gameObjectNames.rightSidebar),
       width: this.cameras.main.width * 0.15,
       mainColor: 0x630801,
       secondaryColor: 0xb18380,
@@ -175,7 +174,7 @@ class GameTableScene extends Scene {
       fontSize: '52'
     };
     this.totalScore = new TotalScore(this, {
-      name: 'totalScore',
+      name: getBelotGameObject(constants.gameObjectNames.totalScore),
       fontStyle: textStyleConfig,
       width: this.sidebars[0].width * 0.8,
       originPoint: new Geom.Point(10, 10),      
@@ -184,9 +183,9 @@ class GameTableScene extends Scene {
     this.totalScore.show();
 
     //option button
-    let sidebar = BelotGameObject.getByName('rightSidebar') as Sidebar;
+    let sidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
     this.optionsButton = new OptionsButton(this, {
-      name: 'optionsButton',
+      name: getBelotGameObject(constants.gameObjectNames.optionsButton),
       originPoint: sidebar.originPoint,
       width: 0
     })

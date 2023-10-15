@@ -2,7 +2,13 @@ type PlayerNumber = 0 | 1 | 2 | 3;
 
 type GameScoreType = 0 | 1 | 2;
 
+/**
+ * 
+ * Configuration for appearance of odd placed players on the table.
+ * 
+ */
 type OddPlayerConfugiration = {
+  /** Functions to place the cards in proper way for each quantity left in play. */
   allignFuncs: {
     x: (middleIndex: number, i: number, count: number) => number;
     y3: (i: number, playerIndex: number) => number;
@@ -10,13 +16,20 @@ type OddPlayerConfugiration = {
     y8: (i: number, playerIndex: number) => number;
     rotate: (middleIndex: number, i: number) => number;
   },
+  /**
+ * The initial tilt angle of the cards
+ */
   initAngle: number,
-  middlePoint: Phaser.Geom.Point,
-  goalPoint: Phaser.Geom.Point,
-  collectPoint: Phaser.Geom.Point
+  specifics: PlayerSpecifics
 };
 
+/**
+ * 
+ * Configuration for appearance of even placed players on the table.
+ * 
+ */
 type EvenPlayerConfiguration = {
+  /** Functions to place the cards in proper way for each quantity left in play. */
   allignFuncs: {
     y: (middleIndex: number, i: number, count: number) => number;
     x3: (i: number, playerIndex: number) => number;
@@ -24,11 +37,27 @@ type EvenPlayerConfiguration = {
     x8: (i: number, playerIndex: number) => number;
     rotate: (middleIndex: number, i: number) => number;
   },
+  /**
+   * The initial tilt angle of the cards
+   */
   initAngle: number,
-  middlePoint: Phaser.Geom.Point,
-  goalPoint: Phaser.Geom.Point,
-  collectPoint: Phaser.Geom.Point
+  /**
+   * This section defines specific configuration that has to be configured outside
+   */
+  specifics: PlayerSpecifics 
 };
+
+/**
+* Defines specific configuration that has to be configured outside
+*/
+type PlayerSpecifics = {
+  /** The point that sets the hand of the player symmetrically  */
+  middlePoint: Phaser.Geom.Point,
+  /** The point which the dealt cards must reach */
+  goalPoint: Phaser.Geom.Point,
+  /** The point which the collected cards must reach */
+  collectPoint: Phaser.Geom.Point
+}
 
 type SidebarConfiguration = {
   name: string;

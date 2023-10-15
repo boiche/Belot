@@ -23,8 +23,8 @@ export default class AnnounceChatBubble extends BelotGameObject {
     switch (playerRelativeIndex) {
       case 0: {
         rectangle = this._scene.add.rectangle(
-          this._options.mainPlayerConfiguration.middlePoint.x - passWidth / 2,
-          this._options.mainPlayerConfiguration.middlePoint.y - passHeight,
+          this._options.mainPlayerConfiguration.specifics.middlePoint.x - passWidth / 2,
+          this._options.mainPlayerConfiguration.specifics.middlePoint.y - passHeight,
           passWidth,
           passHeight,
           0xffffff,
@@ -33,8 +33,8 @@ export default class AnnounceChatBubble extends BelotGameObject {
       }; break;
       case 1: {
         rectangle = this._scene.add.rectangle(
-          this._options.leftPlayerConfiguration.middlePoint.x,
-          this._options.leftPlayerConfiguration.middlePoint.y - passHeight / 2,
+          this._options.leftPlayerConfiguration.specifics.middlePoint.x,
+          this._options.leftPlayerConfiguration.specifics.middlePoint.y - passHeight / 2,
           passWidth,
           passHeight,
           0xffffff,
@@ -43,8 +43,8 @@ export default class AnnounceChatBubble extends BelotGameObject {
       }; break;
       case 2: {
         rectangle = this._scene.add.rectangle(
-          this._options.upPLayerConfiguration.middlePoint.x - passWidth / 2,
-          this._options.upPLayerConfiguration.middlePoint.y,
+          this._options.upPLayerConfiguration.specifics.middlePoint.x - passWidth / 2,
+          this._options.upPLayerConfiguration.specifics.middlePoint.y,
           passWidth,
           passHeight,
           0xffffff,
@@ -53,8 +53,8 @@ export default class AnnounceChatBubble extends BelotGameObject {
       }; break;
       case 3: {
         rectangle = this._scene.add.rectangle(
-          this._options.rightPlayerConfiguration.middlePoint.x - passWidth,
-          this._options.rightPlayerConfiguration.middlePoint.y - passHeight / 2,
+          this._options.rightPlayerConfiguration.specifics.middlePoint.x - passWidth,
+          this._options.rightPlayerConfiguration.specifics.middlePoint.y - passHeight / 2,
           passWidth,
           passHeight,
           0xffffff,
@@ -86,7 +86,7 @@ export default class AnnounceChatBubble extends BelotGameObject {
           rectangle.x += offsetFromCenter;
       }; break;
       case 3: {
-        rectangle.x = (this._options.rightPlayerConfiguration.middlePoint.x - rectangle.width);
+        rectangle.x = (this._options.rightPlayerConfiguration.specifics.middlePoint.x - rectangle.width);
       }; break;
     }
 

@@ -2,7 +2,7 @@ import { GameObjects } from "phaser";
 
 class Announcement {
   text: string;
-  announcer!: 0 | 1 | 2 | 3;
+  announcer!: PlayerNumber;
 
   constructor(text: string) {
     this.text = text;

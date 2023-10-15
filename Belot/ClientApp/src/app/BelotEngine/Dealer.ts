@@ -1,6 +1,8 @@
 import { GameObjects } from "phaser";
-import { constants, gameOptions } from "../../main";
+import { constants, gameOptions, getBelotGameObject } from "../../main";
+import BelotGameObject from "../GameObjects/BelotGameObject";
 import { Card } from "../GameObjects/Card";
+import Sidebar from "../GameObjects/Sidebar";
 import GameTableScene from "../scenes/game-table-scene";
 import { SignalRPlugin } from "../scenes/main-scene";
 import ShowOpponentCardRequest from "../server-api/requests/signalR/show-opponent-card-request";
@@ -49,9 +51,11 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 0 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 0,
-      middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
-      goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
-      collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
+      specifics: {
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
+      }
     }
   }
 
@@ -65,9 +69,12 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 270 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 270,
-      middlePoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2),
-      goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 - gameOptions.cardWidth / 4),
-      collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      //TODO: find a way to access the sidebar object
+      specifics: {
+        middlePoint: new Phaser.Geom.Point(),
+        goalPoint: new Phaser.Geom.Point(gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 - gameOptions.cardWidth / 4),
+        collectPoint: new Phaser.Geom.Point(0 - gameOptions.cardWidth / 2, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      }
     }
   }
 
@@ -81,9 +88,11 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 180 //+ this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 180,
-      middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
-      goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
-      collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
+      specifics: {
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
+      }
     }
   }
 
@@ -97,9 +106,11 @@ class HandPositionOptions  {
         rotate: (middleIndex: number, i: number) => 90 //- this.stepTiltAngle * (middleIndex - i)
       },
       initAngle: 90,
-      middlePoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2),
-      goalPoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 + gameOptions.cardWidth / 4),
-      collectPoint: new Phaser.Geom.Point(this.mainCamera.width, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      specifics: {
+        middlePoint: new Phaser.Geom.Point(),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width - gameOptions.cardWidth * 2.5, this.mainCamera.height / 2 + gameOptions.cardWidth / 4),
+        collectPoint: new Phaser.Geom.Point(this.mainCamera.width, this.mainCamera.height / 2 - gameOptions.cardHeight / 4)
+      }
     }
   }
 
@@ -138,12 +149,14 @@ class Dealer {
   public Init(scene: GameTableScene) {
     this._scene = scene;
     this._signalR = scene.signalR;
-    this.options = new HandPositionOptions(this._scene.cameras.main);
+    this.options = new HandPositionOptions(this._scene.cameras.main);   
+    this.initPlayers();
   }
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
     this.backsGroups = [];
+    this.setSpecifics();    
 
     this.CreateBacks(5); 
 
@@ -188,10 +201,10 @@ class Dealer {
     var timelineWholeDeal = this._scene.tweens.createTimeline();
     var currentPlayerIndex: number = dealerIndex >= 3 ? 0 : dealerIndex + 1;
     var goalPoints: Phaser.Geom.Point[] = [
-      this.options.mainPlayerConfiguration.goalPoint,
-      this.options.rightPlayerConfiguration.goalPoint,
-      this.options.upPLayerConfiguration.goalPoint,
-      this.options.leftPlayerConfiguration.goalPoint
+      this.options.mainPlayerConfiguration.specifics.goalPoint,
+      this.options.rightPlayerConfiguration.specifics.goalPoint,
+      this.options.upPLayerConfiguration.specifics.goalPoint,
+      this.options.leftPlayerConfiguration.specifics.goalPoint
     ];
 
     if (typeDeal === TypeDeal.FirstDeal) {
@@ -326,17 +339,23 @@ class Dealer {
   initPlayers() {
     this.options.stepTiltAngle = 5;
 
-    var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.goalPoint.x, this.options.mainPlayerConfiguration.goalPoint.y), 10);
+    var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100); //dark blue
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.specifics.goalPoint.x, this.options.mainPlayerConfiguration.specifics.goalPoint.y), 10);    
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.specifics.goalPoint.x, this.options.rightPlayerConfiguration.specifics.goalPoint.y), 10);    
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.specifics.goalPoint.x, this.options.upPLayerConfiguration.specifics.goalPoint.y), 10);    
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.leftPlayerConfiguration.specifics.goalPoint.x, this.options.leftPlayerConfiguration.specifics.goalPoint.y), 10);
 
-    var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.goalPoint.x, this.options.rightPlayerConfiguration.goalPoint.y), 10);
+    var mainPointGraphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xEE4B2B }, fillStyle: { color: 0xEE4B2B } }).setDepth(100); //red
+    mainPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.specifics.middlePoint.x, this.options.mainPlayerConfiguration.specifics.middlePoint.y), 10);
+    mainPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.specifics.middlePoint.x, this.options.rightPlayerConfiguration.specifics.middlePoint.y), 10);
+    mainPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.specifics.middlePoint.x, this.options.upPLayerConfiguration.specifics.middlePoint.y), 10);
+    mainPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.leftPlayerConfiguration.specifics.middlePoint.x, this.options.leftPlayerConfiguration.specifics.middlePoint.y), 10);
 
-    var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.goalPoint.x, this.options.upPLayerConfiguration.goalPoint.y), 10);
-
-    var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100);
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.leftPlayerConfiguration.goalPoint.x, this.options.leftPlayerConfiguration.goalPoint.y), 10);
+    var collectPointGraphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xffffff }, fillStyle: { color: 0xffffff } }).setDepth(100); //white
+    collectPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.specifics.collectPoint.x, this.options.mainPlayerConfiguration.specifics.collectPoint.y), 10);
+    collectPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.specifics.collectPoint.x, this.options.rightPlayerConfiguration.specifics.collectPoint.y), 10);
+    collectPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.specifics.collectPoint.x, this.options.upPLayerConfiguration.specifics.collectPoint.y), 10);
+    collectPointGraphics.fillPointShape(new Phaser.Geom.Point(this.options.leftPlayerConfiguration.specifics.collectPoint.x, this.options.leftPlayerConfiguration.specifics.collectPoint.y), 10);
   }
 
   dealCard(tween: Phaser.Tweens.Tween, targets: Phaser.GameObjects.Sprite[]) {
@@ -368,8 +387,8 @@ class Dealer {
           }
 
           angle = options.mainPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
-          sprite.x = options.mainPlayerConfiguration.middlePoint.x + xOffset;
-          sprite.y = options.mainPlayerConfiguration.middlePoint.y + yOffset;  
+          sprite.x = options.mainPlayerConfiguration.specifics.middlePoint.x + xOffset;
+          sprite.y = options.mainPlayerConfiguration.specifics.middlePoint.y + yOffset;  
         } break;
         case 1: {
           if (count <= 3) {
@@ -385,8 +404,8 @@ class Dealer {
           yOffset = options.rightPlayerConfiguration.allignFuncs.y(middleIndex, i, count);
           angle = options.rightPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
 
-          sprite.x = options.rightPlayerConfiguration.middlePoint.x + xOffset;
-          sprite.y = options.rightPlayerConfiguration.middlePoint.y + yOffset;  
+          sprite.x = options.rightPlayerConfiguration.specifics.middlePoint.x + xOffset;
+          sprite.y = options.rightPlayerConfiguration.specifics.middlePoint.y + yOffset;  
         } break;
         case 2: {
           xOffset = options.upPLayerConfiguration.allignFuncs.x(middleIndex, i, count);
@@ -401,8 +420,8 @@ class Dealer {
           }
 
           angle = options.upPLayerConfiguration.allignFuncs.rotate(middleIndex, i);
-          sprite.x = options.upPLayerConfiguration.middlePoint.x + xOffset;
-          sprite.y = options.upPLayerConfiguration.middlePoint.y + yOffset; 
+          sprite.x = options.upPLayerConfiguration.specifics.middlePoint.x + xOffset;
+          sprite.y = options.upPLayerConfiguration.specifics.middlePoint.y + yOffset; 
         } break;
         case 3: {
           if (count <= 3) {
@@ -417,8 +436,8 @@ class Dealer {
 
           yOffset = options.leftPlayerConfiguration.allignFuncs.y(middleIndex, i, count);
           angle = options.leftPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
-          sprite.x = options.leftPlayerConfiguration.middlePoint.x + xOffset;
-          sprite.y = options.leftPlayerConfiguration.middlePoint.y + yOffset; 
+          sprite.x = options.leftPlayerConfiguration.specifics.middlePoint.x + xOffset;
+          sprite.y = options.leftPlayerConfiguration.specifics.middlePoint.y + yOffset; 
         } break;
         default:
       }
@@ -518,24 +537,24 @@ class Dealer {
       } break;
       case 1: {
         sprite = this._scene.add.sprite(
-            this.options.rightPlayerConfiguration.middlePoint.x,
-            this.options.rightPlayerConfiguration.middlePoint.y,
-            constants.cardsSpritesheet,
-            cardInfo.frameIndex)
+          this.options.rightPlayerConfiguration.specifics.middlePoint.x,
+          this.options.rightPlayerConfiguration.specifics.middlePoint.y,
+          constants.cardsSpritesheet,
+          cardInfo.frameIndex)
           ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 2: {
         sprite = this._scene.add.sprite(
-            this.options.upPLayerConfiguration.middlePoint.x,
-            this.options.upPLayerConfiguration.middlePoint.y,
+          this.options.upPLayerConfiguration.specifics.middlePoint.x,
+          this.options.upPLayerConfiguration.specifics.middlePoint.y,
             constants.cardsSpritesheet,
             cardInfo.frameIndex)
           ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 3: {
         sprite = this._scene.add.sprite(
-            this.options.leftPlayerConfiguration.middlePoint.x,
-            this.options.leftPlayerConfiguration.middlePoint.y,
+          this.options.leftPlayerConfiguration.specifics.middlePoint.x,
+          this.options.leftPlayerConfiguration.specifics.middlePoint.y,
             constants.cardsSpritesheet,
             cardInfo.frameIndex)
           ////.setScale(this.scales.X, this.scales.Y);
@@ -567,10 +586,10 @@ class Dealer {
     console.log(thrownCards);
 
     switch (opponentRelativeIndex) {
-      case 0: collectPoint = this.options.mainPlayerConfiguration.collectPoint; break;
-      case 1: collectPoint = this.options.leftPlayerConfiguration.collectPoint; break;
-      case 2: collectPoint = this.options.upPLayerConfiguration.collectPoint; break;
-      case 3: collectPoint = this.options.rightPlayerConfiguration.collectPoint; break;      
+      case 0: collectPoint = this.options.mainPlayerConfiguration.specifics.collectPoint; break;
+      case 1: collectPoint = this.options.leftPlayerConfiguration.specifics.collectPoint; break;
+      case 2: collectPoint = this.options.upPLayerConfiguration.specifics.collectPoint; break;
+      case 3: collectPoint = this.options.rightPlayerConfiguration.specifics.collectPoint; break;      
     }
 
     this._scene.add.tween({
@@ -587,6 +606,14 @@ class Dealer {
     for (var i = 0; i < targets.length; i++) {
       targets[i].scene.children.remove(targets[i], true).removeAllListeners().removeInteractive();
     }
+  }
+
+  /** Configures the specifics of players' appearance */
+  setSpecifics() {
+    let leftSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.leftSidebar)) as Sidebar;
+    let rightSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
+    this.options.leftPlayerConfiguration.specifics.middlePoint = new Phaser.Geom.Point(leftSidebar.width, this._scene.cameras.main.height / 2);
+    this.options.rightPlayerConfiguration.specifics.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width, this._scene.cameras.main.height / 2);
   }
 }
 

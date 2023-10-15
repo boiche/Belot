@@ -47,16 +47,16 @@ export default class AnnouncedElement extends BelotGameObject {
 
     switch (relativeIndex) {
       case 0: {
-        image.y = this._options.mainPlayerConfiguration.middlePoint.y - image.height;
+        image.y = this._options.mainPlayerConfiguration.specifics.middlePoint.y - image.height;
       } break;
       case 1: {
-        image.x = this._options.leftPlayerConfiguration.middlePoint.x + image.width;
+        image.x = this._options.leftPlayerConfiguration.specifics.middlePoint.x + image.width;
       } break;
       case 2: {
-        image.y = this._options.upPLayerConfiguration.middlePoint.y + image.height;
+        image.y = this._options.upPLayerConfiguration.specifics.middlePoint.y + image.height;
       } break;
       case 3: {
-        image.x = this._options.rightPlayerConfiguration.middlePoint.x - image.width;
+        image.x = this._options.rightPlayerConfiguration.specifics.middlePoint.x - image.width;
       }; break;
     }
   }

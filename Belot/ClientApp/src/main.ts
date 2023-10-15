@@ -1,7 +1,6 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
-import UserService from './app/shared/services/user-service';
 import { environment } from './environments/environment';
 
 export function getBaseUrl() {
@@ -13,21 +12,9 @@ export const belotServerAPI = {
   signalR: "https://localhost:7126/belotGame/"
 };
 
-function getScales(): { X: number, Y: number} {  
-  const ratioX = 17.219730941704036;
-  const ratioY = 5.752321981424148;
-
-  var X = (window.innerWidth / ratioX) / 223;
-  var Y = (window.innerHeight / ratioY) / 323;
-
-  //ТОDO: find a better way to scale cards. By far, many object relate on cards' size.
-
-  return { X, Y };
-}
-
 export const gameOptions = {
-  cardWidth: 223 * getScales().X,
-  cardHeight: 323 * getScales().Y,
+  cardWidth: window.innerHeight * 0.15 * 0.71, // width to height = 0.71 (standard card ratio)
+  cardHeight: window.innerHeight * 0.15, // height to width = 1.4 (standart card ratio)
   tweens: 200,
   arrangeByStrength: true,
   hoverColor: 0xD3DCE5,
@@ -75,7 +62,22 @@ export const constants = {
   cardsSpritesheet: 'belotCards',
   optionsButton: 'optionsButton',
   handAnnouncementObjectName: 'belotObject handAnnouncementObjectName',
-  inFieldAnnouncement: 'inFieldAnnouncement'
+  inFieldAnnouncement: 'inFieldAnnouncement',
+  gameObjectNames: {
+    leftSidebar: "leftSidebar",
+    rightSidebar: "rightSidebar",
+    totalScore: "totalScore",
+    optionsButton: "optionsButton"
+  }  
+}
+
+/**
+ * Constructs a game object name based on the naming convention
+ * @param name
+ * @returns
+ */
+export function getBelotGameObject(name: string): string {
+  return constants.belotGameObjectName + name;
 }
 
 const providers = [
