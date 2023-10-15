@@ -312,8 +312,9 @@ class Dealer {
         var sprite = this._scene.add
           .sprite(0, 0, constants.cardBack, 0)
           .setVisible(false)
-          .setName(constants.belotGameObjectName + constants.cardBack)
-          .setDepth(2 + initLength + i)        
+          .setName(getBelotGameObject(constants.cardBack))
+          .setDepth(2 + initLength + i)
+          .setDisplaySize(gameOptions.cardWidth, gameOptions.cardHeight)
           .setX(this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 4)
           .setY(this.options.sceneMiddlePoint.y - gameOptions.cardHeight / 4);
 
@@ -460,7 +461,7 @@ class Dealer {
           .setName(constants.belotGameObjectName + ' ' + cardsToShow[i].sprite.name)
           .setInteractive({ cursor: 'pointer' })
           .setData('suit', cardsToShow[i].suit)
-          .setData('rank', cardsToShow[i].rank)
+          .setData('rank', cardsToShow[i].rank)          
           .disableInteractive()
           .on('pointerover', function (this: GameObjects.Sprite, event: any) {
             this.y -= 15;
@@ -493,6 +494,8 @@ class Dealer {
             }
           });
 
+        sprite
+
         // when count is less than 5 reorders the hand and duplicates object on intersection 
         if (count >= 5) {
           dealer._scene.currentPlayer.playingHand[i] = new Card(cardsToShow[i].suit, cardsToShow[i].rank, sprite);
@@ -518,9 +521,7 @@ class Dealer {
     } 
   }
 
-  /**
- * Disables user's hand. Invoked on completion of throw.
- */
+  /** Disables user's hand. Invoked on completion of throw. */
   disableCards() {
     console.log('disabling player cards');
     var toDisable = this._scene.children.getChildren().filter(x => x.name.startsWith(constants.belotGameObjectName + ' suit:'));

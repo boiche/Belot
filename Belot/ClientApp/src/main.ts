@@ -13,8 +13,8 @@ export const belotServerAPI = {
 };
 
 export const gameOptions = {
-  cardWidth: window.innerHeight * 0.15 * 0.71, // width to height = 0.71 (standard card ratio)
-  cardHeight: window.innerHeight * 0.15, // height to width = 1.4 (standart card ratio)
+  cardWidth: window.outerHeight * 0.15 * 0.71, // width to height = 0.71 (standard card ratio)
+  cardHeight: window.outerHeight * 0.15, // height to width = 1.4 (standart card ratio)
   tweens: 200,
   arrangeByStrength: true,
   hoverColor: 0xD3DCE5,

@@ -9,8 +9,8 @@ class BootGameScene extends Scene {
 
   preload() {    
     let frameConfig: Phaser.Types.Loader.FileTypes.ImageFrameConfig = {
-      frameWidth: gameOptions.cardWidth,
-      frameHeight: gameOptions.cardHeight
+      frameWidth: 223,
+      frameHeight: 324
     };    
 
     let backgroundConfig: Phaser.Types.Loader.FileTypes.ImageFrameConfig = {
@@ -18,7 +18,7 @@ class BootGameScene extends Scene {
       frameHeight: window.innerHeight
     };
 
-    this.load.spritesheet("cards", "assets/sprites/cards_svg.png", frameConfig);
+    //this.load.spritesheet("cards", "assets/sprites/cards_svg.png", frameConfig);
     this.load.spritesheet(constants.cardsSpritesheet, "assets/sprites/belot_spritesheet.png", frameConfig);
     this.load.image("background", "assets/sprites/Background.png");
     this.load.spritesheet("cardBack", "assets/sprites/back.png", frameConfig);
