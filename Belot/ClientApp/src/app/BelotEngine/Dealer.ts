@@ -621,10 +621,13 @@ class Dealer {
 
   /** Configures the specifics of players' appearance */
   setSpecifics() {
-    let leftSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.leftSidebar)) as Sidebar;
+    let leftSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.leftSidebar)) as Sidebar;    
+    this.options.specifics.leftPlayer.middlePoint = new Phaser.Geom.Point(leftSidebar.width + gameOptions.cardHeight, this._scene.cameras.main.height / 2);
+    this.options.specifics.leftPlayer.goalPoint.x = this.options.specifics.leftPlayer.middlePoint.x;
+
     let rightSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
-    this.options.specifics.leftPlayer.middlePoint = new Phaser.Geom.Point(leftSidebar.width, this._scene.cameras.main.height / 2);
-    this.options.specifics.rightPlayer.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width, this._scene.cameras.main.height / 2);
+    this.options.specifics.rightPlayer.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width - gameOptions.cardHeight, this._scene.cameras.main.height / 2);
+    this.options.specifics.rightPlayer.goalPoint.x = this.options.specifics.rightPlayer.middlePoint.x;
   }
 }
 
