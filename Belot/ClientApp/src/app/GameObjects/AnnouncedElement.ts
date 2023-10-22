@@ -5,15 +5,13 @@ import GameTableScene from "../scenes/game-table-scene";
 import BelotGameObject from "./BelotGameObject";
 
 export default class AnnouncedElement extends BelotGameObject {
-  protected name: string;
   private _scene!: GameTableScene;
   private _options: HandPositionOptions;
   private _announcement: GameAnnouncementType;
   constructor(scene: GameTableScene, announcement: GameAnnouncementType) {
-    super(scene);
+    super(scene, "SHOULD GET THE NAME FROM CONFIG");
     this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcement = announcement;
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
   public override show(relativeIndex: number) {

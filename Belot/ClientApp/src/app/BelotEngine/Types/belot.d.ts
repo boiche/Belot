@@ -78,6 +78,16 @@ type TotalScoreConfiguration = {
 type OptionsButtonConfiguration = {
   name: string;
   originPoint: Phaser.Geom.Point;
+  hoverColor: number;
   width: number;
+  height: number;
+}
 
+type HandAnnounementsRectangleConfiguration = {
+  name: string;
+  originPoint: Phaser.Geom.Point;
+  fillColor: number;
+  hoverColor: number;
+  width: number;
+  height: number;
 }

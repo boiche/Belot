@@ -103,6 +103,7 @@ namespace Belot.Services.Belot
         {
             if (gameAnnouncement == GameAnnouncement.PASS)
             {
+                DebugHelper.WriteLine("Game announcement cannot be PASS", Serilog.Events.LogEventLevel.Error);
                 throw new InvalidOperationException("Game announcement cannot be PASS");
             }
 

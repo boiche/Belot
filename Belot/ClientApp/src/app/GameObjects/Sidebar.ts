@@ -3,9 +3,6 @@ import BelotGameObject from "./BelotGameObject";
 
 export default class Sidebar extends BelotGameObject {
   private config: SidebarConfiguration;
-  public get name() {
-    return this.config.name;
-  }
   public get width() {
     return this.config.width;
   }
@@ -13,7 +10,7 @@ export default class Sidebar extends BelotGameObject {
     return this.config.point;
   }
   constructor(scene: GameTableScene, config: SidebarConfiguration) {
-    super(scene);
+    super(scene, config.name);
     this.config = config;
   }
 

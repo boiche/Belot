@@ -24,6 +24,9 @@ namespace Belot.Services.Logging
             _exceptionLogger = new LoggerConfiguration()                
                 .WriteTo.File(_exceptionLoggerPath, LogEventLevel.Error, flushToDiskInterval: TimeSpan.FromSeconds(2))
                 .CreateLogger();
+
+            _infoLogger.Information(new string('*', 100));
+            _exceptionLogger.Information(new string('*', 100));
         }
 
         public static void WriteLine(string message, LogEventLevel logLevel = LogEventLevel.Debug)

@@ -17,21 +17,8 @@ export const gameOptions = {
   cardHeight: window.outerHeight * 0.15, // height to width = 1.4 (standart card ratio)
   tweens: 200,
   arrangeByStrength: true,
-  hoverColor: 0xD3DCE5,
   inGame: {
     cardOrder: 0 //0: ASC, 1: DESC
-  },
-  sceneLayout: {
-    paddings: {
-      leftPadding: 30,
-      rightPadding: 30,
-      topPadding: 30,
-      bottomPadding: 30,
-    },
-    rectangles: {
-      width: 280,
-      height: 280
-    }
   }
 };
 
@@ -60,14 +47,14 @@ export const constants = {
   gameScoreTotalItem: 'gameScoreTotalItem',
   cardBack: 'cardBack',
   cardsSpritesheet: 'belotCards',
-  optionsButton: 'optionsButton',
-  handAnnouncementObjectName: 'belotObject handAnnouncementObjectName',
+  optionsButton: 'optionsButton',  
   inFieldAnnouncement: 'inFieldAnnouncement',
   gameObjectNames: {
     leftSidebar: "leftSidebar",
     rightSidebar: "rightSidebar",
     totalScore: "totalScore",
-    optionsButton: "optionsButton"
+    optionsButton: "optionsButton",
+    handAnnouncement: "handAnnouncement",
   }  
 }
 
@@ -76,7 +63,7 @@ export const constants = {
  * @param name
  * @returns
  */
-export function getBelotGameObject(name: string): string {
+export function getBelotGameObjectName(name: string): string {
   return constants.belotGameObjectName + name;
 }
 

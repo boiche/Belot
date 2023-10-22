@@ -4,16 +4,14 @@ import GameTableScene from "../scenes/game-table-scene";
 import BelotGameObject from "./BelotGameObject";
 
 export default class AnnounceChatBubble extends BelotGameObject {
-  protected name: string;
   private _scene!: GameTableScene;
   private _options: HandPositionOptions;
   private _announcementText: string;
 
   constructor(scene: GameTableScene, announcementText: string) {
-    super(scene);
+    super(scene, "SHOULD GET THE NAME FROM CONFIG");
     this._options = new HandPositionOptions(this._scene.cameras.main);
     this._announcementText = announcementText;
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
   public override show(playerRelativeIndex: PlayerNumber) {

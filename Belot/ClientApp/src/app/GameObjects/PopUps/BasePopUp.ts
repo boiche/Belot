@@ -7,8 +7,8 @@ export abstract class BasePopUp extends BelotGameObject {
   protected sprites: GameObjects.GameObject[];  
   protected scene!: GameTableScene;
 
-  constructor(scene: GameTableScene) {
-    super(scene);
+  constructor(scene: GameTableScene, name: string) {
+    super(scene, name);
     this.sprites = [];
     this.shown = false;
   }

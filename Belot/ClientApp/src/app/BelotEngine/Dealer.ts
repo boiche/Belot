@@ -1,5 +1,5 @@
 import { GameObjects } from "phaser";
-import { constants, gameOptions, getBelotGameObject } from "../../main";
+import { constants, gameOptions, getBelotGameObjectName } from "../../main";
 import BelotGameObject from "../GameObjects/BelotGameObject";
 import { Card } from "../GameObjects/Card";
 import Sidebar from "../GameObjects/Sidebar";
@@ -311,7 +311,7 @@ class Dealer {
         var sprite = this._scene.add
           .sprite(0, 0, constants.cardBack, 0)
           .setVisible(false)
-          .setName(getBelotGameObject(constants.cardBack))
+          .setName(getBelotGameObjectName(constants.cardBack))
           .setDepth(2 + initLength + i)
           .setDisplaySize(gameOptions.cardWidth, gameOptions.cardHeight)
           .setX(this.options.sceneMiddlePoint.x - gameOptions.cardWidth / 4)
@@ -621,11 +621,11 @@ class Dealer {
 
   /** Configures the specifics of players' appearance */
   setSpecifics() {
-    let leftSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.leftSidebar)) as Sidebar;    
+    let leftSidebar = BelotGameObject.getByName(getBelotGameObjectName(constants.gameObjectNames.leftSidebar)) as Sidebar;    
     this.options.specifics.leftPlayer.middlePoint = new Phaser.Geom.Point(leftSidebar.width + gameOptions.cardHeight, this._scene.cameras.main.height / 2);
     this.options.specifics.leftPlayer.goalPoint.x = this.options.specifics.leftPlayer.middlePoint.x;
 
-    let rightSidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
+    let rightSidebar = BelotGameObject.getByName(getBelotGameObjectName(constants.gameObjectNames.rightSidebar)) as Sidebar;
     this.options.specifics.rightPlayer.middlePoint = new Phaser.Geom.Point(this._scene.cameras.main.width - rightSidebar.width - gameOptions.cardHeight, this._scene.cameras.main.height / 2);
     this.options.specifics.rightPlayer.goalPoint.x = this.options.specifics.rightPlayer.middlePoint.x;
   }

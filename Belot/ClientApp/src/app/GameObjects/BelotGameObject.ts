@@ -2,11 +2,12 @@ import GameTableScene from "../scenes/game-table-scene";
 
 export default abstract class BelotGameObject {
   protected scene: GameTableScene;
-  protected abstract name: string;
+  public name!: string;
   public abstract show(...args: any[]): void;
   private static _objects: BelotGameObject[] = [];
-  constructor(scene: GameTableScene) {
+  constructor(scene: GameTableScene, name: string) {
     this.scene = scene;
+    this.name = name;
     BelotGameObject._objects.push(this);
   }
 

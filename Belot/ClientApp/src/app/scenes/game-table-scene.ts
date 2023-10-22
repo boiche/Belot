@@ -1,5 +1,5 @@
 import { GameObjects, Geom, Scene } from "phaser";
-import { constants, getBelotGameObject } from "../../main";
+import { constants, gameOptions, getBelotGameObjectName } from "../../main";
 import { GameAnnouncement, GameAnnouncementType, HandAnnouncementType } from "../BelotEngine/Announcement";
 import BelotGame from "../BelotEngine/BelotGame";
 import { Dealer, TypeDeal } from "../BelotEngine/Dealer";
@@ -44,8 +44,7 @@ class GameTableScene extends Scene {
   }  
 
   create(gameId: any) {
-    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);
-    this.handAnnouncements = new HandAnnounementsRectangle(this);
+    this.gameAnnouncements = new GameAnnouncementsPopUp(this, 9);    
 
     this.gameId = gameId;
     this._belotGame.id = gameId;
@@ -146,7 +145,7 @@ class GameTableScene extends Scene {
 
   drawSidebars() {    
     this.sidebars.push(new Sidebar(this, {
-      name: getBelotGameObject(constants.gameObjectNames.leftSidebar),
+      name: getBelotGameObjectName(constants.gameObjectNames.leftSidebar),
       width: this.cameras.main.width * 0.15,
       mainColor: 0x630801,
       secondaryColor: 0xb18380,
@@ -154,7 +153,7 @@ class GameTableScene extends Scene {
       orientation: 'left'
     }));
     this.sidebars.push(new Sidebar(this, {
-      name: getBelotGameObject(constants.gameObjectNames.rightSidebar),
+      name: getBelotGameObjectName(constants.gameObjectNames.rightSidebar),
       width: this.cameras.main.width * 0.15,
       mainColor: 0x630801,
       secondaryColor: 0xb18380,
@@ -170,24 +169,39 @@ class GameTableScene extends Scene {
       fontStyle: 'bold',
       fontSize: '52'
     };
+    let sidebarWidth = this.sidebars[0].width;
+    let totalScoreWidth = sidebarWidth * 0.8;
+    let offset = (sidebarWidth - totalScoreWidth) / 2;
+    console.log("width " + totalScoreWidth);
     this.totalScore = new TotalScore(this, {
-      name: getBelotGameObject(constants.gameObjectNames.totalScore),
+      name: getBelotGameObjectName(constants.gameObjectNames.totalScore),
       fontStyle: textStyleConfig,
-      width: this.sidebars[0].width * 0.8,
-      originPoint: new Geom.Point(10, 10),      
+      width: totalScoreWidth,
+      originPoint: new Geom.Point(offset, offset),      
     })
 
     this.totalScore.show();
 
     //option button
-    let sidebar = BelotGameObject.getByName(getBelotGameObject(constants.gameObjectNames.rightSidebar)) as Sidebar;
+    let sidebar = BelotGameObject.getByName(getBelotGameObjectName(constants.gameObjectNames.rightSidebar)) as Sidebar;
     this.optionsButton = new OptionsButton(this, {
-      name: getBelotGameObject(constants.gameObjectNames.optionsButton),
-      originPoint: sidebar.originPoint,
-      width: 0
+      name: getBelotGameObjectName(constants.gameObjectNames.optionsButton),
+      originPoint: new Geom.Point(sidebar.originPoint.x + offset, sidebar.originPoint.y + offset),
+      hoverColor: 0xD3DCE5,
+      width: totalScoreWidth, //TODO: thick black line decenters the objects within the sidebars
+      height: totalScoreWidth / 3.86
     })
     this.optionsButton.show();
 
+    //hand announcements
+    this.handAnnouncements = new HandAnnounementsRectangle(this, {
+      name: getBelotGameObjectName(constants.gameObjectNames.handAnnouncement),
+      fillColor: 0xFFFFFF,
+      hoverColor: 0xD3DCE5,
+      height: totalScoreWidth,
+      width: totalScoreWidth,
+      originPoint: new Geom.Point(sidebar.originPoint.x + offset, this.cameras.main.height - totalScoreWidth - offset)
+    });
     this.handAnnouncements.show(this.sidebars[1].originPoint);
   }
 

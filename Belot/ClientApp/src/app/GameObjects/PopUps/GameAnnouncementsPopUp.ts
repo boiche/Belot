@@ -7,7 +7,6 @@ import GameAnnouncementRequest from "../../server-api/requests/signalR/game-anno
 import { BasePopUp } from "./BasePopUp";
 
 class GameAnnouncementsPopUp extends BasePopUp {
-  protected name: string;
   depth: number;
   shown: boolean = false;
   signalR!: SignalRPlugin;
@@ -17,10 +16,9 @@ class GameAnnouncementsPopUp extends BasePopUp {
   mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   constructor(scene: GameTableScene, depth: number) {
-    super(scene);
+    super(scene, "SHOULD GET THE NAME FROM CONFIG");
     this.depth = depth;
     this.mainCamera = scene.cameras.main;
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
     this.initControls();
   }
 
@@ -32,7 +30,7 @@ class GameAnnouncementsPopUp extends BasePopUp {
   }
 
   override show() {
-    var hoverColor = gameOptions.hoverColor;
+    var hoverColor = this.hoverColor;
     var disabledColor = 0x878787;
 
     var clubs = this.scene.add.sprite(0, 0, constants.clubGameAnnouncement);

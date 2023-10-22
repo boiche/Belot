@@ -1,5 +1,5 @@
 import { GameObjects, Geom } from "phaser";
-import { constants, gameOptions } from "../../main";;
+import { constants, gameOptions, getBelotGameObjectName } from "../../main";;
 import { GameAnnouncementType, HandAnnouncement, HandAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import HandAnnouncementRequest from "../server-api/requests/signalR/hand-announcement-request";
@@ -7,34 +7,32 @@ import BelotGameObject from "./BelotGameObject";
 import { Card, Rank, Suit } from "./Card";
 
 export default class HandAnnounementsRectangle extends BelotGameObject {
-  protected name: string; 
   private _handAnnouncements: HandAnnouncement[];
   private _rectangle!: GameObjects.Rectangle;
+  private config: HandAnnounementsRectangleConfiguration;
 
   public enabled: boolean;
 
-  constructor(scene: GameTableScene) {
-    super(scene);
+  constructor(scene: GameTableScene, config: HandAnnounementsRectangleConfiguration) {
+    super(scene, config.name);
     this.enabled = false;
     this._handAnnouncements = [];
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
+    this.config = config;
   }
 
   public override show(initialPoint: Geom.Point) {
-    var rectangleX = initialPoint.x + gameOptions.sceneLayout.paddings.leftPadding;
-    var rectangleY = window.innerHeight - (gameOptions.sceneLayout.rectangles.height + gameOptions.sceneLayout.paddings.bottomPadding);
-    this._rectangle = this.scene.add.rectangle(rectangleX, rectangleY, gameOptions.sceneLayout.rectangles.width, gameOptions.sceneLayout.rectangles.height, 0xFFFFFF);
+    this._rectangle = this.scene.add.rectangle(this.config.originPoint.x, this.config.originPoint.y, this.config.width, this.config.height, this.config.fillColor);
 
     this._rectangle
       .setOrigin(0, 0)
       .setDepth(1000)      
       .on('pointerover', () => {
         if (this.enabled) {
-          this._rectangle.fillColor = gameOptions.hoverColor;
+          this._rectangle.fillColor = this.config.hoverColor;
         }        
       })
       .on('pointerout', () => {
-        this._rectangle.fillColor = 0xFFFFFF;
+        this._rectangle.fillColor = this.config.fillColor;
       })
       .on('pointerdown', () => {
         if (this.enabled) {
@@ -48,7 +46,7 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
           this._rectangle.disableInteractive();
           this.scene.children
             .getAll()
-            .filter(x => x.name === constants.handAnnouncementObjectName)
+            .filter(x => x.name === getBelotGameObjectName(constants.gameObjectNames.handAnnouncement))
             .forEach(x => x.destroy(true));
 
           this.enabled = false;
@@ -124,7 +122,6 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
   }
 
   private showCards(): void {
-    var height = this._rectangle.height / this._handAnnouncements.length;
     for (var i = 0; i < this._handAnnouncements.length; i++) {
       let sprites = this._handAnnouncements[i].details.sprites;
       console.log('sprites for HAND ANNOUNCEMENT');
@@ -146,7 +143,7 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
         let singleCardOffset = (this._rectangle.width - offset * 2 - gameOptions.cardWidth) / sprites.length;
         var sprite = this.scene.add.sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
           .setDepth(this._rectangle.depth + 1)
-          .setName(constants.handAnnouncementObjectName)
+          .setName(getBelotGameObjectName("handAnnouncementCard"))
           .setOrigin(0, 0);
 
         if (j + 1 === sprites.length) {

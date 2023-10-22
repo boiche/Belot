@@ -4,19 +4,17 @@ import GameTableScene from "../../scenes/game-table-scene";
 import { BasePopUp } from "./BasePopUp";
 
 class GameScorePopUp extends BasePopUp {
-  protected name: string;
   private _depth: number;
   private gameScore: GameScore;
   visibleDuration: number;
   private mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   constructor(scene: GameTableScene, score: GameScore, depth: number, visibleDuration: number = 10000) {
-    super(scene);
+    super(scene, "SHOULD GET THE NAME FROM CONFIG");
     this._depth = depth;
     this.gameScore = score;
     this.visibleDuration = visibleDuration;
     this.mainCamera = scene.cameras.main;
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
   override show() {

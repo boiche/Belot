@@ -3,16 +3,14 @@ import GameTableScene from "../../scenes/game-table-scene";
 import { BasePopUp } from "./BasePopUp";
 
 export default class FinalScorePopUp extends BasePopUp {
-  protected name: string;    
   private depth: number;
   private gameScore: GameScore;
   private isWinning: boolean;
   constructor(scene: GameTableScene, score: any, depth: number, isWinning: boolean) {
-    super(scene);
+    super(scene, "SHOULD GET THE NAME FROM CONFIG");
     this.depth = depth;
     this.gameScore = score;
     this.isWinning = isWinning;
-    this.name = "SHOULD GET THE NAME FROM CONFIG";
   }
 
   public override show(): void {
