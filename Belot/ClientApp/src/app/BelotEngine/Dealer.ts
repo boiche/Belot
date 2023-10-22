@@ -39,13 +39,13 @@ class HandPositionOptions  {
     this.mainCamera = camera;
     this.specifics = {
       mainPlayer: {
-        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.5),
-        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.5),
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, this.mainCamera.height - gameOptions.cardHeight / 1.25),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height - gameOptions.cardHeight / 1.25),
         collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, this.mainCamera.height)
       },
       upPlayer: {
-        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.5),
-        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.5),
+        middlePoint: new Phaser.Geom.Point(this.mainCamera.width / 2, gameOptions.cardHeight / 1.25),
+        goalPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 + gameOptions.cardWidth / 4, gameOptions.cardHeight / 1.25),
         collectPoint: new Phaser.Geom.Point(this.mainCamera.width / 2 - gameOptions.cardWidth / 4, 0 - gameOptions.cardHeight / 2)
       },
       leftPlayer: {
@@ -72,7 +72,7 @@ class HandPositionOptions  {
   get mainPlayerConfiguration(): OddPlayerConfugiration {
     return {
       allignFuncs: {
-        x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset },
+        x: (middleIndex: number, i: number, count: number) => { var evenOffset = count % 2 == 0 ? gameOptions.cardWidth * 10 / 24 : gameOptions.cardWidth / 4; return -this.cardsOffset * (middleIndex - i) - evenOffset }, //evenOffset moves the whole group left-right
         y3: (i: number, playerIndex: number) => this.threeAllignFunc(i, playerIndex),
         y5: (i: number, playerIndex: number) => this.fiveAllignFunc(i, playerIndex),
         y8: (i: number, playerIndex: number) => this.eightAllignFunc(i, playerIndex),
@@ -175,7 +175,7 @@ class Dealer {
   }
 
   public SecondDeal(dealerIndex: PlayerNumber) {
-    this.options.setCardsOffset(gameOptions.cardWidth / 3);
+    this.options.setCardsOffset(gameOptions.cardWidth / 2.5);
     this.currentDeal = 1;
 
     this.CreateBacks(3);
@@ -185,7 +185,6 @@ class Dealer {
 
   async Deal(dealerIndex: PlayerNumber, count: number, typeDeal: TypeDeal) {
     this.options.player = dealerIndex;
-    this.options.setCardsOffset(gameOptions.cardWidth / 3);
 
     await this._signalR.Connection.invoke("DealCards", {
       count: count,
@@ -455,6 +454,7 @@ class Dealer {
       }
 
       if (forPlayer === 0) {
+        console.log('cards will be disabled ' + dealer._scene.currentPlayer.isOnTurn);
         sprite
           .removeAllListeners()
           .setTexture(cardsToShow[i].sprite.texture.key, cardsToShow[i].sprite.frame.name)
@@ -493,8 +493,6 @@ class Dealer {
               scene.signalR.Connection.invoke("ThrowCard", request);
             }
           });
-
-        sprite
 
         // when count is less than 5 reorders the hand and duplicates object on intersection 
         if (count >= 5) {
@@ -572,6 +570,7 @@ class Dealer {
           ////.setScale(this.scales.X, this.scales.Y);
       } break;
     }
+    sprite.setDisplaySize(gameOptions.cardWidth, gameOptions.cardHeight);
 
     if (playerRelativeIndex !== 0) {
       this.backsGroups[playerRelativeIndex].remove(this.backsGroups[playerRelativeIndex].children.getArray()[0] as GameObjects.Sprite, true, true);

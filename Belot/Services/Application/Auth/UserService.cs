@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Belot.Services.Application.Auth
 {
-    public class UserService : BaseAppService, IUserService<ApplicationUser> //TODO: Make it generic (low priority)
+    public class UserService : BaseAppService, IUserService<ApplicationUser>
     {
         public SignInManager<ApplicationUser> SignInManager { get; set; }
         public UserManager<ApplicationUser> UserManager { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
+using Belot.Services.Logging;
 using System.Reflection;
 using System.Text;
 
@@ -130,7 +131,7 @@ namespace Belot.Services.Belot
                     }
                 }
 
-                DebugHelper.WriteLine(() => $"SUIT: {gameAnnouncement}\n\r" +
+                DebugHelper.WriteLine($"SUIT: {gameAnnouncement}\n\r" +
                 $"WINNING CARD: {winner.Value}\n\r" +
                 $"ALL CARDS: {string.Join("\n\r", PlayedCards.Values.AsEnumerable())}");
             }

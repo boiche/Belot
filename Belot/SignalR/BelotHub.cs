@@ -6,6 +6,7 @@ using Belot.Models.Http.Responses.SignalR;
 using Belot.Services.Application;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
+using Belot.Services.Logging;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Numerics;
@@ -16,7 +17,8 @@ namespace Belot.SignalR
     {
         readonly ApplicationDbContext context;
         readonly IJudgeManager<BelotJudgeService> judgeManager;
-        readonly IUserBalanceService userBalanceService;        
+        readonly IUserBalanceService userBalanceService;
+        readonly ColorLogger logger;
         Game gameEntry;
 
         public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService)
@@ -207,7 +209,7 @@ namespace Belot.SignalR
             if (!Guid.TryParse(gameId, out Guid GameId))
                 throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
 
-            DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
+            DebugHelper.WriteLine($"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
             await Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {
                 TurnCode = TurnCodes.Announcement
@@ -219,7 +221,7 @@ namespace Belot.SignalR
             if (!Guid.TryParse(gameId, out Guid GameId))
                 throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
 
-            DebugHelper.WriteLine(() => $"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
+            DebugHelper.WriteLine($"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
             Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {
                 TurnCode = TurnCodes.ThrowCard

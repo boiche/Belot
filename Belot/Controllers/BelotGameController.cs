@@ -1,7 +1,9 @@
 ﻿using Belot.Data;
 using Belot.Models.Http.Requests;
 using Belot.Models.Http.Responses;
+using Belot.Services.Logging;
 using Microsoft.AspNetCore.Mvc;
+using Serilog.Events;
 
 namespace Belot.Controllers
 {

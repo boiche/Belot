@@ -1,4 +1,5 @@
 ﻿using Belot.Models.Belot;
+using Belot.Services.Logging;
 using System.Diagnostics;
 
 namespace Belot.Services.Belot
@@ -46,7 +47,7 @@ namespace Belot.Services.Belot
                     index = 0;
                 }
             }
-            DebugHelper.WriteLine(() => string.Join('\n', this.ToList()));
+            DebugHelper.WriteLine(string.Join('\n', this.ToList()));
         }        
 
         private void Initialize()

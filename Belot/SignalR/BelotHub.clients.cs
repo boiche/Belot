@@ -1,5 +1,6 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Responses.SignalR;
+using Belot.Services.Logging;
 
 namespace Belot.SignalR
 {
@@ -22,7 +23,7 @@ namespace Belot.SignalR
 
         public Task AwaitGame()
         {
-            DebugHelper.WriteLine(() => "Player with connection " + Context.ConnectionId + " has joined the game");
+            DebugHelper.WriteLine("Player with connection " + Context.ConnectionId + " has joined the game");
 
             return Task.CompletedTask;
         }
@@ -84,6 +85,7 @@ namespace Belot.SignalR
 
         public Task Error(string message)
         {
+            DebugHelper.WriteLine(message, Serilog.Events.LogEventLevel.Error);
             return Task.Run(() => message);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Belot.Models.Belot;
+using Belot.Services.Logging;
 
 namespace Belot.Services
 {
@@ -122,9 +123,10 @@ namespace Belot.Services
             var ids = playedCards.Where(x => x.Value.Suit == mainSuit).Select(x => x.Key).ToArray();
 
             var cardsMajorSuit = playedCards.Values.Where(x => x.Suit == announcedSuit).ToArray();
+            bool hasMajor = cardsMajorSuit.Length > 0;
             var majorIds = playedCards.Where(x => x.Value.Suit == announcedSuit).Select(x => x.Key).ToArray();
 
-            if (cardsMajorSuit.Length == 0)
+            if (!hasMajor)
             {
                 cardsMajorSuit = playedCards.Values.Where(x => x.Suit == mainSuit).ToArray();
                 for (int i = 0; i < cardsMajorSuit.Length; i++)
@@ -164,6 +166,9 @@ namespace Belot.Services
                 }
             }
 
+            if (winnerCard.Suit != announcedSuit && hasMajor)
+                DebugHelper.WriteLine($"Winner card: {winnerCard}, Announcement: {announcedSuit}, MajorSuits: {Environment.NewLine}{string.Join<Card>('\t', cardsMajorSuit)}", Serilog.Events.LogEventLevel.Error);
+            
             return new KeyValuePair<string, Card>(winnerId, winnerCard);
         }
     }

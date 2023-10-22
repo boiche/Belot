@@ -2,6 +2,7 @@
 using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Services.Application.Events;
+using Belot.Services.Logging;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 
@@ -64,7 +65,7 @@ namespace Belot.SignalR
             SqlCommand command = connection.CreateCommand();
             command.CommandText = $"DELETE FROM dbo.Games WHERE Id = N'{args.GameId}'";
             int result = command.ExecuteNonQuery();
-            DebugHelper.WriteLine(() => $"Tried to delete non existing game with Id {args.GameId}. Affected rows of dbo.Games is: {result}");
+            DebugHelper.WriteLine($"Tried to delete non existing game with Id {args.GameId}. Affected rows of dbo.Games is: {result}", Serilog.Events.LogEventLevel.Information);
             connection.Close();
         }
     }

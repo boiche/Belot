@@ -5,10 +5,9 @@ using Belot.Services.Application.Auth;
 using Belot.Services.Application.Auth.Interfaces;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
+using Belot.Services.Logging;
 using Belot.SignalR;
 using Belot.Utils;
-using Laraue.EfCoreTriggers.SqlServer.Extensions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,6 +43,9 @@ builder.Services.Configure<IdentityOptions>(config =>
     config.SignIn.RequireConfirmedEmail = false;
     config.SignIn.RequireConfirmedAccount = false;
 });
+
+//builder.Logging.ClearProviders();
+//builder.Logging.AddColorConsoleLogger();
 
 var app = builder.Build();
 

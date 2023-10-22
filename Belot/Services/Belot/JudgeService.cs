@@ -1,6 +1,7 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Services.Interfaces;
+using Belot.Services.Logging;
 
 namespace Belot.Services.Belot
 {
@@ -67,7 +68,7 @@ namespace Belot.Services.Belot
                 player.PlayingHand.Add(_cards.Dequeue());
             }
 
-            DebugHelper.WriteLine(() => $"Player with connection {playerConnectionId} has been dealt: \n{string.Join('\n', player.PlayingHand)}");
+            DebugHelper.WriteLine($"Player with connection {playerConnectionId} has been dealt: \n{string.Join('\n', player.PlayingHand)}");
         }
 
         /// <summary>
