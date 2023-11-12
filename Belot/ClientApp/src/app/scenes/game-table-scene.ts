@@ -59,7 +59,7 @@ class GameTableScene extends Scene {
     });
     this.signalR.Connection.on('SecondDeal', (dealInfo: any) => {
       this.gameAnnouncements.hide();
-      this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo);
+      this._belotGame.currentAnnouncement = new GameAnnouncement(dealInfo, "");
       this.deal(TypeDeal.SecondDeal);      
     });
     this.signalR.Connection.on('OnTurn', (turnInfo: Turn) => {

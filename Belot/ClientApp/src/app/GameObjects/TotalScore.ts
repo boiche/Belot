@@ -23,22 +23,26 @@ export default class TotalScore extends BelotGameObject {
     sidebarGraphics.strokeLineShape(rectangle.getLineC());
     sidebarGraphics.strokeLineShape(rectangle.getLineD());
 
-    var weLabel = this.scene.add.text(rectangle.x + rectangle.width * 0.1, rectangle.y + rectangle.width * 0.1, 'WE', this.config.fontStyle)
+    var weLabel = this.scene.add
+      .text(rectangle.x + rectangle.width * 0.1, rectangle.y + rectangle.width * 0.1, 'WE', this.config.fontStyle)
       .setName(constants.gameScoreTotalItem + 'weLabel')
       .setDepth(10)
       .setFontSize(rectangle.width / this.font_to_width);
 
-    var youLabel = this.scene.add.text(weLabel.x + weLabel.width + rectangle.width * 0.2, weLabel.y, 'YOU', this.config.fontStyle)
+    var youLabel = this.scene.add
+      .text(weLabel.x + weLabel.width + rectangle.width * 0.2, weLabel.y, 'YOU', this.config.fontStyle)
       .setName(constants.gameScoreTotalItem + ' youLabel')
       .setDepth(10)
       .setFontSize(rectangle.width / this.font_to_width);
 
-    this.scene.add.text(weLabel.x, weLabel.y + weLabel.height + 15, '0', this.config.fontStyle)
+    this.scene.add
+      .text(weLabel.x, weLabel.y + weLabel.height + 15, '0', this.config.fontStyle)
       .setName(constants.gameScoreTotalItem + ' weScoreLabel')
       .setDepth(10)
       .setFontSize(rectangle.width / this.font_to_width);
 
-    this.scene.add.text(youLabel.x, youLabel.y + youLabel.height + 15, '0', this.config.fontStyle)
+    this.scene.add
+      .text(youLabel.x, youLabel.y + youLabel.height + 15, '0', this.config.fontStyle)
       .setName(constants.gameScoreTotalItem + ' youScoreLabel')
       .setDepth(10)
       .setFontSize(rectangle.width / this.font_to_width);

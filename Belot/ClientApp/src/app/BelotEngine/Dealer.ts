@@ -200,7 +200,8 @@ class Dealer {
 
     for (var i = 0; i < playerHandInfo.sorted.length; i++) {
       var current = playerHandInfo.sorted[i];
-      current.sprite = this._scene.add.sprite(0, 0, constants.cardsSpritesheet, current.frameIndex)
+      current.sprite = this._scene.add
+        .sprite(0, 0, constants.cardsSpritesheet, current.frameIndex)
         .setVisible(false)
         .setOrigin(0)
         .setName("suit: " + current.suit + " rank: " + current.rank);

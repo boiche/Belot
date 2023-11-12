@@ -1,6 +1,6 @@
 import { GameObjects, Geom } from "phaser";
 import { constants, gameOptions, getBelotGameObjectName } from "../../main";;
-import { GameAnnouncementType, HandAnnouncement, HandAnnouncementType } from "../BelotEngine/Announcement";
+import { Announcement, GameAnnouncementType, HandAnnouncement, HandAnnouncementType } from "../BelotEngine/Announcement";
 import GameTableScene from "../scenes/game-table-scene";
 import HandAnnouncementRequest from "../server-api/requests/signalR/hand-announcement-request";
 import BelotGameObject from "./BelotGameObject";
@@ -46,7 +46,7 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
           this._rectangle.disableInteractive();
           this.scene.children
             .getAll()
-            .filter(x => x.name === getBelotGameObjectName(constants.gameObjectNames.handAnnouncement))
+            .filter(x => x.name === getBelotGameObjectName(constants.gameObjectNames.handAnnouncementCard))
             .forEach(x => x.destroy(true));
 
           this.enabled = false;
@@ -107,13 +107,13 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
     }
 
     console.log('current player can announce these HAND announcements: ');
-    console.log(this._handAnnouncements);
+    console.log(this._handAnnouncements);    
 
     this.showCards();
   }
 
   private addHandAnnouncement(type: HandAnnouncementType, currentSuit: Card[]): void {
-    var handAnnouncement = new HandAnnouncement(type);
+    var handAnnouncement = new HandAnnouncement(type, Announcement.GetText(type));
     handAnnouncement.details.lowestRank = gameOptions.inGame.cardOrder === 0 ? currentSuit[0].rank : currentSuit[currentSuit.length - 1].rank;
     handAnnouncement.details.highestRank = gameOptions.inGame.cardOrder === 0 ? currentSuit[currentSuit.length - 1].rank : currentSuit[0].rank;
     handAnnouncement.details.sprites = currentSuit.map(x => x.sprite);
@@ -140,15 +140,27 @@ export default class HandAnnounementsRectangle extends BelotGameObject {
         }
         let frameIndex = (rank - 7) * 4 + suit;
         let offset = 20;
-        let singleCardOffset = (this._rectangle.width - offset * 2 - gameOptions.cardWidth) / sprites.length;
-        var sprite = this.scene.add.sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
+        let singleCardOffset = (this._rectangle.width - offset * 2 - gameOptions.cardWidth) / (sprites.length - 1);
+        var sprite = this.scene.add
+          .sprite(this._rectangle.x + offset + singleCardOffset * j, this._rectangle.y + 20, sceneSprite.texture.key, frameIndex)
           .setDepth(this._rectangle.depth + 1)
-          .setName(getBelotGameObjectName("handAnnouncementCard"))
+          .setName(getBelotGameObjectName(constants.gameObjectNames.handAnnouncementCard))
+          .setDisplaySize(gameOptions.cardWidth, gameOptions.cardHeight)
           .setOrigin(0, 0);
 
         if (j + 1 === sprites.length) {
-          this.scene.add.text(sprite.x, sprite.y + 20, this._handAnnouncements[i].text)
-            .setDepth(this._rectangle.depth + 1);
+          var textStyleConfig: Phaser.Types.GameObjects.Text.TextStyle = {
+            color: '#000000',
+            fontStyle: 'bold',
+            fontSize: '25px'
+          };
+
+          this.scene.add
+            .text(this._rectangle.x + this._rectangle.width / 2, sprite.y + gameOptions.cardHeight * 1.1, this._handAnnouncements[i].text, textStyleConfig)
+            .setOrigin(0.5, 0.5)
+            .setDisplaySize(this._rectangle.width / 3, this._rectangle.height / 10)
+            .setDepth(this._rectangle.depth + 1)
+            .setName(getBelotGameObjectName(constants.gameObjectNames.handAnnouncementCard)); //doesn't require special name so it's named after the HA group
           }
       }      
     }

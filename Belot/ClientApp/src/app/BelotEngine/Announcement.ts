@@ -7,14 +7,35 @@ class Announcement {
   constructor(text: string) {
     this.text = text;
   }
+
+  public static GetText(type: HandAnnouncementType | GameAnnouncementType | undefined): string {
+  switch (type) {
+    case HandAnnouncementType.BELOT: return "BELOT";
+    case HandAnnouncementType.FOAK: return "FOAK";
+    case HandAnnouncementType.QUARTA: return "QUARTA";
+    case HandAnnouncementType.QUINTA: return "QUINTA";
+    case HandAnnouncementType.TERCA: return "TERCA";
+    case HandAnnouncementType.TWO_TERCA: return "TWO TERCA";
+    case GameAnnouncementType.ALLSUITS: return "ALLSUITS";
+    case GameAnnouncementType.CLUBS: return "CLUBS";
+    case GameAnnouncementType.DIAMONDS: return "DIAMONDS";
+    case GameAnnouncementType.DOUBLE: return "DOUBLE";
+    case GameAnnouncementType.HEARTS: return "HEARTS";
+    case GameAnnouncementType.NOSUIT: return "NOSUIT";
+    case GameAnnouncementType.PASS: return "PASS";
+    case GameAnnouncementType.REDOUBLE: return "REDOUBLE";
+    case GameAnnouncementType.SPADES: return "SPADES";
+    default: return "";
+  }
+}
 }
 
 class GameAnnouncement extends Announcement {
   type: GameAnnouncementType;
-  static empty: GameAnnouncement = new GameAnnouncement(0);
+  static empty: GameAnnouncement = new GameAnnouncement(0, '');
 
-  constructor(type: GameAnnouncementType | number) {
-    super(type.toString());
+  constructor(type: GameAnnouncementType, text: string) {
+    super(text);
     this.type = type;
   }
 }
@@ -23,9 +44,9 @@ class HandAnnouncement extends Announcement {
   type: HandAnnouncementType;
   details: HandAnnouncementDetails;
 
-  constructor(type: HandAnnouncementType) {
-    super(type.toString());
-    this.type = type;
+  constructor(type: HandAnnouncementType, text: string) {
+    super(text);
+    this.type = type;    
     this.details = new HandAnnouncementDetails();
   }
 }

@@ -55,6 +55,7 @@ export const constants = {
     totalScore: "totalScore",
     optionsButton: "optionsButton",
     handAnnouncement: "handAnnouncement",
+    handAnnouncementCard: "handAnnouncementCard"
   }  
 }
 

@@ -42,13 +42,13 @@ type EvenPlayerConfiguration = {
    */
   initAngle: number,
   /**
-   * This section defines specific configuration that has to be configured outside
+   * This section defines specific configuration that has to be configured explicitly
    */
   specifics: PlayerSpecifics 
 };
 
 /**
-* Defines specific configuration that has to be configured outside
+* Defines specific configuration that has to be configured explicitly
 */
 type PlayerSpecifics = {
   /** The point that sets the hand of the player symmetrically  */
