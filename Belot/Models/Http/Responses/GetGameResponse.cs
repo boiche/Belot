@@ -4,6 +4,6 @@ namespace Belot.Models.Http.Responses
 {
     public class GetGameResponse : BaseResponse
     {
-        public Game game { get; set; }
+        public Game Game { get; set; }
     }
 }

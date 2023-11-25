@@ -41,10 +41,14 @@ namespace Belot.SignalR
         /// <param name="request"></param>
         private void RemoveCardInternal(ThrowCardRequest request)
         {
-            var playingHand = judgeManager.GetJudge(request.GameId).GetPlayer(Context.ConnectionId).PlayingHand;
+            var judge = judgeManager.GetJudge(request.GameId);
+            var playingHand = judge.GetPlayer(Context.ConnectionId).PlayingHand;
             Card cardToRemove = playingHand.First(x => x.Rank == request.Card.Rank && x.Suit == request.Card.Suit);
             request.Card.FrameIndex = cardToRemove.FrameIndex;
-            playingHand.Remove(cardToRemove);
+
+            //TODO: find a way to log each throw as hand log. Decide how to struct the data in order ML to be able to learn
+
+            playingHand.Remove(cardToRemove);            
         }
 
         /// <summary>

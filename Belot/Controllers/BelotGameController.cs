@@ -24,7 +24,7 @@ namespace Belot.Controllers
             var result = this._context.Games.Where(x => x.ConnectedPlayers < 4).ToList();
             return new GetAvailableGamesResponse()
             {
-                games = result
+                Games = result
             };
         }
 
@@ -35,7 +35,7 @@ namespace Belot.Controllers
             var result = this._context.Games.First(x => x.Id.ToString() == request.id);
             return new GetGameResponse()
             {
-                game = result
+                Game = result
             };
         }
     }

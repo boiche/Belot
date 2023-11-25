@@ -31,7 +31,7 @@ namespace Belot.Models.Http.Responses
         public DateTime? BanDate { get; set; }
         public string BanReason { get; set; }
         public string Id { get; internal set; }
-        public string Username { get; internal set; }
+        public string? Username { get; internal set; }
         public DateTimeOffset LockoutDateEnd { get; set; }
         public string AuthToken { get; set; }
     }

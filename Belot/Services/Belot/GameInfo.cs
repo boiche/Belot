@@ -8,7 +8,6 @@ namespace Belot.Services.Belot
 {
     internal class GameInfo
     {
-        private readonly Guid _gameId;
         private readonly List<GameHandInfo> _hands = new();
         private readonly List<HandAnnouncement> _handAnnouncements = new();
         private readonly GameScore _score;
@@ -20,7 +19,6 @@ namespace Belot.Services.Belot
             _score = new(this);
         }
 
-        internal Guid GameId { get => _gameId; }
         internal bool LastHandFinished
         {
             get

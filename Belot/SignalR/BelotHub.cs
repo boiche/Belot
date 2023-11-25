@@ -7,6 +7,7 @@ using Belot.Services.Application;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Belot.Services.Logging;
+using Belot.Services.Logging.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Numerics;
@@ -17,15 +18,17 @@ namespace Belot.SignalR
     {
         readonly ApplicationDbContext context;
         readonly IJudgeManager<BelotJudgeService> judgeManager;
+        readonly IHandLogger handLogger;
         readonly IUserBalanceService userBalanceService;
-        readonly ColorLogger logger;
         Game gameEntry;
 
-        public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService)
+        public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService, IHandLogger handLogger)
         {
             this.context = context;
             this.judgeManager = judgeManager;
             this.userBalanceService = userBalanceService;
+            this.handLogger = handLogger;
+            this.handLogger.DbContext = context;
 
             ApplicationEvents.JudgeNotFound += DeleteGameEvent;
         }
@@ -232,6 +235,7 @@ namespace Belot.SignalR
 
         public Task ThrowCard(ThrowCardRequest request)
         {
+            //TODO: Find elegant way to populate necessary data for single HandLog entity
             RemoveCardInternal(request);
             UpdateTurnInternal(request);
             BelotJudgeService belotJudge = judgeManager.GetJudge(request.GameId);
