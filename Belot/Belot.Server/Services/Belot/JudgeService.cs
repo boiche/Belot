@@ -14,7 +14,7 @@ namespace Belot.Services.Belot
         private int _dealerPlayerIndex = -1;
         private int _playerToPlayIndex;
         private int _passes = 0;
-        private readonly GameInfo _gameInfo;        
+        private readonly GameInfo _gameInfo;
 
         /// <summary>
         /// The player who deals in current game
@@ -35,17 +35,17 @@ namespace Belot.Services.Belot
         /// <summary>
         /// The player who will throw first a card in current game
         /// </summary>
-        public Player FirstToPlay 
-        { 
-            get => _gameInfo.Players[CheckPlayerIndex(_dealerPlayerIndex + 1)]; 
+        public Player FirstToPlay
+        {
+            get => _gameInfo.Players[CheckPlayerIndex(_dealerPlayerIndex + 1)];
         }
 
         /// <summary>
         /// The player whose annouce is played
         /// </summary>
-        public Player Announcer 
+        public Player Announcer
         {
-            get => _gameInfo.Players.MaxBy(x => x.Announcement);            
+            get => _gameInfo.Players.MaxBy(x => x.Announcement);
         }
 
         /// <summary>
@@ -55,10 +55,13 @@ namespace Belot.Services.Belot
 
         internal GameHandInfo LastHand { get => _gameInfo.Hands.LastOrDefault(); }
 
+        /// <summary>
+        /// Creates new judge
+        /// </summary>
         public BelotJudgeService()
         {
             _gameInfo = new GameInfo();
-            _cards = new Deck();                      
+            _cards = new Deck();
         }
 
         /// <summary>
@@ -101,7 +104,7 @@ namespace Belot.Services.Belot
                 _dealerPlayerIndex = new Random().Next(0, 4);
             else
                 _dealerPlayerIndex = CheckPlayerIndex(_dealerPlayerIndex++);
-            
+
             _playerToPlayIndex = CheckPlayerIndex(_dealerPlayerIndex + 1);
         }
 
@@ -120,9 +123,9 @@ namespace Belot.Services.Belot
         /// </summary>
         internal void NextToPlay()
         {
-            if (_gameInfo.LastHandFinished)            
+            if (_gameInfo.LastHandFinished)
                 _playerToPlayIndex = _gameInfo.Players.IndexOf(_gameInfo.Players.First(x => x.ConnectionId == _gameInfo.Hands[^1].WonBy));
-            
+
             else
                 _playerToPlayIndex = CheckPlayerIndex(_playerToPlayIndex + 1);
         }
@@ -232,7 +235,7 @@ namespace Belot.Services.Belot
         {
             _gameInfo.GameScore.CalculateScore();
 
-            _cards.CollectCards(_gameInfo.Hands);            
+            _cards.CollectCards(_gameInfo.Hands);
 
             _gameInfo.Hands.Clear();
 
@@ -248,11 +251,11 @@ namespace Belot.Services.Belot
 
         internal List<Player> GetWinners()
         {
-            List<Player> result = new();
+            List<Player> result = [];
             var players = GetPlayers().ToList();
             var isTeamBWinner = _gameInfo.GameScore.Score.TeamB > _gameInfo.GameScore.Score.TeamA; //always one of the scores is >= 151 here
-            return isTeamBWinner ? 
-                players.Where(x => x.Team == Team.TeamB).ToList() : 
+            return isTeamBWinner ?
+                players.Where(x => x.Team == Team.TeamB).ToList() :
                 players.Where(x => x.Team == Team.TeamA).ToList();
         }
 

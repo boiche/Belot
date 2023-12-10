@@ -1,5 +1,4 @@
 ﻿using Belot.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Belot.Services.Application
 {

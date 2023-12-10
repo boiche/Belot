@@ -9,7 +9,7 @@ namespace Belot.Services
 
         public JudgeManager()
         {
-            Judges = new Dictionary<Guid, T>();
+            Judges = [];
         }
 
         public T GetJudge(Guid id)
@@ -22,7 +22,7 @@ namespace Belot.Services
             {
                 ApplicationEvents.RaiseJudgeNotFound(this, new Application.Events.JudgeNotFoundArgs() { GameId = id });
                 return default;
-            }            
+            }
         }
     }
 }

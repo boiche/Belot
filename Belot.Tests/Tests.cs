@@ -7,8 +7,8 @@ namespace Belot.Tests
         [Fact]
         public void Test1()
         {            
-            List<Dictionary<string, Card>> _testHands = new()
-            {
+            List<Dictionary<string, Card>> _testHands =
+            [
                 new Dictionary<string, Card>()
                 {
                     { "1", new() { Rank = Rank.SEVEN, Suit = Suit.SPADES } },
@@ -65,11 +65,11 @@ namespace Belot.Tests
                     { "4", new() { Rank = Rank.QUEEN, Suit = Suit.HEARTS } },
                     { "winner", new() { Rank = Rank.QUEEN, Suit = Suit.HEARTS } }
                 }
-            };
+            ];
 
             foreach (var hand in _testHands)
             {
-                var result = Belot.Services.Extensions.GetWinnerSingleSuit(hand.Where(x => x.Key != "winner").ToDictionary(x => x.Key, x => x.Value), Suit.HEARTS);
+                var result = Services.Extensions.GetWinnerSingleSuit(hand.Where(x => x.Key != "winner").ToDictionary(x => x.Key, x => x.Value), Suit.HEARTS);
                 Assert.Equal(hand["winner"].ToString(), result.Value.ToString());
             }
         }

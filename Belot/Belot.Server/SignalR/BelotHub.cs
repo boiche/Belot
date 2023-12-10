@@ -36,6 +36,11 @@ namespace Belot.SignalR
             return base.OnConnectedAsync();
         }
 
+        /// <summary>
+        /// Registers user to a game
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task JoinGame(JoinGameRequest request)
         {
             try
@@ -76,9 +81,15 @@ namespace Belot.SignalR
             {
                 Clients.Caller.Error(e.Message);
                 throw;
-            }            
-        }        
+            }
+        }
 
+        /// <summary>
+        /// Retreives dealer info about a game
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public GetGameInfoResponse GetGameInfo(string gameId)
         {
             if (!Guid.TryParse(gameId, out Guid id))
@@ -92,11 +103,11 @@ namespace Belot.SignalR
         }
 
         public async Task CreateGame(CreateGameRequest request)
-        {            
+        {
             Guid gameId = Guid.NewGuid();
             var user = context.Users.First(x => x.UserName == request.Username);
             var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, request.PrizePool / 4);
-            if (canCreateGame.Item1)
+            if (canCreateGame.Status)
             {
                 judgeManager.Judges.Add(gameId, new BelotJudgeService());
                 gameEntry = new Game()
@@ -113,8 +124,8 @@ namespace Belot.SignalR
             }
             else
             {
-                Clients.Caller.Error(canCreateGame.Item2.Message);
-            }            
+                Clients.Caller.Error(canCreateGame.Error.Message);
+            }
         }
 
         public async Task LeaveGame(LeaveGameRequest request)
@@ -141,17 +152,17 @@ namespace Belot.SignalR
             {
 
             }
-        }      
+        }
 
         public Task DealCards(DealCardsRequest request)
         {
             judgeManager.GetJudge(request.GameId).DealCards(Context.ConnectionId, request.Count);
             return Task.CompletedTask;
-        }        
+        }
 
         public async Task Announce(GameAnnouncementRequest request)
         {
-            judgeManager.GetJudge(request.GameId).GetPlayer(Context.ConnectionId).SetAnnouncement(request.Announcement);            
+            judgeManager.GetJudge(request.GameId).GetPlayer(Context.ConnectionId).SetAnnouncement(request.Announcement);
             judgeManager.GetJudge(request.GameId).Announce(Context.ConnectionId, request.Announcement);
             judgeManager.GetJudge(request.GameId).NextToPlay();
 
@@ -159,7 +170,7 @@ namespace Belot.SignalR
             {
                 await Clients.Group(request.GameId.ToString()).SecondDeal(judgeManager.GetJudge(request.GameId).Announcer.Announcement);
                 Clients.Client(judgeManager.GetJudge(request.GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
-                { 
+                {
                     TurnCode = TurnCodes.ThrowCard
                 });
             }
@@ -180,9 +191,9 @@ namespace Belot.SignalR
                     {
                         Clients.Client(player.ConnectionId).UpdateClientAnnouncements(request.Announcement, judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
                     }
-                    
+
                     Clients.Client(judgeManager.GetJudge(request.GameId).PlayerToPlay.ConnectionId).OnTurn(turn);
-                }                
+                }
             }
         }
 
@@ -272,7 +283,7 @@ namespace Belot.SignalR
                 if (!gameOver)
                 {
                     DealNewInternal(request.GameId);
-                }                
+                }
             }
             else
             {
@@ -281,7 +292,7 @@ namespace Belot.SignalR
                 {
                     TurnCode = TurnCodes.ThrowCard
                 });
-            }                        
+            }
 
             return Task.CompletedTask;
         }
@@ -297,7 +308,7 @@ namespace Belot.SignalR
             };
             var winners = belotJudge.GetWinners();
             foreach (var winner in winners)
-            {                
+            {
                 Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
 
                 var balanceId = context.Users.First(x => x.Id == winner.Id).UserBalanceId;

@@ -4,12 +4,12 @@
     {
         public NotEnoughAmountException()
         {
-            
+
         }
 
         public NotEnoughAmountException(string message) : base(message)
         {
-            
+
         }
     }
 }

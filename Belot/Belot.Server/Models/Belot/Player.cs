@@ -13,7 +13,7 @@
 
         public Player()
         {
-            PlayingHand = new List<Card>();
+            PlayingHand = [];
         }
 
         internal void SetAnnouncement(GameAnnouncement announcement) => Announcement = announcement;

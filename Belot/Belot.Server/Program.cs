@@ -70,7 +70,7 @@ app.UseMiddleware<JWTMiddleware>();
 
 app.MapControllers();
 
-app.MapFallbackToFile("index.html"); 
+app.MapFallbackToFile("index.html");
 app.MapHub<BelotHub>("/belotGame");
 app.UseCors("CorsPolicy");
 

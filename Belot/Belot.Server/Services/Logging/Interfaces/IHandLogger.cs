@@ -17,6 +17,6 @@ namespace Belot.Services.Logging.Interfaces
         /// <param name="announcement">Current announcement of the game</param>
         /// <returns></returns>
         HandLog CreateLog(List<Card> playedCards, List<Card> playingHand, Card cardToRemove, GameAnnouncement announcement);
-        Task<int> SaveChangesAsync();        
+        Task<int> SaveChangesAsync();
     }
 }

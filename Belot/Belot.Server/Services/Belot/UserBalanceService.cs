@@ -3,20 +3,19 @@ using Belot.Models.DataEntries;
 using Belot.Services.Application;
 using Belot.Services.Application.Exceptions;
 using Belot.Services.Interfaces;
-using System.Data.SqlTypes;
 
 namespace Belot.Services.Belot
 {
     public class UserBalanceService : BaseAppService, IUserBalanceService
-    {        
+    {
         public UserBalanceService(ApplicationDbContext context)
         {
-            base.SetContext(context);       
+            base.SetContext(context);
         }
         public void Deposit(Guid id, decimal amount)
         {
             var balance = context.UserBalances.First(x => x.Id == id);
-            if (ValidateAction(balance)) 
+            if (ValidateAction(balance))
             {
                 balance.Balance += amount;
                 balance.ModifiedOn = DateTime.UtcNow;
@@ -41,7 +40,7 @@ namespace Belot.Services.Belot
         }
 
         public void Withdraw(Guid id, decimal amount)
-        {            
+        {
             var balance = context.UserBalances.First(x => x.Id == id);
             if (ValidateAction(balance, amount))
             {

@@ -10,7 +10,7 @@ namespace Belot.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            
+
         }
 
         /// <inheritdoc />

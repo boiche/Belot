@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -135,7 +134,7 @@ namespace Belot.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_SubjectId_SessionId_Type",
                 table: "PersistedGrants",
-                columns: new[] { "SubjectId", "SessionId", "Type" });
+                columns: ["SubjectId", "SessionId", "Type"]);
         }
     }
 }

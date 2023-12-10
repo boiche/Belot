@@ -10,7 +10,7 @@ import AnnounceChatBubble from "../GameObjects/AnnounceChatBubble";
 import AnnouncedElement from "../GameObjects/AnnouncedElement";
 import GameAnnouncementsPopUp from "../GameObjects/PopUps/GameAnnouncementsPopUp";
 import GameScorePopUp from "../GameObjects/PopUps/GameScorePopUp";
-import HandAnnounementsRectangle from "../GameObjects/HandAnnouncementsRectangle";
+import HandAnnounementsRectangle from "../GameObjects/handAnnouncementsRectangle";
 import OptionsPopUp from "../GameObjects/PopUps/OptionsPopUp";
 import FinalScorePopUp from "../GameObjects/PopUps/FinalScorePopUp";
 import Turn from "../GameObjects/Turn";

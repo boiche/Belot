@@ -1,5 +1,4 @@
-﻿using Belot.Data;
-using Belot.Models.DataEntries;
+﻿using Belot.Models.DataEntries;
 using Belot.Models.Http.Requests;
 using Belot.Models.Http.Responses;
 using Belot.Services.Application.Auth.Interfaces;
@@ -13,17 +12,12 @@ using System.Text;
 
 namespace Belot.Services.Application.Auth
 {
-    public class UserService : BaseAppService, IUserService<ApplicationUser>
+    public class UserService(IOptions<JWTSettings> appSettings) : BaseAppService, IUserService<ApplicationUser>
     {
         public SignInManager<ApplicationUser> SignInManager { get; set; }
         public UserManager<ApplicationUser> UserManager { get; set; }
 
-        private readonly JWTSettings _jwtSettings;
-
-        public UserService(IOptions<JWTSettings> appSettings)
-        {
-            _jwtSettings = appSettings.Value;
-        }
+        private readonly JWTSettings _jwtSettings = appSettings.Value;
 
         public bool Ban(BanRequest banRequest)
         {
@@ -79,11 +73,11 @@ namespace Belot.Services.Application.Auth
             ApplicationUser user = new()
             {
                 Email = request.Email,
-                UserName = request.Username, 
+                UserName = request.Username,
                 UserBalanceId = Guid.NewGuid()
             };
             var result = await UserManager.CreateAsync(user, request.Password);
-            if (result.Succeeded) 
+            if (result.Succeeded)
             {
                 var token = GenerateJwtToken(user);
                 await UserManager.SetAuthenticationTokenAsync(user, "Bearer", "authToken", token.RawData);
@@ -102,7 +96,7 @@ namespace Belot.Services.Application.Auth
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+                Subject = new ClaimsIdentity([new Claim("id", user.Id.ToString())]),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

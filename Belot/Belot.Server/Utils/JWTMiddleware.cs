@@ -13,9 +13,9 @@ namespace Belot.Utils
 
         public async Task Invoke(HttpContext context, IUserService<ApplicationUser> userService)
         {
-            string token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").First();            
+            string token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").First();
 
-            if (!string.IsNullOrEmpty(token)) 
+            if (!string.IsNullOrEmpty(token))
             {
                 token = token.Remove(0, 1);
                 AttachUserToHttpContext(context, userService, token);
@@ -24,6 +24,12 @@ namespace Belot.Utils
             await next(context);
         }
 
+        /// <summary>
+        /// Sets user's id to the <see cref="HttpContent"/>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="userService"></param>
+        /// <param name="token"></param>
         private void AttachUserToHttpContext(HttpContext context, IUserService<ApplicationUser> userService, string token)
         {
             try
@@ -44,7 +50,7 @@ namespace Belot.Utils
 
                 context.Items["User"] = userId;
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }

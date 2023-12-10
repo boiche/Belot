@@ -1,6 +1,5 @@
 ﻿using Belot.Models.Belot;
 using Belot.Services.Logging;
-using System.Diagnostics;
 
 namespace Belot.Services.Belot
 {
@@ -31,7 +30,7 @@ namespace Belot.Services.Belot
                 {
                     Rank = this[index].Rank,
                     Suit = this[index].Suit,
-                    FrameIndex = this[index].FrameIndex,    
+                    FrameIndex = this[index].FrameIndex,
                 }, toSwap = this[randomIndex];
 
                 this[index].Suit = toSwap.Suit;
@@ -48,7 +47,7 @@ namespace Belot.Services.Belot
                 }
             }
             DebugHelper.WriteLine(string.Join('\n', this.ToList()));
-        }        
+        }
 
         private void Initialize()
         {

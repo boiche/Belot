@@ -17,7 +17,7 @@ namespace Belot.Services.Logging
         public HandLog CreateLog(List<Card> playedCards, List<Card> playingHand, Card cardToRemove, GameAnnouncement announcement)
         {
             HandLog handLog = new()
-            { 
+            {
                 PlayedCard = CardAsLogString(cardToRemove),
                 PlayerHand = string.Join("", playingHand.Select(x => x.ToString())),
                 PlayedCards = string.Join("", playedCards.Select(x => x.ToString())),
@@ -29,9 +29,9 @@ namespace Belot.Services.Logging
         }
 
         public async Task<int> SaveChangesAsync()
-            => await _dbContext.SaveChangesAsync();        
+            => await _dbContext.SaveChangesAsync();
 
-        private string CardAsLogString(Card card) 
-            => $"{card.Rank}{Enum.GetName(typeof(Suit), card.Suit)[0].ToString().ToLower()}";        
+        private string CardAsLogString(Card card)
+            => $"{card.Rank}{Enum.GetName(typeof(Suit), card.Suit)[0].ToString().ToLower()}";
     }
 }

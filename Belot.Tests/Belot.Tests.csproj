@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Belot\Belot_old.csproj" />
+    <ProjectReference Include="..\Belot\Belot.Server\Belot.Server.csproj" />
   </ItemGroup>
 
 </Project>

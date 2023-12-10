@@ -1,5 +1,8 @@
 ﻿namespace Belot.Models.Belot
 {
+    /// <summary>
+    /// Represents the score of the game
+    /// </summary>
     public class Score
     {
         /// <summary>

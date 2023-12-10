@@ -21,7 +21,7 @@ namespace Belot.Controllers
 
         [HttpGet]
         [Route("BelotGame/GetGame")]
-        public GetGameResponse GetGame([FromQuery]GetGameRequest request)
+        public GetGameResponse GetGame([FromQuery] GetGameRequest request)
         {
             var result = context.Games.First(x => x.Id.ToString() == request.id);
             return new GetGameResponse()

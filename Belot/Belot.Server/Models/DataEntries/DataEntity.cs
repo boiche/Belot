@@ -1,7 +1,4 @@
-﻿using Belot.Models.DataEntries;
-using System.ComponentModel.DataAnnotations;
-
-namespace Belot.Models
+﻿namespace Belot.Models
 {
     /// <summary>
     /// Describes an object that is mapped to EF

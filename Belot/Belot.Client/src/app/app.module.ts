@@ -5,7 +5,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TableModule } from 'primeng/table';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { ApiAuthorizationModule } from 'src/api-authorization/api-authorization.module';
 import SignalRProxy from './server-api/proxies/signalRProxy';
 import BelotProxy from './server-api/proxies/belotProxy';
 import LoginComponent from './shared/auth/login/login.component';
@@ -33,12 +32,10 @@ import { AuthInterceptor } from './server-api/auth-interceptor';
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
-    ApiAuthorizationModule,
     TableModule,
     AppRoutingModule
   ],
   providers: [
-    //{ provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     SignalRProxy,
     BelotProxy,

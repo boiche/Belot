@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Belot.Controllers
 {
-    [ApiController] 
-    
+    [ApiController]
+
     public class UsersController : ControllerBase
     {
         private readonly IUserService<ApplicationUser> userService;
 
         public UsersController(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             IUserService<ApplicationUser> userService,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager)
@@ -27,8 +27,8 @@ namespace Belot.Controllers
 
         [HttpPost]
         [Route("/Users/Register")]
-        public IActionResult Register([FromBody]RegisterRequest request)
-        {            
+        public IActionResult Register([FromBody] RegisterRequest request)
+        {
             var response = userService.Register(request).Result;
             if (string.IsNullOrEmpty(response.Error))
                 return Ok(response);
@@ -38,16 +38,16 @@ namespace Belot.Controllers
 
         [HttpPost]
         [Route("/Users/Login")]
-        public async Task<IActionResult> Login(LoginRequest request) 
+        public async Task<IActionResult> Login(LoginRequest request)
         {
             var response = await this.userService.Login(request);
 
             if (response.WrongCredentials)
                 return Unauthorized($"Invalid email or password");
 
-            else if (!string.IsNullOrEmpty(response.Id))            
+            else if (!string.IsNullOrEmpty(response.Id))
                 return Ok(response);
-            
+
             else if (response.BanDate.HasValue)
                 return Unauthorized($"You're banned until: {response.BanDate}");
 
@@ -71,10 +71,10 @@ namespace Belot.Controllers
         [Route("/Users/GetUser")]
         public IActionResult GetUser(GetUserRequest request)
         {
-           return new JsonResult(new 
-           { 
-               user = userService.GetById(request.Username) 
-           });
+            return new JsonResult(new
+            {
+                user = userService.GetById(request.Username)
+            });
         }
 
         [HttpGet]

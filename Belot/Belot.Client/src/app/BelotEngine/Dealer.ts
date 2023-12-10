@@ -24,7 +24,7 @@ class CurrentPlayerHand {
   }
 }
 
-class HandPositionOptions  {
+class HandPositionOptions {
   cardsOffset: number = 0;
   stepTiltAngle: number = 0;
   mainCamera: Phaser.Cameras.Scene2D.Camera;
@@ -167,9 +167,9 @@ class Dealer {
 
   public FirstDeal(dealerIndex: PlayerNumber) {
     this.options.setCardsOffset(gameOptions.cardWidth / 2);
-    this.backsGroups = [];    
+    this.backsGroups = [];
 
-    this.CreateBacks(5); 
+    this.CreateBacks(5);
 
     this.Deal(dealerIndex, 5, TypeDeal.FirstDeal);
   }
@@ -192,11 +192,11 @@ class Dealer {
     });
 
     var announcement = this?._scene?._belotGame?.currentAnnouncement?.type;
-    var playerInfo = await this._signalR.Connection.getPlayer();    
+    var playerInfo = await this._signalR.Connection.getPlayer();
 
     //currentPlayer comes as Object, not as Player -> sortPlayingHand is undefined
     var playerHandInfo = new CurrentPlayerHand(this._scene.currentPlayer.sortPlayingHand(playerInfo.playingHand, announcement ?? GameAnnouncementType.PASS), playerInfo.playingHand);
-    
+
 
     for (var i = 0; i < playerHandInfo.sorted.length; i++) {
       var current = playerHandInfo.sorted[i];
@@ -209,7 +209,7 @@ class Dealer {
     //this.initPlayers();
 
     this._scene.currentPlayer.playingHand = playerHandInfo.sorted.map(x => new Card(x.suit, x.rank, x.sprite));
-    var timelineWholeDeal = this._scene.add.timeline({ });
+    var timelineWholeDeal = this._scene.add.timeline({ at: 500 }); //TODO: timeline is not working properly
     var currentPlayerIndex: number = dealerIndex >= 3 ? 0 : dealerIndex + 1;
     var goalPoints: Phaser.Geom.Point[] = [
       this.options.mainPlayerConfiguration.specifics.goalPoint,
@@ -222,15 +222,20 @@ class Dealer {
       for (var i = 0; i < 4; i++) {
         this.options.player = currentPlayerIndex as PlayerNumber;
         var playersBacks = this.backsGroups[currentPlayerIndex].getChildren().slice(0, 3) as GameObjects.Sprite[];
-        
+
         timelineWholeDeal.add({
-          at: 1000,                   
-          tween: {            
+          from: 200,
+          tween: this._scene.add.tween({
             targets: playersBacks,
+            x: goalPoints[currentPlayerIndex].x,
+            y: goalPoints[currentPlayerIndex].y,
             onStart: this.dealCard,
+            ease: 'Sine.easeOut',
+            duration: 200,
+            callbackContext: this._scene,
             onComplete: this.showCard,
             onCompleteParams: [this.options, playersBacks, this, currentPlayerIndex, playerHandInfo, dealerIndex],
-          }
+          })
         });
         currentPlayerIndex++;
         if (currentPlayerIndex > 3) {
@@ -243,24 +248,23 @@ class Dealer {
         var playersBacks = this.backsGroups[currentPlayerIndex].getChildren() as GameObjects.Sprite[];
 
         timelineWholeDeal.add({
-          at: 1000,
-          tween: {
-            targets: this.backsGroups[currentPlayerIndex].getChildren().slice(3, 5),            
-            //x: goalPoints[currentPlayerIndex].x,
-            //y: goalPoints[currentPlayerIndex].y,
+          from: 400,
+          tween: this._scene.add.tween({
+            targets: this.backsGroups[currentPlayerIndex].getChildren().slice(3, 5),
+            x: goalPoints[currentPlayerIndex].x,
+            y: goalPoints[currentPlayerIndex].y,
             onStart: this.dealCard,
             ease: 'Sine.easeOut',
-            delay: this._scene.tweens.stagger(200, {}),
-            duration: 200,
+            duration: 2000,
             callbackContext: this._scene,
             onComplete: this.showCard,
-            onCompleteParams: [this.options, playersBacks, this, currentPlayerIndex, playerHandInfo, dealerIndex],
-          }
+            onCompleteParams: [this.options, playersBacks, this, currentPlayerIndex, playerHandInfo, dealerIndex]
+          })
         });
         currentPlayerIndex++;
         if (currentPlayerIndex > 3) {
           currentPlayerIndex = 0;
-        }              
+        }
       }
     }
     else {
@@ -269,28 +273,28 @@ class Dealer {
         var playersBacks = this.backsGroups[currentPlayerIndex].getChildren() as GameObjects.Sprite[];
 
         timelineWholeDeal.add({
-          at: 1000,
-          tween: {
+          from: 200,
+          tween: this._scene.add.tween({
             targets: this.backsGroups[currentPlayerIndex].getChildren().slice(5, 8),
-            //x: goalPoints[currentPlayerIndex].x,
-            //y: goalPoints[currentPlayerIndex].y,
+            x: goalPoints[currentPlayerIndex].x,
+            y: goalPoints[currentPlayerIndex].y,
             onStart: this.dealCard,
             ease: 'Sine.easeOut',
             delay: this._scene.tweens.stagger(200, {}),
             duration: 200,
             callbackContext: this._scene,
             onComplete: this.showCard,
-            onCompleteParams: [this.options, playersBacks, this, currentPlayerIndex, playerHandInfo, dealerIndex],
-          }
+            onCompleteParams: [this.options, playersBacks, this, currentPlayerIndex, playerHandInfo, dealerIndex]
+          })
         });
         currentPlayerIndex++;
         if (currentPlayerIndex > 3) {
           currentPlayerIndex = 0;
         }
-      }      
+      }
     }
 
-    timelineWholeDeal.play();    
+    timelineWholeDeal.play(true);
   }
 
   CreateBacks(count: number) {
@@ -347,7 +351,7 @@ class Dealer {
         }
 
         group.add(sprite);
-      }      
+      }
     }
   }
 
@@ -355,9 +359,9 @@ class Dealer {
     this.options.stepTiltAngle = 5;
 
     var graphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa }, fillStyle: { color: 0x0000aa } }).setDepth(100); //dark blue
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.specifics.goalPoint.x, this.options.mainPlayerConfiguration.specifics.goalPoint.y), 10);    
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.specifics.goalPoint.x, this.options.rightPlayerConfiguration.specifics.goalPoint.y), 10);    
-    graphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.specifics.goalPoint.x, this.options.upPLayerConfiguration.specifics.goalPoint.y), 10);    
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.mainPlayerConfiguration.specifics.goalPoint.x, this.options.mainPlayerConfiguration.specifics.goalPoint.y), 10);
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.rightPlayerConfiguration.specifics.goalPoint.x, this.options.rightPlayerConfiguration.specifics.goalPoint.y), 10);
+    graphics.fillPointShape(new Phaser.Geom.Point(this.options.upPLayerConfiguration.specifics.goalPoint.x, this.options.upPLayerConfiguration.specifics.goalPoint.y), 10);
     graphics.fillPointShape(new Phaser.Geom.Point(this.options.leftPlayerConfiguration.specifics.goalPoint.x, this.options.leftPlayerConfiguration.specifics.goalPoint.y), 10);
 
     var mainPointGraphics = this._scene.add.graphics({ lineStyle: { width: 4, color: 0xEE4B2B }, fillStyle: { color: 0xEE4B2B } }).setDepth(100); //red
@@ -386,7 +390,7 @@ class Dealer {
     var cardsToShow = dealer._scene.currentPlayer.getSortedIntersection(mainPlayerCards.initial.slice(0, count));
 
     for (var i = 0; i < count; i++) {
-      var xOffset = 0, yOffset = 0, angle = 0, sprite = backs[i];      
+      var xOffset = 0, yOffset = 0, angle = 0, sprite = backs[i];
 
       switch (forPlayer) {
         case 0: {
@@ -403,7 +407,7 @@ class Dealer {
 
           angle = options.mainPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
           sprite.x = options.mainPlayerConfiguration.specifics.middlePoint.x + xOffset;
-          sprite.y = options.mainPlayerConfiguration.specifics.middlePoint.y + yOffset;  
+          sprite.y = options.mainPlayerConfiguration.specifics.middlePoint.y + yOffset;
         } break;
         case 1: {
           if (count <= 3) {
@@ -420,7 +424,7 @@ class Dealer {
           angle = options.rightPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
 
           sprite.x = options.rightPlayerConfiguration.specifics.middlePoint.x + xOffset;
-          sprite.y = options.rightPlayerConfiguration.specifics.middlePoint.y + yOffset;  
+          sprite.y = options.rightPlayerConfiguration.specifics.middlePoint.y + yOffset;
         } break;
         case 2: {
           xOffset = options.upPLayerConfiguration.allignFuncs.x(middleIndex, i, count);
@@ -436,7 +440,7 @@ class Dealer {
 
           angle = options.upPLayerConfiguration.allignFuncs.rotate(middleIndex, i);
           sprite.x = options.upPLayerConfiguration.specifics.middlePoint.x + xOffset;
-          sprite.y = options.upPLayerConfiguration.specifics.middlePoint.y + yOffset; 
+          sprite.y = options.upPLayerConfiguration.specifics.middlePoint.y + yOffset;
         } break;
         case 3: {
           if (count <= 3) {
@@ -452,7 +456,7 @@ class Dealer {
           yOffset = options.leftPlayerConfiguration.allignFuncs.y(middleIndex, i, count);
           angle = options.leftPlayerConfiguration.allignFuncs.rotate(middleIndex, i);
           sprite.x = options.leftPlayerConfiguration.specifics.middlePoint.x + xOffset;
-          sprite.y = options.leftPlayerConfiguration.specifics.middlePoint.y + yOffset; 
+          sprite.y = options.leftPlayerConfiguration.specifics.middlePoint.y + yOffset;
         } break;
         default:
       }
@@ -465,7 +469,7 @@ class Dealer {
           .setName(constants.belotGameObjectName + ' ' + cardsToShow[i].sprite.name)
           .setInteractive({ cursor: 'pointer' })
           .setData('suit', cardsToShow[i].suit)
-          .setData('rank', cardsToShow[i].rank)          
+          .setData('rank', cardsToShow[i].rank)
           .disableInteractive()
           .on('pointerover', function (this: GameObjects.Sprite, event: any) {
             this.y -= 15;
@@ -501,11 +505,11 @@ class Dealer {
         // when count is less than 5 reorders the hand and duplicates object on intersection 
         if (count >= 5) {
           dealer._scene.currentPlayer.playingHand[i] = new Card(cardsToShow[i].suit, cardsToShow[i].rank, sprite);
-        }        
+        }
       }
     }
 
-    if (backs.length === 5 && forPlayer === dealerIndex) {      
+    if (backs.length === 5 && forPlayer === dealerIndex) {
       dealer.firstDealReady = true;
 
       if (dealer._announcementsReady && !dealer._scene.gameAnnouncements.shown) {
@@ -514,13 +518,13 @@ class Dealer {
 
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
         dealer._signalR.Connection.invoke('FirstDealCompleted', dealer._scene.gameId);
-      }        
+      }
     }
     if (backs.length === 8 && forPlayer === dealerIndex) {
       if (dealer._scene.currentPlayer.playerIndex === dealer.absoluteDealerIndex) {
         dealer._signalR.Connection.invoke('SecondDealCompleted', dealer._scene.gameId);
-      } 
-    } 
+      }
+    }
   }
 
   /** Disables user's hand. Invoked on completion of throw. */
@@ -540,7 +544,7 @@ class Dealer {
   }
 
   public throwCard(cardInfo: Card, playerRelativeIndex: PlayerNumber) {
-    var sprite: GameObjects.Sprite;    
+    var sprite: GameObjects.Sprite;
 
     switch (playerRelativeIndex) {
       case 0: {
@@ -555,23 +559,23 @@ class Dealer {
           this.options.rightPlayerConfiguration.specifics.middlePoint.y,
           constants.cardsSpritesheet,
           cardInfo.frameIndex)
-          ////.setScale(this.scales.X, this.scales.Y);
+        ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 2: {
         sprite = this._scene.add.sprite(
           this.options.upPLayerConfiguration.specifics.middlePoint.x,
           this.options.upPLayerConfiguration.specifics.middlePoint.y,
-            constants.cardsSpritesheet,
-            cardInfo.frameIndex)
-          ////.setScale(this.scales.X, this.scales.Y);
+          constants.cardsSpritesheet,
+          cardInfo.frameIndex)
+        ////.setScale(this.scales.X, this.scales.Y);
       } break;
       case 3: {
         sprite = this._scene.add.sprite(
           this.options.leftPlayerConfiguration.specifics.middlePoint.x,
           this.options.leftPlayerConfiguration.specifics.middlePoint.y,
-            constants.cardsSpritesheet,
-            cardInfo.frameIndex)
-          ////.setScale(this.scales.X, this.scales.Y);
+          constants.cardsSpritesheet,
+          cardInfo.frameIndex)
+        ////.setScale(this.scales.X, this.scales.Y);
       } break;
     }
     sprite.setDisplaySize(gameOptions.cardWidth, gameOptions.cardHeight);
@@ -604,7 +608,7 @@ class Dealer {
       case 0: collectPoint = this.options.mainPlayerConfiguration.specifics.collectPoint; break;
       case 1: collectPoint = this.options.leftPlayerConfiguration.specifics.collectPoint; break;
       case 2: collectPoint = this.options.upPLayerConfiguration.specifics.collectPoint; break;
-      case 3: collectPoint = this.options.rightPlayerConfiguration.specifics.collectPoint; break;      
+      case 3: collectPoint = this.options.rightPlayerConfiguration.specifics.collectPoint; break;
     }
 
     this._scene.add.tween({
@@ -625,7 +629,7 @@ class Dealer {
 
   /** Configures the specifics of players' appearance */
   setSpecifics() {
-    let leftSidebar = BelotGameObject.getByName(getBelotGameObjectName(constants.gameObjectNames.leftSidebar)) as Sidebar;    
+    let leftSidebar = BelotGameObject.getByName(getBelotGameObjectName(constants.gameObjectNames.leftSidebar)) as Sidebar;
     this.options.specifics.leftPlayer.middlePoint = new Phaser.Geom.Point(leftSidebar.width + gameOptions.cardHeight, this._scene.cameras.main.height / 2);
     this.options.specifics.leftPlayer.goalPoint.x = this.options.specifics.leftPlayer.middlePoint.x;
 

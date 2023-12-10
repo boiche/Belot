@@ -73,7 +73,7 @@ namespace Belot.Services
 
             for (int i = 0; i < cards.Length; i++)
             {
-                if (i == 0) 
+                if (i == 0)
                     continue;
 
                 if (_noSuitsComparison(cards[winnerIndex], cards[i]) > 0)
@@ -168,7 +168,7 @@ namespace Belot.Services
 
             if (winnerCard.Suit != announcedSuit && hasMajor)
                 DebugHelper.WriteLine($"Winner card: {winnerCard}, Announcement: {announcedSuit}, MajorSuits: {Environment.NewLine}{string.Join<Card>('\t', cardsMajorSuit)}", Serilog.Events.LogEventLevel.Error);
-            
+
             return new KeyValuePair<string, Card>(winnerId, winnerCard);
         }
     }

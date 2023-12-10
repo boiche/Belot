@@ -5,13 +5,16 @@ using System.Text;
 
 namespace Belot.Services.Belot
 {
+    /// <summary>
+    /// Persists data for each game
+    /// </summary>
     internal class GameInfo
     {
-        private readonly List<GameHandInfo> _hands = new();
-        private readonly List<HandAnnouncement> _handAnnouncements = new();
+        private readonly List<GameHandInfo> _hands = [];
+        private readonly List<HandAnnouncement> _handAnnouncements = [];
         private readonly GameScore _score;
         private GameAnnouncement _currentAnnouncement;
-        private readonly List<Player> _players = new();
+        private readonly List<Player> _players = [];
 
         public GameInfo()
         {
@@ -76,7 +79,7 @@ namespace Belot.Services.Belot
         internal GameHandInfo(GameAnnouncement gameAnnouncement)
         {
             this.gameAnnouncement = gameAnnouncement;
-            PlayedCards = new();
+            PlayedCards = [];
         }
 
         public override string ToString()
@@ -145,6 +148,9 @@ namespace Belot.Services.Belot
         public int Team { get; set; }
     }
 
+    /// <summary>
+    /// Responsible for handling the score of a single game
+    /// </summary>
     public class GameScore
     {
         private readonly Dictionary<Rank, int> _noSuitPoints = new()
@@ -169,7 +175,7 @@ namespace Belot.Services.Belot
             { Rank.NINE, 14 },
             { Rank.JACK, 20 }
         };
-        private readonly GameInfo _gameInfo;      
+        private readonly GameInfo _gameInfo;
 
         internal Score Score { get; set; }
 
@@ -216,7 +222,7 @@ namespace Belot.Services.Belot
             #endregion
 
             #region HandAnnouncements
-            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = (int)announcer.Team);    
+            this._gameInfo.HandAnnouncements.ForEach(x => x.Team = (int)announcer.Team);
             var announcements = this._gameInfo.HandAnnouncements.GroupBy(x => x.Points).OrderByDescending(x => x.Key).ToList();
             int dominatingTeam = -1;
 
@@ -237,7 +243,7 @@ namespace Belot.Services.Belot
                                 Score.LastGameTeamA += announcement.Points;
                             else
                                 Score.LastGameTeamB += announcement.Points;
-                        }                        
+                        }
                     }
                     else //only one of the dominating kind announcement has been announced
                     {

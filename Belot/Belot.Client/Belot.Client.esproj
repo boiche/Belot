@@ -1,10 +1,17 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.127-alpha">
   <PropertyGroup>
-    <StartupCommand>npm start</StartupCommand>
+    <StartupCommand>npm install &amp;&amp; ng build</StartupCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
     <!-- Allows the build (or compile) script located on package.json to run on Build -->
     <ShouldRunBuildScript>false</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->
-    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\belot_new.client\</PublishAssetsDirectory>
+    <PublishAssetsDirectory>
+    </PublishAssetsDirectory>
+    <StartupCommandWorkingDirectory>
+    </StartupCommandWorkingDirectory>
+    <BuildCommand>npm install &amp;&amp; npm run build</BuildCommand>
+    <PackageJsonDirectory>
+    </PackageJsonDirectory>
+    <CleanCommand>npm ci</CleanCommand>
   </PropertyGroup>
 </Project>

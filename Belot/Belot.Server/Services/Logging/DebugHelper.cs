@@ -11,17 +11,17 @@ namespace Belot.Services.Logging
     {
         private static readonly string _loggerPath = "D:\\Belot logs\\logger.txt";
         private static readonly string _exceptionLoggerPath = "D:\\Belot logs\\exceptionLogger.txt";
-        private static readonly Serilog.ILogger _infoLogger;
-        private static readonly Serilog.ILogger _exceptionLogger;
+        private static readonly Serilog.Core.Logger _infoLogger;
+        private static readonly Serilog.Core.Logger _exceptionLogger;
 
-        static DebugHelper() 
+        static DebugHelper()
         {
             _infoLogger = new LoggerConfiguration()
                 .WriteTo.Console(LogEventLevel.Debug, theme: AnsiConsoleTheme.Code)
                 .WriteTo.File(_loggerPath, LogEventLevel.Information, flushToDiskInterval: TimeSpan.FromSeconds(2))
                 .CreateLogger();
 
-            _exceptionLogger = new LoggerConfiguration()                
+            _exceptionLogger = new LoggerConfiguration()
                 .WriteTo.File(_exceptionLoggerPath, LogEventLevel.Error, flushToDiskInterval: TimeSpan.FromSeconds(2))
                 .CreateLogger();
 
@@ -30,16 +30,17 @@ namespace Belot.Services.Logging
         }
 
         public static void WriteLine(string message, LogEventLevel logLevel = LogEventLevel.Debug)
-        {   
+        {
             try
             {
                 switch (logLevel)
                 {
                     case LogEventLevel.Verbose:
                     case LogEventLevel.Debug:
-                        {                            
+                        {
                             Console.WriteLine(message);
-                        } break;
+                        }
+                        break;
                     case LogEventLevel.Information:
                         {
                             _infoLogger.Information(message);
@@ -51,7 +52,7 @@ namespace Belot.Services.Logging
                         };
                         break;
                     case LogEventLevel.Error:
-                        { 
+                        {
                             _exceptionLogger.Error(message);
                         }
                         break;
