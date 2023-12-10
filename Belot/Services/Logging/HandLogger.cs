@@ -7,7 +7,12 @@ namespace Belot.Services.Logging
 {
     public class HandLogger : IHandLogger
     {
-        public ApplicationDbContext DbContext { get; set; }
+        private readonly ApplicationDbContext _dbContext;
+
+        public HandLogger(ApplicationDbContext context)
+        {
+            _dbContext = context;
+        }
 
         public HandLog CreateLog(List<Card> playedCards, List<Card> playingHand, Card cardToRemove, GameAnnouncement announcement)
         {
@@ -19,18 +24,14 @@ namespace Belot.Services.Logging
                 Used = false,
                 //AnnouncedSuit = announcement
             };
-            DbContext.HandLogs.Add(handLog);
+            _dbContext.HandLogs.Add(handLog);
             return handLog;
         }
 
         public async Task<int> SaveChangesAsync()
-        {
-            return await DbContext.SaveChangesAsync();
-        }
+            => await _dbContext.SaveChangesAsync();        
 
         private string CardAsLogString(Card card) 
-        {
-            return $"{card.Rank}{Enum.GetName(typeof(Suit), card.Suit)[0].ToString().ToLower()}";
-        }
+            => $"{card.Rank}{Enum.GetName(typeof(Suit), card.Suit)[0].ToString().ToLower()}";        
     }
 }

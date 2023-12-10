@@ -6,6 +6,7 @@ using Belot.Services.Application.Auth.Interfaces;
 using Belot.Services.Belot;
 using Belot.Services.Interfaces;
 using Belot.Services.Logging;
+using Belot.Services.Logging.Interfaces;
 using Belot.SignalR;
 using Belot.Utils;
 using Microsoft.AspNetCore.Identity;
@@ -36,6 +37,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
 builder.Services.AddScoped<IUserService<ApplicationUser>, UserService>();
 builder.Services.AddScoped<IUserBalanceService, UserBalanceService>();
+builder.Services.AddScoped<IHandLogger, HandLogger>();
 builder.Services.AddControllers();
 builder.Services.Configure<IdentityOptions>(config =>
 {
@@ -43,9 +45,6 @@ builder.Services.Configure<IdentityOptions>(config =>
     config.SignIn.RequireConfirmedEmail = false;
     config.SignIn.RequireConfirmedAccount = false;
 });
-
-//builder.Logging.ClearProviders();
-//builder.Logging.AddColorConsoleLogger();
 
 var app = builder.Build();
 

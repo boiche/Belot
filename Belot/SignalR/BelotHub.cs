@@ -10,7 +10,6 @@ using Belot.Services.Logging;
 using Belot.Services.Logging.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace Belot.SignalR
 {
@@ -20,7 +19,7 @@ namespace Belot.SignalR
         readonly IJudgeManager<BelotJudgeService> judgeManager;
         readonly IHandLogger handLogger;
         readonly IUserBalanceService userBalanceService;
-        Game gameEntry;
+        Game? gameEntry;
 
         public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService, IHandLogger handLogger)
         {
@@ -28,7 +27,6 @@ namespace Belot.SignalR
             this.judgeManager = judgeManager;
             this.userBalanceService = userBalanceService;
             this.handLogger = handLogger;
-            this.handLogger.DbContext = context;
 
             ApplicationEvents.JudgeNotFound += DeleteGameEvent;
         }

@@ -1,7 +1,6 @@
 ﻿using Belot.Models.Belot;
 using Belot.Models.Http.Requests.SignalR;
 using Belot.Services.Logging;
-using System.Reflection;
 using System.Text;
 
 namespace Belot.Services.Belot
@@ -39,6 +38,7 @@ namespace Belot.Services.Belot
         internal GameScore GameScore { get => _score; }
         internal List<Player> Players { get => _players; }
         internal List<HandAnnouncement> HandAnnouncements { get => this._handAnnouncements; }
+        internal GameHandInfo ActiveHand { get => _hands.Last(); }
 
         private void CreateNewHand()
         {

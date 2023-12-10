@@ -48,6 +48,11 @@ namespace Belot.Services.Belot
             get => _gameInfo.Players.MaxBy(x => x.Announcement);            
         }
 
+        /// <summary>
+        /// The currently judged game
+        /// </summary>
+        internal GameInfo Game { get => _gameInfo; }
+
         internal GameHandInfo LastHand { get => _gameInfo.Hands.LastOrDefault(); }
 
         public BelotJudgeService()

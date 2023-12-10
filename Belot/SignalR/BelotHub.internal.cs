@@ -46,6 +46,8 @@ namespace Belot.SignalR
             Card cardToRemove = playingHand.First(x => x.Rank == request.Card.Rank && x.Suit == request.Card.Suit);
             request.Card.FrameIndex = cardToRemove.FrameIndex;
 
+            handLogger.CreateLog(judge.Game.ActiveHand.PlayedCards.Values.ToList(), playingHand, cardToRemove, judge.Game.CurrentAnnouncement);
+            handLogger.SaveChangesAsync();
             //TODO: find a way to log each throw as hand log. Decide how to struct the data in order ML to be able to learn
 
             playingHand.Remove(cardToRemove);            
