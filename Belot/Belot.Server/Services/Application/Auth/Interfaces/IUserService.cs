@@ -1,20 +1,26 @@
-﻿using Belot.Models.DataEntries;
-using Belot.Models.Http.Requests;
-using Belot.Models.Http.Responses;
-using Microsoft.AspNetCore.Identity;
-
-namespace Belot.Services.Application.Auth.Interfaces
+﻿namespace Belot.Services.Application.Auth.Interfaces
 {
+    using Models.DataEntries;
+    using Models.Http.Requests;
+    using Models.Http.Responses;
+    using Microsoft.AspNetCore.Identity;
+
     public interface IUserService<T> : IAppService where T : class
     {
-        Task<LoginResponse> Login(LoginRequest model);
-        IEnumerable<ApplicationUser> GetAll();
-        ApplicationUser GetById(string id);
-        Task<RegisterResponse> Register(RegisterRequest newUser);
+        Task<LoginResponse> LoginAsync(LoginRequest model);
+
+        Task<IEnumerable<ApplicationUser>> GetAllAsync();
+
+        Task<ApplicationUser> GetByIdAsync(string id);
+
+        Task<RegisterResponse> RegisterAsync(RegisterRequest newUser);
+
         public bool Ban(BanRequest banRequest);
-        Task<LogoutResponse> Logout(LogoutRequest request);
+
+        Task<LogoutResponse> LogoutAsync(LogoutRequest request);
 
         public SignInManager<T> SignInManager { get; set; }
+
         public UserManager<T> UserManager { get; set; }
     }
 }

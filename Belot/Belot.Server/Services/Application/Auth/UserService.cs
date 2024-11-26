@@ -1,20 +1,23 @@
-﻿using Belot.Models.DataEntries;
-using Belot.Models.Http.Requests;
-using Belot.Models.Http.Responses;
-using Belot.Services.Application.Auth.Interfaces;
-using Belot.Utils;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-
-namespace Belot.Services.Application.Auth
+﻿namespace Belot.Services.Application.Auth
 {
-    public class UserService(IOptions<JWTSettings> appSettings) : BaseAppService, IUserService<ApplicationUser>
+    using Models.DataEntries;
+    using Models.Http.Requests;
+    using Models.Http.Responses;
+    using Services.Application.Auth.Interfaces;
+    using Utils;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Options;
+    using Microsoft.IdentityModel.Tokens;
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Security.Claims;
+    using System.Text;
+
+    public class UserService(IOptions<JWTSettings> appSettings) 
+        : BaseAppService, IUserService<ApplicationUser>
     {
         public SignInManager<ApplicationUser> SignInManager { get; set; }
+
         public UserManager<ApplicationUser> UserManager { get; set; }
 
         private readonly JWTSettings _jwtSettings = appSettings.Value;
@@ -24,22 +27,27 @@ namespace Belot.Services.Application.Auth
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ApplicationUser> GetAll()
+        public async Task<IEnumerable<ApplicationUser>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await this.context.Users
+                .ToListAsync();
         }
 
-        public ApplicationUser GetById(string id)
+        public async Task<ApplicationUser> GetByIdAsync(string id)
         {
-            return this.context.Users.SingleOrDefault(x => x.Id == id);
+            return await this.context.Users
+                .SingleOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<LoginResponse> Login(LoginRequest request)
+        public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
-            var user = context.Users.SingleOrDefault(x => x.UserName == request.Username);
+            var user = await this.context.Users
+                .SingleOrDefaultAsync(x => x.UserName == request.Username);
 
             if (user == null)
+            {
                 return new LoginResponse(string.Empty, true);
+            }
 
             var result = await SignInManager.PasswordSignInAsync(user, request.Password, true, false);
             if (result.Succeeded)
@@ -59,16 +67,17 @@ namespace Belot.Services.Application.Auth
             }
         }
 
-        public async Task<LogoutResponse> Logout(LogoutRequest request)
+        public async Task<LogoutResponse> LogoutAsync(LogoutRequest request)
         {
             await SignInManager.SignOutAsync();
+
             return new LogoutResponse()
             {
                 Status = true
             };
         }
 
-        public async Task<RegisterResponse> Register(RegisterRequest request)
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
         {
             ApplicationUser user = new()
             {
@@ -76,6 +85,7 @@ namespace Belot.Services.Application.Auth
                 UserName = request.Username,
                 UserBalanceId = Guid.NewGuid()
             };
+
             var result = await UserManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {

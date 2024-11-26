@@ -1,8 +1,8 @@
-﻿using Belot.Models.Belot;
-using Belot.Services.Logging;
-
-namespace Belot.Services.Belot
+﻿namespace Belot.Services.Belot
 {
+    using Models.Belot;
+    using Services.Logging;
+
     public class Deck : Queue<Card>
     {
         private Card this[int index]
@@ -10,6 +10,7 @@ namespace Belot.Services.Belot
             get { return this.ToArray()[index]; }
             set { ToArray()[index] = value; }
         }
+
         public Deck()
         {
             Initialize();

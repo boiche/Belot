@@ -59,7 +59,7 @@ namespace Belot.SignalR
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
                 gameEntry.ConnectedPlayers++;
-                userBalanceService.Withdraw(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
+                userBalanceService.WithdrawAsync(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
 
                 judge.AddPlayer(new Player()
                 {
@@ -106,8 +106,9 @@ namespace Belot.SignalR
         {
             Guid gameId = Guid.NewGuid();
             var user = context.Users.First(x => x.UserName == request.Username);
-            var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, request.PrizePool / 4);
-            if (canCreateGame.Status)
+            var canCreateGame = await this.userBalanceService
+                .TryWithdrawAsync(user.UserBalanceId, request.PrizePool / 4);
+            if (canCreateGame.Success)
             {
                 judgeManager.Judges.Add(gameId, new BelotJudgeService());
                 gameEntry = new Game()
@@ -312,7 +313,7 @@ namespace Belot.SignalR
                 Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
 
                 var balanceId = context.Users.First(x => x.Id == winner.Id).UserBalanceId;
-                userBalanceService.Deposit(balanceId, game.PrizePool / 2);
+                userBalanceService.DepositAsync(balanceId, game.PrizePool / 2);
             }
 
             var loserResponse = new ShowLoserResponse()

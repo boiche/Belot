@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace Belot.Models.DataEntries
+﻿namespace Belot.Models.DataEntries
 {
+    using Microsoft.AspNetCore.Identity;
+
     public class ApplicationUser : IdentityUser
     {
         public ApplicationUser()
@@ -10,7 +10,9 @@ namespace Belot.Models.DataEntries
         }
 
         public Guid UserBalanceId { get; set; }
+
         public UserBalance UserBalance { get; set; }
+
         public DateTime CreatedOn { get; set; }
     }
 }

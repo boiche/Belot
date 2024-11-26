@@ -1,9 +1,9 @@
-﻿using Belot.Models.DataEntries;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Belot.Data.Configurations
+﻿namespace Belot.Data.Configurations
 {
+    using Belot.Models.DataEntries;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
     public class GameConfiguration : IEntityTypeConfiguration<Game>
     {
         public void Configure(EntityTypeBuilder<Game> builder)
