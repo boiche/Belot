@@ -1,12 +1,12 @@
-﻿using Belot.Models.DataEntries;
-using Belot.Services.Application.Auth.Interfaces;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-
-namespace Belot.Utils
+﻿namespace Belot.Utils
 {
+    using Belot.Models.DataEntries;
+    using Belot.Services.Application.Auth.Interfaces;
+    using Microsoft.Extensions.Options;
+    using Microsoft.IdentityModel.Tokens;
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Text;
+
     public class JWTMiddleware(RequestDelegate next, IOptions<JWTSettings> options)
     {
         private readonly JWTSettings _settings = options.Value;
