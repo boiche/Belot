@@ -1,10 +1,10 @@
-﻿using Belot.Models.Belot;
-using Belot.Models.Http.Requests.SignalR;
-using Belot.Services.Interfaces;
-using Belot.Services.Logging;
-
-namespace Belot.Services.Belot
+﻿namespace Belot.Services.Belot
 {
+    using Models.Belot;
+    using Models.Http.Requests.SignalR;
+    using Services.Interfaces;
+    using Services.Logging;
+
     /// <summary>
     /// Used to judge a game of belot
     /// </summary>

@@ -1,10 +1,10 @@
-﻿using Belot.Models.Belot;
-using Belot.Models.Http.Requests.SignalR;
-using Belot.Services.Logging;
-using System.Text;
-
-namespace Belot.Services.Belot
+﻿namespace Belot.Services.Belot
 {
+    using Models.Belot;
+    using Models.Http.Requests.SignalR;
+    using Services.Logging;
+    using System.Text;
+
     /// <summary>
     /// Persists data for each game
     /// </summary>
@@ -50,11 +50,13 @@ namespace Belot.Services.Belot
             else if (LastHandFinished)
                 _hands.Add(new GameHandInfo(_currentAnnouncement));
         }
+
         internal void UpdateHand(ThrowCardRequest request)
         {
             CreateNewHand();
             _hands.Last().UpdateHand(request);
         }
+
         internal void AddHandAnnouncement(string connectionId, Models.Belot.HandAnnouncement announcment, int? highestRank = null)
         {
             this._handAnnouncements.Add(new HandAnnouncement()
@@ -74,6 +76,7 @@ namespace Belot.Services.Belot
         private readonly GameAnnouncement gameAnnouncement;
 
         internal string WonBy { get; set; }
+
         internal Dictionary<string, Card> PlayedCards { get; set; }
 
         internal GameHandInfo(GameAnnouncement gameAnnouncement)

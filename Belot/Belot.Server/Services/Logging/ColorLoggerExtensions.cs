@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging.Configuration;
-
-namespace Belot.Services.Logging
+﻿namespace Belot.Services.Logging
 {
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Microsoft.Extensions.Logging.Configuration;
+
     public static class ColorLoggerExtensions
     {
         public static ILoggingBuilder AddColorConsoleLogger(

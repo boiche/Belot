@@ -1,9 +1,9 @@
-﻿using Belot.Models.Belot;
-using Belot.Models.Http.Requests.SignalR;
-using Belot.Models.Http.Responses.SignalR;
-
-namespace Belot.SignalR
+﻿namespace Belot.SignalR
 {
+    using Belot.Models.Belot;
+    using Belot.Models.Http.Requests.SignalR;
+    using Belot.Models.Http.Responses.SignalR;
+
     public interface IBelotHub
     {
         /// <summary>
@@ -12,31 +12,41 @@ namespace Belot.SignalR
         /// <param name="gameId"></param>
         /// <returns></returns>
         Task JoinGame(JoinGameRequest request);
+
         /// <summary>
         /// Indicates the clients to start the game.
         /// </summary>
         /// <returns></returns>
         Task StartGame(Guid gameId);
+
         /// <summary>
         /// Indicates the clients that a player has joined the game.
         /// </summary>
         /// <returns></returns>
         Task JoinedGame();
+
         /// <summary>
         /// Removes client from the group
         /// </summary>
         /// <returns></returns>
         Task LeaveGame(LeaveGameRequest request);
+
         /// <summary>
         /// Creates new instance of a game
         /// </summary>
         /// <returns></returns>
         Task CreateGame(CreateGameRequest request);
+
         Task DealCards(DealCardsRequest request);
+
         Task Announce(GameAnnouncementRequest request);
+
         Task RefreshPlayer();
+
         Task DealNew();
+
         Task UpdateClientAnnouncements(GameAnnouncement announcement, int playerIndex);
+
         Task SecondDeal(GameAnnouncement announcement);
         /// <summary>
         /// Indicates client that he is on turn.
@@ -58,8 +68,11 @@ namespace Belot.SignalR
         /// </summary>
         /// <returns></returns>
         Task CollectCards(CollectCardsResponse response);
+
         Task ShowScore(ShowScoreResponse response);
+
         Task ShowWinning(ShowWinnerResponse response);
+
         Task ShowLosing(ShowLoserResponse response);
 
         /// <summary>
@@ -74,6 +87,7 @@ namespace Belot.SignalR
         /// <param name="relativeIndex">The relative index of the player based on the player who has announced</param>
         /// <returns></returns>
         Task AnnounceHandAnnouncement(HandAnnouncement handAnnouncement, int relativeIndex);
+
         Task Error(string message);
     }
 }

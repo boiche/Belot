@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
-
-namespace Belot.Services.Logging
+﻿namespace Belot.Services.Logging
 {
+    using Microsoft.Extensions.Options;
+    using System.Collections.Concurrent;
+
     public class ColorLoggerProvider : ILoggerProvider
     {
         private readonly IDisposable? _onChangeToken;

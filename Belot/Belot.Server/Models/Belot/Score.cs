@@ -26,7 +26,9 @@
         public int LastGameTeamB { get; set; }
 
         public bool IsCapo { get; set; }
+
         public bool IsVutreTeamA { get; set; }
+
         public bool IsVutreTeamB { get; set; }
     }
 }

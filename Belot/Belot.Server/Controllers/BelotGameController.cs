@@ -1,29 +1,37 @@
-﻿using Belot.Data;
-using Belot.Models.Http.Requests;
-using Belot.Models.Http.Responses;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Belot.Controllers
+﻿namespace Belot.Controllers
 {
-    [ApiController]
-    public class BelotGameController(ApplicationDbContext context) : ControllerBase
+    using Belot.Data;
+    using Belot.Models.Http.Requests;
+    using Belot.Models.Http.Responses;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+
+    public class BelotGameController(ApplicationDbContext context) : ApiController
     {
+        private const int MAX_COUNT_PLAYERS = 4;
+
+        [ProducesResponseType(typeof(GetAvailableGamesResponse), StatusCodes.Status200OK)]
         [HttpGet]
-        [Route("BelotGame/GetAvailableGames")]
-        public GetAvailableGamesResponse GetAvailableGames()
+        [Route(nameof(GetAvailableGames))]
+        public async Task<GetAvailableGamesResponse> GetAvailableGames()
         {
-            var result = context.Games.Where(x => x.ConnectedPlayers < 4).ToList();
+            var result = await context.Games
+                .Where(x => x.ConnectedPlayers < MAX_COUNT_PLAYERS).ToListAsync();
+
             return new GetAvailableGamesResponse()
             {
                 Games = result
             };
         }
 
+        [ProducesResponseType(typeof(GetGameResponse), StatusCodes.Status200OK)]
         [HttpGet]
-        [Route("BelotGame/GetGame")]
-        public GetGameResponse GetGame([FromQuery] GetGameRequest request)
+        [Route(nameof(GetGame))]
+        public async Task<GetGameResponse> GetGame([FromQuery] GetGameRequest request)
         {
-            var result = context.Games.First(x => x.Id.ToString() == request.id);
+            var result = await context.Games
+                .FirstAsync(x => x.Id.ToString() == request.Id);
+
             return new GetGameResponse()
             {
                 Game = result

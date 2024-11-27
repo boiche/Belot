@@ -1,8 +1,8 @@
-﻿using Belot.Models.Belot;
-using Belot.Services.Logging;
-
-namespace Belot.Services
+﻿namespace Belot.Services
 {
+    using Models.Belot;
+    using Services.Logging;
+
     public static class Extensions
     {
         /// <summary>

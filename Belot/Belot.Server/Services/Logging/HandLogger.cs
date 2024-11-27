@@ -1,10 +1,10 @@
-﻿using Belot.Data;
-using Belot.Models.Belot;
-using Belot.Models.DataEntries;
-using Belot.Services.Logging.Interfaces;
-
-namespace Belot.Services.Logging
+﻿namespace Belot.Services.Logging
 {
+    using Data;
+    using Models.Belot;
+    using Models.DataEntries;
+    using Services.Logging.Interfaces;
+
     public class HandLogger : IHandLogger
     {
         private readonly ApplicationDbContext _dbContext;

@@ -1,62 +1,71 @@
-﻿using Belot.Data;
-using Belot.Models.DataEntries;
-using Belot.Services.Application;
-using Belot.Services.Application.Exceptions;
-using Belot.Services.Interfaces;
-
-namespace Belot.Services.Belot
+﻿namespace Belot.Services.Belot
 {
+    using Data;
+    using Microsoft.EntityFrameworkCore;
+    using Models.DataEntries;
+    using Services.Application;
+    using Services.Application.Exceptions;
+    using Services.Interfaces;
+
     public class UserBalanceService : BaseAppService, IUserBalanceService
     {
         public UserBalanceService(ApplicationDbContext context)
         {
             base.SetContext(context);
         }
-        public void Deposit(Guid id, decimal amount)
+
+        public async Task DepositAsync(Guid id, decimal amount)
         {
-            var balance = context.UserBalances.First(x => x.Id == id);
+            var balance = await this.context.UserBalances.FirstAsync(x => x.Id == id);
+
             if (ValidateAction(balance))
             {
                 balance.Balance += amount;
                 balance.ModifiedOn = DateTime.UtcNow;
-                context.SaveChanges();
+                context.SaveChangesAsync();
             }
         }
 
-        public void Freeze(Guid id)
+        public async Task FreezeAsync(Guid id)
         {
-            var balance = context.UserBalances.First(x => x.Id == id);
+            var balance = await this.context.UserBalances.FirstAsync(x => x.Id == id);
             balance.Freezed = true;
             balance.ModifiedOn = DateTime.UtcNow;
-            context.SaveChanges();
+
+            context.SaveChangesAsync();
         }
 
-        public void Unfreeze(Guid id)
+        public async Task UnfreezeAsync(Guid id)
         {
-            var balance = context.UserBalances.First(x => x.Id == id);
+            var balance = await this.context.UserBalances.FirstAsync(x => x.Id == id);
             balance.Freezed = false;
             balance.ModifiedOn = DateTime.UtcNow;
-            context.SaveChanges();
+
+            context.SaveChangesAsync();
         }
 
-        public void Withdraw(Guid id, decimal amount)
+        public async Task WithdrawAsync(Guid id, decimal amount)
         {
-            var balance = context.UserBalances.First(x => x.Id == id);
+            var balance = await this.context.UserBalances.FirstAsync(x => x.Id == id);
+
             if (ValidateAction(balance, amount))
             {
                 balance.Balance -= amount;
                 balance.ModifiedOn = DateTime.UtcNow;
-                context.SaveChanges();
+
+                context.SaveChangesAsync();
             }
         }
 
-        public (bool, Exception?) TryWithdraw(Guid id, decimal amount)
+        // Do we need this function as it does not deduct balance such as WithdrawAsync method ?
+        public async Task<(bool Success, Exception? Error)> TryWithdrawAsync(Guid id, decimal amount)
         {
             try
             {
-                var balance = context.UserBalances.First(x => x.Id == id);
+                var balance = await this.context.UserBalances.FirstAsync(x => x.Id == id);
                 ValidateAction(balance, amount);
-                return (true, default);
+
+                return (true, null);
             }
             catch (Exception e)
             {

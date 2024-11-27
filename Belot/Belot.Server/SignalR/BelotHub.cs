@@ -1,18 +1,19 @@
-﻿using Belot.Data;
-using Belot.Models.Belot;
-using Belot.Models.DataEntries;
-using Belot.Models.Http.Requests.SignalR;
-using Belot.Models.Http.Responses.SignalR;
-using Belot.Services.Application;
-using Belot.Services.Belot;
-using Belot.Services.Interfaces;
-using Belot.Services.Logging;
-using Belot.Services.Logging.Interfaces;
-using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
-
-namespace Belot.SignalR
+﻿namespace Belot.SignalR
 {
+    using Belot.Data;
+    using Belot.Models.Belot;
+    using Belot.Models.DataEntries;
+    using Belot.Models.Http.Requests.SignalR;
+    using Belot.Models.Http.Responses.SignalR;
+    using Belot.Services.Application;
+    using Belot.Services.Belot;
+    using Belot.Services.Interfaces;
+    using Belot.Services.Logging;
+    using Belot.Services.Logging.Interfaces;
+    using Microsoft.AspNetCore.SignalR;
+    using Microsoft.EntityFrameworkCore;
+    using System.Diagnostics;
+
     public partial class BelotHub : Hub<IBelotHub>, IBelotHub
     {
         readonly ApplicationDbContext context;
@@ -21,7 +22,11 @@ namespace Belot.SignalR
         readonly IUserBalanceService userBalanceService;
         Game? gameEntry;
 
-        public BelotHub(ApplicationDbContext context, IJudgeManager<BelotJudgeService> judgeManager, IUserBalanceService userBalanceService, IHandLogger handLogger)
+        public BelotHub(
+            ApplicationDbContext context,
+            IJudgeManager<BelotJudgeService> judgeManager,
+            IUserBalanceService userBalanceService,
+            IHandLogger handLogger)
         {
             this.context = context;
             this.judgeManager = judgeManager;
@@ -46,11 +51,14 @@ namespace Belot.SignalR
             try
             {
                 Guid gameId = request.GameId;
-                var currentPlayer = context.Users.First(x => x.UserName == request.Username);
-                var currentPlayerBalance = context.UserBalances.First(x => x.Id == currentPlayer.UserBalanceId);
+                var currentPlayer = await this.context.Users
+                    .FirstAsync(x => x.UserName == request.Username);
+                var currentPlayerBalance = await this.context.UserBalances
+                    .FirstAsync(x => x.Id == currentPlayer.UserBalanceId);
 
                 var judge = judgeManager.GetJudge(gameId);
-                gameEntry = context.Games.FirstOrDefault(x => x.Id == gameId);
+                gameEntry = await this.context.Games.FirstOrDefaultAsync(x => x.Id == gameId);
+
                 if (gameEntry is null || judge == null)
                 {
                     Clients.Caller.Error("Game doesn't exist");
@@ -59,7 +67,7 @@ namespace Belot.SignalR
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
                 gameEntry.ConnectedPlayers++;
-                userBalanceService.Withdraw(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
+                userBalanceService.WithdrawAsync(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
 
                 judge.AddPlayer(new Player()
                 {
@@ -75,7 +83,7 @@ namespace Belot.SignalR
                     gameEntry.HasStarted = true;
                 }
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -105,9 +113,10 @@ namespace Belot.SignalR
         public async Task CreateGame(CreateGameRequest request)
         {
             Guid gameId = Guid.NewGuid();
-            var user = context.Users.First(x => x.UserName == request.Username);
-            var canCreateGame = userBalanceService.TryWithdraw(user.UserBalanceId, request.PrizePool / 4);
-            if (canCreateGame.Status)
+            var user = await this.context.Users.FirstAsync(x => x.UserName == request.Username);
+            var canCreateGame = await this.userBalanceService
+                .TryWithdrawAsync(user.UserBalanceId, request.PrizePool / 4);
+            if (canCreateGame.Success)
             {
                 judgeManager.Judges.Add(gameId, new BelotJudgeService());
                 gameEntry = new Game()
@@ -118,8 +127,8 @@ namespace Belot.SignalR
                     PrizePool = request.PrizePool
                 };
 
-                context.Games.Add(gameEntry);
-                context.SaveChanges();
+                await this.context.Games.AddAsync(gameEntry);
+                await this.context.SaveChangesAsync();
                 await JoinGame(new JoinGameRequest() { GameId = gameId, Username = request.Username });
             }
             else
@@ -134,7 +143,7 @@ namespace Belot.SignalR
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            gameEntry = context.Games.First(x => x.Id == gameId);
+            gameEntry = await this.context.Games.FirstAsync(x => x.Id == gameId);
             if (gameEntry is null)
             {
                 Clients.Caller.Error("Game doesn't exist");
@@ -146,7 +155,7 @@ namespace Belot.SignalR
             gameEntry.ConnectedPlayers--;
             judgeManager.GetJudge(request.GameId).RemovePlayer(Context.ConnectionId);
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             while (stopwatch.ElapsedMilliseconds < 1500)
             {
@@ -168,7 +177,10 @@ namespace Belot.SignalR
 
             if (judgeManager.GetJudge(request.GameId).CheckSecondDeal())
             {
-                await Clients.Group(request.GameId.ToString()).SecondDeal(judgeManager.GetJudge(request.GameId).Announcer.Announcement);
+                await Clients
+                    .Group(request.GameId.ToString())
+                    .SecondDeal(judgeManager.GetJudge(request.GameId).Announcer.Announcement);
+
                 Clients.Client(judgeManager.GetJudge(request.GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
                 {
                     TurnCode = TurnCodes.ThrowCard
@@ -180,6 +192,7 @@ namespace Belot.SignalR
                 {
                     TurnCode = TurnCodes.Announcement
                 };
+
                 if (judgeManager.GetJudge(request.GameId).CheckPasses())
                 {
                     DealNewInternal(request.GameId);
@@ -189,7 +202,11 @@ namespace Belot.SignalR
                 {
                     foreach (var player in judgeManager.GetJudge(request.GameId).GetPlayers())
                     {
-                        Clients.Client(player.ConnectionId).UpdateClientAnnouncements(request.Announcement, judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+                        Clients
+                            .Client(player.ConnectionId)
+                            .UpdateClientAnnouncements(
+                                request.Announcement,
+                                judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
                     }
 
                     Clients.Client(judgeManager.GetJudge(request.GameId).PlayerToPlay.ConnectionId).OnTurn(turn);
@@ -204,7 +221,9 @@ namespace Belot.SignalR
 
             foreach (var player in judge.GetPlayers())
             {
-                await Clients.Client(player.ConnectionId).AnnounceHandAnnouncement(request.Announcement, judge.GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+                await Clients
+                    .Client(player.ConnectionId)
+                    .AnnounceHandAnnouncement(request.Announcement, judge.GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
             }
         }
 
@@ -265,6 +284,7 @@ namespace Belot.SignalR
                     {
                         OpponentRelativeIndex = belotJudge.GetRelativePlayerIndex(player.ConnectionId, belotJudge.LastHand.WonBy)
                     };
+
                     Clients.Client(player.ConnectionId).CollectCards(collectCardsResponse);
                 }
             }
@@ -278,6 +298,7 @@ namespace Belot.SignalR
                     Score = belotJudge.GetScore(),
                     IsGameOver = gameOver
                 };
+
                 Clients.Group(request.GameId.ToString()).ShowScore(showScoreResponse);
 
                 if (!gameOver)
@@ -288,6 +309,7 @@ namespace Belot.SignalR
             else
             {
                 belotJudge.NextToPlay();
+
                 Clients.Client(belotJudge.PlayerToPlay.ConnectionId).OnTurn(new Turn()
                 {
                     TurnCode = TurnCodes.ThrowCard
@@ -297,35 +319,38 @@ namespace Belot.SignalR
             return Task.CompletedTask;
         }
 
-        public Task GameOver(string gameId)
+        public async Task GameOver(string gameId)
         {
             BelotJudgeService belotJudge = judgeManager.GetJudge(Guid.Parse(gameId));
-            Game game = context.Games.First(x => x.Id == Guid.Parse(gameId));
+            Game game = await this.context.Games.FirstAsync(x => x.Id == Guid.Parse(gameId));
 
             var winnerRespone = new ShowWinnerResponse()
             {
                 Score = belotJudge.GetScore()
             };
+
             var winners = belotJudge.GetWinners();
             foreach (var winner in winners)
             {
                 Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
 
-                var balanceId = context.Users.First(x => x.Id == winner.Id).UserBalanceId;
-                userBalanceService.Deposit(balanceId, game.PrizePool / 2);
+                var user = await this.context.Users.FirstAsync(x => x.Id == winner.Id);
+                var balanceId = user.UserBalanceId;
+                userBalanceService.DepositAsync(balanceId, game.PrizePool / 2);
             }
 
             var loserResponse = new ShowLoserResponse()
             {
                 Score = belotJudge.GetScore()
             };
+
             var losers = belotJudge.GetLosers();
             foreach (var loser in losers)
             {
                 Clients.Client(loser.ConnectionId).ShowLosing(loserResponse);
             }
 
-            return Task.CompletedTask;
+            return;
         }
     }
 }

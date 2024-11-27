@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Belot.Controllers
+﻿namespace Belot.Controllers
 {
+    using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+    using Microsoft.AspNetCore.Mvc;
+
     public class OidcConfigurationController : Controller
     {
         private readonly ILogger<OidcConfigurationController> _logger;
@@ -17,10 +17,12 @@ namespace Belot.Controllers
 
         public IClientRequestParametersProvider ClientRequestParametersProvider { get; }
 
+        [ProducesResponseType(typeof(IDictionary<string, string>), StatusCodes.Status200OK)]
         [HttpGet("_configuration/{clientId}")]
         public IActionResult GetClientRequestParameters([FromRoute] string clientId)
         {
             var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
+
             return Ok(parameters);
         }
     }

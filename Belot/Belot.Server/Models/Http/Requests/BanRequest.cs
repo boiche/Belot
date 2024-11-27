@@ -2,8 +2,10 @@
 {
     public class BanRequest : BaseRequest
     {
-        public object UserId { get; internal set; }
+        public string UserId { get; internal set; }
+
         public DateTime BanDate { get; internal set; }
-        public object BanReason { get; internal set; }
+
+        public string BanReason { get; internal set; }
     }
 }
