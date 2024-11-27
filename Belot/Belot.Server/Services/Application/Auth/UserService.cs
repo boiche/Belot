@@ -4,7 +4,6 @@
     using Models.Http.Requests;
     using Models.Http.Responses;
     using Services.Application.Auth.Interfaces;
-    using Utils;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Options;
@@ -12,16 +11,16 @@
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
     using System.Text;
+    using Server.Utils;
 
-    public class UserService(IOptions<JWTSettings> appSettings) 
+    public class UserService(IOptions<ApplicationConfig> appConfig) 
         : BaseAppService, IUserService<ApplicationUser>
     {
         public SignInManager<ApplicationUser> SignInManager { get; set; }
 
         public UserManager<ApplicationUser> UserManager { get; set; }
 
-        private readonly JWTSettings _jwtSettings = appSettings.Value;
-
+        // TODO: Implement when Ban functionality is started
         public bool Ban(BanRequest banRequest)
         {
             throw new NotImplementedException();
@@ -89,7 +88,7 @@
             var result = await UserManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {
-                var token = GenerateJwtToken(user);
+                var token = JWT.GenerateJwtToken(user, appConfig);
                 await UserManager.SetAuthenticationTokenAsync(user, "Bearer", "authToken", token.RawData);
 
                 return new RegisterResponse(token, user);
@@ -98,20 +97,6 @@
             {
                 return new RegisterResponse(result.Errors.First().Description);
             }
-        }
-
-        private JwtSecurityToken GenerateJwtToken(ApplicationUser user)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity([new Claim("id", user.Id.ToString())]),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            return (JwtSecurityToken)tokenHandler.CreateToken(tokenDescriptor);
         }
     }
 }

@@ -2,12 +2,14 @@
 {
     using Belot.Data.Configurations;
     using Belot.Models.DataEntries;
+    using Belot.Server.Data.Configurations;
+    using Belot.Server.Models.DataEntries;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -20,7 +22,10 @@
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<ApplicationUser>()
+            base.OnModelCreating(builder);
+
+            builder
+                .Entity<ApplicationUser>()
                 .HasOne(x => x.UserBalance)
                 .WithOne(x => x.User)
                 .HasForeignKey<UserBalance>(x => x.UserId)
@@ -29,8 +34,7 @@
             builder.ApplyConfiguration(new GameConfiguration());
             builder.ApplyConfiguration(new UserBalanceConfiguration());
             builder.ApplyConfiguration(new HandLogConfiguration());
-
-            base.OnModelCreating(builder);
+            builder.ApplyConfiguration(new ApplicationUserConfiguration());
         }
     }
 }

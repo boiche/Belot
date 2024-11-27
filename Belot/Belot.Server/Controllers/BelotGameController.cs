@@ -8,7 +8,7 @@
 
     public class BelotGameController(ApplicationDbContext context) : ApiController
     {
-        private const int MIN_COUNT_PLAYERS = 4;
+        private const int MAX_COUNT_PLAYERS = 4;
 
         [ProducesResponseType(typeof(GetAvailableGamesResponse), StatusCodes.Status200OK)]
         [HttpGet]
@@ -16,7 +16,7 @@
         public async Task<GetAvailableGamesResponse> GetAvailableGames()
         {
             var result = await context.Games
-                .Where(x => x.ConnectedPlayers < MIN_COUNT_PLAYERS).ToListAsync();
+                .Where(x => x.ConnectedPlayers < MAX_COUNT_PLAYERS).ToListAsync();
 
             return new GetAvailableGamesResponse()
             {

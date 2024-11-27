@@ -1,5 +1,8 @@
 using Belot.Data;
 using Belot.Models.DataEntries;
+using Belot.Server.Infrastructure.Extensions;
+using Belot.Server.Models.DataEntries;
+using Belot.Server.Utils;
 using Belot.Services;
 using Belot.Services.Application.Auth;
 using Belot.Services.Application.Auth.Interfaces;
@@ -15,7 +18,8 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
+
+builder.Services.Configure<ApplicationConfig>(builder.Configuration.GetSection("ApplicationConfig"));
 
 builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
 {
@@ -25,18 +29,24 @@ builder.Services.AddCors(policy => policy.AddPolicy("CorsPolicy", builder =>
         .AllowCredentials()
         .WithOrigins("https://localhost:44441");
 }));
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services
+    .AddIdentity<ApplicationUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>();
-builder.Services.AddScoped<IUserService<ApplicationUser>, UserService>();
-builder.Services.AddScoped<IUserBalanceService, UserBalanceService>();
-builder.Services.AddScoped<IHandLogger, HandLogger>();
+
+builder.Services
+    .AddSingleton<IJudgeManager<BelotJudgeService>, JudgeManager<BelotJudgeService>>()
+    .AddScoped<IUserService<ApplicationUser>, UserService>()
+    .AddScoped<IUserBalanceService, UserBalanceService>()
+    .AddScoped<IHandLogger, HandLogger>();
+
 builder.Services.AddControllers();
 builder.Services.Configure<IdentityOptions>(config =>
 {
@@ -47,10 +57,9 @@ builder.Services.Configure<IdentityOptions>(config =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-
+    app.ApplyMigrationsAndSeedDatabase();
 }
 else
 {
@@ -58,20 +67,19 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-app.UseAuthentication();
+app
+    .UseHttpsRedirection()
+    .UseStaticFiles()
+    .UseRouting()
+    .UseAuthentication()
 //app.UseIdentityServer();
-app.UseAuthorization();
-
-app.UseMiddleware<JWTMiddleware>();
+    .UseAuthorization()
+    .UseMiddleware<JWTMiddleware>()
+    .UseCors("CorsPolicy");
 
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
 app.MapHub<BelotHub>("/belotGame");
-app.UseCors("CorsPolicy");
 
 app.Run();
