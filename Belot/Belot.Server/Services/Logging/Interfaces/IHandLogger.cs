@@ -1,8 +1,8 @@
-﻿using Belot.Models.Belot;
-using Belot.Models.DataEntries;
-
-namespace Belot.Services.Logging.Interfaces
+﻿namespace Belot.Services.Logging.Interfaces
 {
+    using Models.Belot;
+    using Models.DataEntries;
+
     /// <summary>
     /// Provides the mechanism for creating ML training records
     /// </summary>
@@ -17,6 +17,7 @@ namespace Belot.Services.Logging.Interfaces
         /// <param name="announcement">Current announcement of the game</param>
         /// <returns></returns>
         HandLog CreateLog(List<Card> playedCards, List<Card> playingHand, Card cardToRemove, GameAnnouncement announcement);
+
         Task<int> SaveChangesAsync();
     }
 }

@@ -1,7 +1,7 @@
-﻿using Belot.Services.Application.Events;
-
-namespace Belot.Services.Application
+﻿namespace Belot.Services.Application
 {
+    using Services.Application.Events;
+
     /// <summary>
     /// Provides handlers for global application events
     /// </summary>

@@ -1,9 +1,9 @@
-﻿using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
-
-namespace Belot.Services.Logging
+﻿namespace Belot.Services.Logging
 {
+    using Serilog;
+    using Serilog.Events;
+    using Serilog.Sinks.SystemConsole.Themes;
+
     /// <summary>
     /// Provides basic internal debug methods
     /// </summary>

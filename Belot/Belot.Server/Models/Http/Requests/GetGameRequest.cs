@@ -2,6 +2,6 @@
 {
     public class GetGameRequest : BaseRequest
     {
-        public string id { get; set; }
+        public string Id { get; set; }
     }
 }

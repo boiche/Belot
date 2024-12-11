@@ -1,35 +1,33 @@
-﻿using Belot.Data.Configurations;
-using Belot.Models.DataEntries;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-
-namespace Belot.Data
+﻿namespace Belot.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    using Belot.Data.Configurations;
+    using Belot.Models.DataEntries;
+    using Belot.Server.Data.Configurations;
+    using Belot.Server.Models.DataEntries;
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
+
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-
         }
 
         public DbSet<Game> Games { get; set; }
+
         public DbSet<UserBalance> UserBalances { get; set; }
+
         public DbSet<HandLog> HandLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<ApplicationUser>()
-                .HasOne(x => x.UserBalance)
-                .WithOne(x => x.User)
-                .HasForeignKey<UserBalance>(x => x.UserId)
-                .IsRequired(false);
+            base.OnModelCreating(builder);
 
             builder.ApplyConfiguration(new GameConfiguration());
             builder.ApplyConfiguration(new UserBalanceConfiguration());
             builder.ApplyConfiguration(new HandLogConfiguration());
-
-            base.OnModelCreating(builder);
+            builder.ApplyConfiguration(new ApplicationUserConfiguration());
         }
     }
 }

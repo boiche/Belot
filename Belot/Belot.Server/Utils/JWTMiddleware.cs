@@ -1,15 +1,16 @@
-﻿using Belot.Models.DataEntries;
-using Belot.Services.Application.Auth.Interfaces;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-
-namespace Belot.Utils
+﻿namespace Belot.Utils
 {
-    public class JWTMiddleware(RequestDelegate next, IOptions<JWTSettings> options)
+    using Belot.Models.DataEntries;
+    using Belot.Server.Utils;
+    using Belot.Services.Application.Auth.Interfaces;
+    using Microsoft.Extensions.Options;
+    using Microsoft.IdentityModel.Tokens;
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Text;
+
+    public class JWTMiddleware(RequestDelegate next, IOptions<ApplicationConfig> appConfig)
     {
-        private readonly JWTSettings _settings = options.Value;
+        private readonly string _jwtSecret = appConfig.Value.JwtSecret;
 
         public async Task Invoke(HttpContext context, IUserService<ApplicationUser> userService)
         {
@@ -35,7 +36,7 @@ namespace Belot.Utils
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_settings.Secret);
+                var key = Encoding.ASCII.GetBytes(_jwtSecret);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters()
                 {
                     ValidateIssuerSigningKey = true,
