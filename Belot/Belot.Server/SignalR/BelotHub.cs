@@ -56,10 +56,10 @@
                 var currentPlayerBalance = await this.context.UserBalances
                     .FirstAsync(x => x.Id == currentPlayer.UserBalanceId);
 
-                var judge = judgeManager.GetJudge(gameId);
+                var belotJudgeService = judgeManager.GetJudge(gameId);
                 gameEntry = await this.context.Games.FirstOrDefaultAsync(x => x.Id == gameId);
 
-                if (gameEntry is null || judge == null)
+                if (gameEntry is null || belotJudgeService == null)
                 {
                     Clients.Caller.Error("Game doesn't exist");
                     return;
@@ -69,7 +69,7 @@
                 gameEntry.ConnectedPlayers++;
                 userBalanceService.WithdrawAsync(currentPlayerBalance.Id, 50); //TODO: according to the game type (provided by the request) withdraw more/less
 
-                judge.AddPlayer(new Player()
+                belotJudgeService.AddPlayer(new Player()
                 {
                     Username = currentPlayer.UserName ?? string.Empty,
                     ConnectionId = Context.ConnectionId,
@@ -100,13 +100,17 @@
         /// <exception cref="ArgumentException"></exception>
         public GetGameInfoResponse GetGameInfo(string gameId)
         {
-            if (!Guid.TryParse(gameId, out Guid id))
+            if (!Guid.TryParse(gameId, out Guid GameId))
+            {
                 throw new ArgumentException($"GetGameInfo expected valid Guid. Received: {gameId}");
+            }
+
+            var belotJudgeService = judgeManager.GetJudge(GameId);
 
             return new GetGameInfoResponse()
             {
-                DealerPlayerRealtive = GetRelativeDealerIndex(id),
-                DealerPlayer = judgeManager.GetJudge(id).DealerPlayer.PlayerIndex
+                DealerPlayerRealtive = GetRelativeDealerIndex(GameId),
+                DealerPlayer = belotJudgeService.DealerPlayer.PlayerIndex
             };
         }
 
@@ -150,10 +154,10 @@
                 return;
             }
 
-
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToString());
             gameEntry.ConnectedPlayers--;
-            judgeManager.GetJudge(request.GameId).RemovePlayer(Context.ConnectionId);
+            var belotJudgeService = judgeManager.GetJudge(request.GameId);
+            belotJudgeService.RemovePlayer(Context.ConnectionId);
 
             await context.SaveChangesAsync();
 
@@ -165,23 +169,29 @@
 
         public Task DealCards(DealCardsRequest request)
         {
-            judgeManager.GetJudge(request.GameId).DealCards(Context.ConnectionId, request.Count);
+            var belotJudgeService = judgeManager.GetJudge(request.GameId);
+            belotJudgeService.DealCards(Context.ConnectionId, request.Count);
+
             return Task.CompletedTask;
         }
 
         public async Task Announce(GameAnnouncementRequest request)
         {
-            judgeManager.GetJudge(request.GameId).GetPlayer(Context.ConnectionId).SetAnnouncement(request.Announcement);
-            judgeManager.GetJudge(request.GameId).Announce(Context.ConnectionId, request.Announcement);
-            judgeManager.GetJudge(request.GameId).NextToPlay();
+            var gameId = request.GameId;
+            var connectionId = Context.ConnectionId;
+            var belotJudgeService = judgeManager.GetJudge(gameId);
 
-            if (judgeManager.GetJudge(request.GameId).CheckSecondDeal())
+            belotJudgeService.GetPlayer(connectionId).SetAnnouncement(request.Announcement);
+            belotJudgeService.Announce(connectionId, request.Announcement);
+            belotJudgeService.NextToPlay();
+
+            if (belotJudgeService.CheckSecondDeal())
             {
                 await Clients
-                    .Group(request.GameId.ToString())
-                    .SecondDeal(judgeManager.GetJudge(request.GameId).Announcer.Announcement);
+                    .Group(gameId.ToString())
+                    .SecondDeal(belotJudgeService.Announcer.Announcement);
 
-                Clients.Client(judgeManager.GetJudge(request.GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
+                Clients.Client(belotJudgeService.FirstToPlay.ConnectionId).OnTurn(new Turn()
                 {
                     TurnCode = TurnCodes.ThrowCard
                 });
@@ -193,70 +203,85 @@
                     TurnCode = TurnCodes.Announcement
                 };
 
-                if (judgeManager.GetJudge(request.GameId).CheckPasses())
+                if (belotJudgeService.CheckPasses())
                 {
-                    DealNewInternal(request.GameId);
-                    await Clients.Group(request.GameId.ToString()).DealNew();
+                    DealNewInternal(gameId);
+                    await Clients.Group(gameId.ToString()).DealNew();
                 }
                 else
                 {
-                    foreach (var player in judgeManager.GetJudge(request.GameId).GetPlayers())
+                    foreach (var player in belotJudgeService.GetPlayers())
                     {
                         Clients
                             .Client(player.ConnectionId)
                             .UpdateClientAnnouncements(
                                 request.Announcement,
-                                judgeManager.GetJudge(request.GameId).GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+                                belotJudgeService.GetRelativePlayerIndex(player.ConnectionId, connectionId));
                     }
 
-                    Clients.Client(judgeManager.GetJudge(request.GameId).PlayerToPlay.ConnectionId).OnTurn(turn);
+                    Clients.Client(belotJudgeService.PlayerToPlay.ConnectionId).OnTurn(turn);
                 }
             }
         }
 
         public async Task HandAnnounce(HandAnnouncementRequest request)
         {
-            var judge = judgeManager.GetJudge(request.GameId);
-            judge.HandAnnounce(Context.ConnectionId, request.Announcement, request.HighestRank);
+            var belotJudgeService = judgeManager.GetJudge(request.GameId);
+            var connectionId = Context.ConnectionId;
+            belotJudgeService.HandAnnounce(connectionId, request.Announcement, request.HighestRank);
 
-            foreach (var player in judge.GetPlayers())
+            foreach (var player in belotJudgeService.GetPlayers())
             {
                 await Clients
                     .Client(player.ConnectionId)
-                    .AnnounceHandAnnouncement(request.Announcement, judge.GetRelativePlayerIndex(player.ConnectionId, Context.ConnectionId));
+                    .AnnounceHandAnnouncement(request.Announcement, belotJudgeService.GetRelativePlayerIndex(player.ConnectionId, connectionId));
             }
         }
 
         public Player GetPlayerInfo(string gameId)
         {
-            if (!Guid.TryParse(gameId, out Guid id))
+            if (!Guid.TryParse(gameId, out Guid GameId))
+            {
                 throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+            }
 
-            return judgeManager.GetJudge(id).GetPlayer(Context.ConnectionId);
+            var belotJudgeService = judgeManager.GetJudge(GameId);
+
+            return belotJudgeService.GetPlayer(Context.ConnectionId);
         }
 
         public async Task FirstDealCompleted(string gameId)
         {
             if (!Guid.TryParse(gameId, out Guid GameId))
-                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
-
-            DebugHelper.WriteLine($"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
-            await Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {
-                TurnCode = TurnCodes.Announcement
-            });
+                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+            }
+
+            var belotJudgeService = judgeManager.GetJudge(GameId);
+
+            DebugHelper.WriteLine($"Deal completed. Player to announce first: {belotJudgeService.PlayerToPlay.ConnectionId}");
+            await Clients.Client(belotJudgeService.FirstToPlay.ConnectionId).OnTurn(
+                new Turn()
+                {
+                    TurnCode = TurnCodes.Announcement
+                });
         }
 
         public async Task SecondDealCompleted(string gameId)
         {
             if (!Guid.TryParse(gameId, out Guid GameId))
-                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
-
-            DebugHelper.WriteLine($"Deal completed. Player to announce first: {judgeManager.GetJudge(GameId).PlayerToPlay.ConnectionId}");
-            Clients.Client(judgeManager.GetJudge(GameId).FirstToPlay.ConnectionId).OnTurn(new Turn()
             {
-                TurnCode = TurnCodes.ThrowCard
-            });
+                throw new Exception($"Cannot represent key as valid game identifier: {gameId}");
+            }
+
+            var belotJudgeService = judgeManager.GetJudge(GameId);
+
+            DebugHelper.WriteLine($"Deal completed. Player to announce first: {belotJudgeService.PlayerToPlay.ConnectionId}");
+            Clients.Client(belotJudgeService.FirstToPlay.ConnectionId).OnTurn(
+                new Turn()
+                {
+                    TurnCode = TurnCodes.ThrowCard
+                });
 
             await Clients.Group(gameId).ShowHandAnnouncements();
         }
@@ -266,36 +291,36 @@
             //TODO: Find elegant way to populate necessary data for single HandLog entity
             RemoveCardInternal(request);
             UpdateTurnInternal(request);
-            BelotJudgeService belotJudge = judgeManager.GetJudge(request.GameId);
+            var belotJudgeService = judgeManager.GetJudge(request.GameId);
 
-            foreach (var player in belotJudge.GetPlayers())
+            foreach (var player in belotJudgeService.GetPlayers())
             {
                 var response = new ShowOpponentCardResponse()
                 {
                     Card = request.Card,
-                    OpponentRelativeIndex = belotJudge.GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
+                    OpponentRelativeIndex = belotJudgeService.GetRelativePlayerIndex(Context.ConnectionId, player.ConnectionId)
                 };
 
                 Clients.Client(player.ConnectionId).ShowOpponentCard(response);
 
-                if (belotJudge.LastHandFinished())
+                if (belotJudgeService.LastHandFinished())
                 {
                     var collectCardsResponse = new CollectCardsResponse()
                     {
-                        OpponentRelativeIndex = belotJudge.GetRelativePlayerIndex(player.ConnectionId, belotJudge.LastHand.WonBy)
+                        OpponentRelativeIndex = belotJudgeService.GetRelativePlayerIndex(player.ConnectionId, belotJudgeService.LastHand.WonBy)
                     };
 
                     Clients.Client(player.ConnectionId).CollectCards(collectCardsResponse);
                 }
             }
 
-            if (belotJudge.GameFinished())
+            if (belotJudgeService.GameFinished())
             {
-                bool gameOver = belotJudge.FinishGame();
+                bool gameOver = belotJudgeService.FinishGame();
 
                 var showScoreResponse = new ShowScoreResponse()
                 {
-                    Score = belotJudge.GetScore(),
+                    Score = belotJudgeService.GetScore(),
                     IsGameOver = gameOver
                 };
 
@@ -308,9 +333,9 @@
             }
             else
             {
-                belotJudge.NextToPlay();
+                belotJudgeService.NextToPlay();
 
-                Clients.Client(belotJudge.PlayerToPlay.ConnectionId).OnTurn(new Turn()
+                Clients.Client(belotJudgeService.PlayerToPlay.ConnectionId).OnTurn(new Turn()
                 {
                     TurnCode = TurnCodes.ThrowCard
                 });
@@ -321,15 +346,15 @@
 
         public async Task GameOver(string gameId)
         {
-            BelotJudgeService belotJudge = judgeManager.GetJudge(Guid.Parse(gameId));
+            var belotJudgeService = judgeManager.GetJudge(Guid.Parse(gameId));
             Game game = await this.context.Games.FirstAsync(x => x.Id == Guid.Parse(gameId));
 
             var winnerRespone = new ShowWinnerResponse()
             {
-                Score = belotJudge.GetScore()
+                Score = belotJudgeService.GetScore()
             };
 
-            var winners = belotJudge.GetWinners();
+            var winners = belotJudgeService.GetWinners();
             foreach (var winner in winners)
             {
                 Clients.Client(winner.ConnectionId).ShowWinning(winnerRespone);
@@ -341,10 +366,10 @@
 
             var loserResponse = new ShowLoserResponse()
             {
-                Score = belotJudge.GetScore()
+                Score = belotJudgeService.GetScore()
             };
 
-            var losers = belotJudge.GetLosers();
+            var losers = belotJudgeService.GetLosers();
             foreach (var loser in losers)
             {
                 Clients.Client(loser.ConnectionId).ShowLosing(loserResponse);

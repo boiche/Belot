@@ -24,13 +24,6 @@
         {
             base.OnModelCreating(builder);
 
-            builder
-                .Entity<ApplicationUser>()
-                .HasOne(x => x.UserBalance)
-                .WithOne(x => x.User)
-                .HasForeignKey<UserBalance>(x => x.UserId)
-                .IsRequired(false);
-
             builder.ApplyConfiguration(new GameConfiguration());
             builder.ApplyConfiguration(new UserBalanceConfiguration());
             builder.ApplyConfiguration(new HandLogConfiguration());
